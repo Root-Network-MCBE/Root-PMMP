@@ -350,7 +350,11 @@ final class ItemTypeIds{
 	public const FIREWORK_ROCKET = 20311;
 	public const FIREWORK_STAR = 20312;
 
-	public const FIRST_UNUSED_ITEM_ID = 20313;
+	public const COPPER_HELMET = 20313;
+	public const COPPER_CHESTPLATE = 20314;
+	public const COPPER_LEGGINGS = 20315;
+	public const COPPER_BOOTS = 20316;
+	public const FIRST_UNUSED_ITEM_ID = 20317;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_ITEM_ID;
 

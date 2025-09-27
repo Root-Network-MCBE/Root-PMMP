@@ -1583,6 +1583,11 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("writable_book", fn() => Items::WRITABLE_BOOK());
 		$result->register("written_book", fn() => Items::WRITTEN_BOOK());
 		$result->register("zombie_spawn_egg", fn() => Items::ZOMBIE_SPAWN_EGG());
+
+		$result->register("copper_helmet", fn() => Items::COPPER_HELMET());
+		$result->register("copper_chestplate", fn() => Items::COPPER_CHESTPLATE());
+		$result->register("copper_leggings", fn() => Items::COPPER_LEGGINGS());
+		$result->register("copper_boots", fn() => Items::COPPER_BOOTS());
 	}
 
 	/**

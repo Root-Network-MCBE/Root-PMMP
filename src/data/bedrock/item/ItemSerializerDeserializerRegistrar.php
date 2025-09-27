@@ -426,6 +426,11 @@ final class ItemSerializerDeserializerRegistrar{
 		$this->map1to1Item(Ids::WRITABLE_BOOK, Items::WRITABLE_BOOK());
 		$this->map1to1Item(Ids::WRITTEN_BOOK, Items::WRITTEN_BOOK());
 		$this->map1to1Item(Ids::ZOMBIE_SPAWN_EGG, Items::ZOMBIE_SPAWN_EGG());
+
+		$this->map1to1Item(Ids::COPPER_HELMET, Items::COPPER_HELMET());
+		$this->map1to1Item(Ids::COPPER_CHESTPLATE, Items::COPPER_CHESTPLATE());
+		$this->map1to1Item(Ids::COPPER_LEGGINGS, Items::COPPER_LEGGINGS());
+		$this->map1to1Item(Ids::COPPER_BOOTS, Items::COPPER_BOOTS());
 	}
 
 	/**
