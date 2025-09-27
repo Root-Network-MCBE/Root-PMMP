@@ -28,6 +28,10 @@ use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\StringToEffectParser;
 use pocketmine\lang\KnownTranslationFactory;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\utils\Limits;
 use pocketmine\utils\TextFormat;
@@ -46,6 +50,27 @@ class EffectCommand extends VanillaCommand{
 			DefaultPermissionNames::COMMAND_EFFECT_SELF,
 			DefaultPermissionNames::COMMAND_EFFECT_OTHER
 		]);
+	}
+
+	public function buildOverloads(array &$hardcodedEnums, array &$softEnums, array &$enumConstraints) : array{
+		$effectEnum = new CommandEnum('Effect', StringToEffectParser::getInstance()->getKnownAliases(), false);
+		$boolean = new CommandEnum('Boolean', ["true", "false"], false);
+
+		$clear = new CommandEnum('clear', ["clear"], false);
+
+		return [
+			new CommandOverload(chaining: false, parameters: [
+				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, false),
+				CommandParameter::enum("Effect", $effectEnum, 0, false),
+				CommandParameter::enum("duration", new CommandEnum("Duration", ["infinite"], false), 0, true),
+				CommandParameter::standard("amplifier", AvailableCommandsPacket::ARG_TYPE_INT, 0, true),
+				CommandParameter::enum("hideParticles", $boolean, 0, true),
+			]),
+			new CommandOverload(chaining: false, parameters: [
+				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, false),
+				CommandParameter::enum("clear", $clear, 0, false)
+			]),
+		];
 	}
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
@@ -73,12 +98,17 @@ class EffectCommand extends VanillaCommand{
 		}
 
 		$amplification = 0;
+		$infinite = false;
 
 		if(count($args) >= 3){
-			if(($d = $this->getBoundedInt($sender, $args[2], 0, (int) (Limits::INT32_MAX / 20))) === null){
+			if($args[2] === "infinite") {
+				$infinite = true;
+				$duration = null;
+			}elseif(($d = $this->getBoundedInt($sender, $args[2], 0, (int) (Limits::INT32_MAX / 20))) === null){
 				return false;
+			}else{
+				$duration = $d * 20; //ticks
 			}
-			$duration = $d * 20; //ticks
 		}else{
 			$duration = null;
 		}
@@ -112,8 +142,14 @@ class EffectCommand extends VanillaCommand{
 			$sender->sendMessage(KnownTranslationFactory::commands_effect_success_removed($effect->getName(), $player->getDisplayName()));
 		}else{
 			$instance = new EffectInstance($effect, $duration, $amplification, $visible);
+			if($infinite){
+				$instance->setInfinite();
+			}
 			$effectManager->add($instance);
-			self::broadcastCommandMessage($sender, KnownTranslationFactory::commands_effect_success($effect->getName(), (string) $instance->getAmplifier(), $player->getDisplayName(), (string) ($instance->getDuration() / 20)));
+			self::broadcastCommandMessage($sender, $infinite
+				? KnownTranslationFactory::commands_effect_success_infinite($effect->getName(), (string) $instance->getAmplifier(), $player->getDisplayName())
+				: KnownTranslationFactory::commands_effect_success($effect->getName(), (string) $instance->getAmplifier(), $player->getDisplayName(), (string) ($instance->getDuration() / 20))
+			);
 		}
 
 		return true;

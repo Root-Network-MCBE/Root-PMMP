@@ -44,6 +44,7 @@ use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\StringTag;
+use pocketmine\network\mcpe\convert\NetworkSessionTypeConverter;
 use pocketmine\network\mcpe\InventoryManager;
 use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
@@ -89,6 +90,7 @@ use pocketmine\network\mcpe\protocol\types\inventory\ContainerIds;
 use pocketmine\network\mcpe\protocol\types\inventory\MismatchTransactionData;
 use pocketmine\network\mcpe\protocol\types\inventory\NetworkInventoryAction;
 use pocketmine\network\mcpe\protocol\types\inventory\NormalTransactionData;
+use pocketmine\network\mcpe\protocol\types\inventory\PredictedResult;
 use pocketmine\network\mcpe\protocol\types\inventory\ReleaseItemTransactionData;
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\ItemStackRequest;
 use pocketmine\network\mcpe\protocol\types\inventory\stackresponse\ItemStackResponse;
@@ -498,11 +500,9 @@ class InGamePacketHandler extends PacketHandler{
 				$blockPos = $data->getBlockPosition();
 				$vBlockPos = new Vector3($blockPos->getX(), $blockPos->getY(), $blockPos->getZ());
 				$this->player->interactBlock($vBlockPos, $data->getFace(), $clickPos);
-				//always sync this in case plugins caused a different result than the client expected
-				//we *could* try to enhance detection of plugin-altered behaviour, but this would require propagating
-				//more information up the stack. For now I think this is good enough.
-				//if only the client would tell us what blocks it thinks changed...
-				$this->syncBlocksNearby($vBlockPos, $data->getFace());
+				if($data->getClientInteractPrediction() === PredictedResult::SUCCESS){
+					$this->syncBlocksNearby($vBlockPos, $data->getFace());
+				}
 				return true;
 			case UseItemTransactionData::ACTION_CLICK_AIR:
 				if($this->player->isUsingItem()){
@@ -717,7 +717,15 @@ class InGamePacketHandler extends PacketHandler{
 			case PlayerAction::INTERACT_BLOCK: //TODO: ignored (for now)
 				break;
 			case PlayerAction::CREATIVE_PLAYER_DESTROY_BLOCK:
-				//TODO: do we need to handle this?
+				if (!$this->player->isCreative()) {
+					$this->player->getNetworkSession()->getLogger()->debug("Ignoring PlayerAction $action on $pos because player isnt in creative");
+					break;
+				}
+
+				if (!$this->player->breakBlock($pos)) {
+					$this->syncBlocksNearby($pos, $face);
+				}
+				break;
 			case PlayerAction::PREDICT_DESTROY_BLOCK:
 				self::validateFacing($face);
 				if(!$this->player->breakBlock($pos)){

@@ -66,8 +66,8 @@ class EffectInstance{
 	 * @return $this
 	 */
 	public function setDuration(int $duration) : EffectInstance{
-		if($duration < 0 || $duration > Limits::INT32_MAX){
-			throw new \InvalidArgumentException("Effect duration must be in range 0 - " . Limits::INT32_MAX . ", got $duration");
+		if($duration < -1 || $duration > Limits::INT32_MAX){
+			throw new \InvalidArgumentException("Effect duration must be in range -1 (infinite) - " . Limits::INT32_MAX . ", got $duration");
 		}
 		$this->duration = $duration;
 
@@ -80,7 +80,9 @@ class EffectInstance{
 	 * @return $this
 	 */
 	public function decreaseDuration(int $ticks) : EffectInstance{
-		$this->duration = max(0, $this->duration - $ticks);
+		if(!$this->isInfinite()) {
+			$this->duration = max(0, $this->duration - $ticks);
+		}
 
 		return $this;
 	}
@@ -89,7 +91,7 @@ class EffectInstance{
 	 * Returns whether the duration has run out.
 	 */
 	public function hasExpired() : bool{
-		return $this->duration <= 0;
+		return !$this->isInfinite() && $this->duration <= 0;
 	}
 
 	public function getAmplifier() : int{
@@ -173,5 +175,21 @@ class EffectInstance{
 		$this->color = $this->effectType->getColor();
 
 		return $this;
+	}
+
+	/**
+	 * Set if effect duration is infinite, does not expire.
+	 */
+	public function setInfinite() : EffectInstance{
+		$this->duration = -1;
+
+		return $this;
+	}
+
+	/**
+	 *	Returns if effect duration is infinite.
+	 */
+	public function isInfinite() : bool{
+		return $this->duration === -1;
 	}
 }

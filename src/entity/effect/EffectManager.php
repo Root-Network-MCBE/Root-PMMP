@@ -130,10 +130,8 @@ class EffectManager{
 		$index = spl_object_id($effect->getType());
 		if(isset($this->effects[$index])){
 			$oldEffect = $this->effects[$index];
-			if(
-				abs($effect->getAmplifier()) < $oldEffect->getAmplifier()
-				|| (abs($effect->getAmplifier()) === abs($oldEffect->getAmplifier()) && $effect->getDuration() < $oldEffect->getDuration())
-			){
+
+			if($this->shouldRejectNewEffect($effect, $oldEffect)){
 				$cancelled = true;
 			}
 		}
@@ -148,9 +146,7 @@ class EffectManager{
 			return false;
 		}
 
-		if($oldEffect !== null){
-			$oldEffect->getType()->remove($this->entity, $oldEffect);
-		}
+		$oldEffect?->getType()->remove($this->entity, $oldEffect);
 
 		$effect->getType()->add($this->entity, $effect);
 		foreach($this->effectAddHooks as $hook){
@@ -162,6 +158,24 @@ class EffectManager{
 		$this->recalculateEffectColor();
 
 		return true;
+	}
+
+	private function shouldRejectNewEffect(EffectInstance $newEffect, EffectInstance $oldEffect) : bool{
+		if(abs($newEffect->getAmplifier()) < $oldEffect->getAmplifier()){
+			return true;
+		}
+
+		if(abs($newEffect->getAmplifier()) === abs($oldEffect->getAmplifier())){
+			if($oldEffect->isInfinite() && !$newEffect->isInfinite()){
+				return true;
+			}
+
+			if(!$oldEffect->isInfinite() && !$newEffect->isInfinite()){
+				return $newEffect->getDuration() < $oldEffect->getDuration();
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -202,15 +216,22 @@ class EffectManager{
 		return $this->onlyAmbientEffects;
 	}
 
+	/**
+	 * Modification: Les effets infinis ne sont pas tick (durée ne diminue pas)
+	 */
 	public function tick(int $tickDiff = 1) : bool{
 		foreach($this->effects as $instance){
 			$type = $instance->getType();
 			if($type->canTick($instance)){
 				$type->applyEffect($this->entity, $instance);
 			}
-			$instance->decreaseDuration($tickDiff);
-			if($instance->hasExpired()){
-				$this->remove($instance->getType());
+
+			// Modification: Ne pas diminuer la durée des effets infinis
+			if(!$instance->isInfinite()){
+				$instance->decreaseDuration($tickDiff);
+				if($instance->hasExpired()){
+					$this->remove($instance->getType());
+				}
 			}
 		}
 

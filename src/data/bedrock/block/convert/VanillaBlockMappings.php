@@ -1333,7 +1333,7 @@ final class VanillaBlockMappings{
 		]));
 		$reg->mapModel(Model::create(Blocks::HOPPER(), Ids::HOPPER)->properties([
 			//kinda weird this doesn't use powered_bit?
-			new BoolProperty(StateNames::TOGGLE_BIT, fn(PoweredByRedstone $b) => $b->isPowered(), fn(PoweredByRedstone $b, bool $v) => $b->setPowered($v)),
+			new BoolProperty(StateNames::TOGGLE_BIT, fn(Hopper $b) => $b->isPowered(), fn(Hopper $b, bool $v) => $b->setPowered($v)),
 			new ValueFromIntProperty(StateNames::FACING_DIRECTION, ValueMappings::getInstance()->facingExceptUp, fn(Hopper $b) => $b->getFacing(), fn(Hopper $b, int $v) => $b->setFacing($v)),
 		]));
 

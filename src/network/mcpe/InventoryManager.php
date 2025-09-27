@@ -64,6 +64,7 @@ use pocketmine\network\mcpe\protocol\types\inventory\WindowTypes;
 use pocketmine\network\PacketHandlingException;
 use pocketmine\player\Player;
 use pocketmine\utils\AssumptionFailedError;
+use pocketmine\utils\Binary;
 use pocketmine\utils\ObjectSet;
 use function array_fill_keys;
 use function array_keys;
@@ -80,6 +81,10 @@ use function spl_object_id;
  * @phpstan-type ContainerOpenClosure \Closure(int $id, Inventory $inventory) : (list<ClientboundPacket>|null)
  */
 class InventoryManager{
+
+	public const ENCHANTING_OPTION_NETWORK_OFFSET = 100000;
+	public const SMITHING_RECIPE_NETWORK_OFFSET = 200000;
+
 	/**
 	 * @var InventoryManagerEntry[] spl_object_id(Inventory) => InventoryManagerEntry
 	 * @phpstan-var array<int, InventoryManagerEntry>
@@ -118,7 +123,7 @@ class InventoryManager{
 	private array $enchantingTableOptions = [];
 	//TODO: this should be based on the total number of crafting recipes - if there are ever 100k recipes, this will
 	//conflict with regular recipes
-	private int $nextEnchantingTableOptionId = 100000;
+	private int $nextEnchantingTableOptionId = self::ENCHANTING_OPTION_NETWORK_OFFSET;
 
 	public function __construct(
 		private Player $player,
@@ -420,6 +425,10 @@ class InventoryManager{
 
 	public function onClientRemoveWindow(int $id) : void{
 		if($id === $this->lastInventoryNetworkId){
+			if(Binary::signByte($id) === ContainerIds::NONE){
+				$this->session->getLogger()->debug("Client rejected opening of a window, assuming it was $this->lastInventoryNetworkId");
+				$id = $this->lastInventoryNetworkId;
+			}
 			if(isset($this->networkIdToInventoryMap[$id]) && $id !== $this->pendingCloseWindowId){
 				$this->remove($id);
 				$this->player->removeCurrentWindow();

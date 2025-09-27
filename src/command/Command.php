@@ -29,6 +29,11 @@ namespace pocketmine\command;
 use pocketmine\command\utils\CommandException;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\lang\Translatable;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandEnumConstraint;
+use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\PermissionManager;
 use pocketmine\Server;
 use pocketmine\utils\BroadcastLoggerForwarder;
@@ -81,13 +86,25 @@ abstract class Command{
 	}
 
 	/**
-	 * @param string[] $args
-	 * @phpstan-param list<string> $args
+	 * @param CommandSender $sender
+	 * @param string        $commandLabel
+	 * @param string[]      $args
 	 *
 	 * @return mixed
 	 * @throws CommandException
 	 */
 	abstract public function execute(CommandSender $sender, string $commandLabel, array $args);
+
+	/**
+	 * @param CommandEnum[]           $hardcodedEnums
+	 * @param CommandEnum[]           $softEnums
+	 * @param CommandEnumConstraint[] $enumConstraints
+	 *
+	 * @return array
+	 */
+	public function buildOverloads(array &$hardcodedEnums, array &$softEnums, array &$enumConstraints) : array{
+		return [new CommandOverload(chaining: false, parameters: [CommandParameter::standard("args", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, true)])];
+	}
 
 	public function getName() : string{
 		return $this->name;

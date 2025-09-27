@@ -409,6 +409,10 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 		}
 	}
 
+	public function isOp() : bool{
+		return Server::getInstance()->isOp($this->getName());
+	}
+
 	public function getLeaveMessage() : Translatable|string{
 		if($this->spawned){
 			return KnownTranslationFactory::multiplayer_player_left($this->getDisplayName())->prefix(TextFormat::YELLOW);

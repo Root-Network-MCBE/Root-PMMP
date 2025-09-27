@@ -28,7 +28,10 @@ use pocketmine\crafting\FurnaceType;
 use pocketmine\crafting\ShapedRecipe;
 use pocketmine\crafting\ShapelessRecipe;
 use pocketmine\crafting\ShapelessRecipeType;
+use pocketmine\crafting\SmithingTransformRecipe;
+use pocketmine\crafting\SmithingTrimRecipe;
 use pocketmine\network\mcpe\convert\TypeConverter;
+use pocketmine\network\mcpe\InventoryManager;
 use pocketmine\network\mcpe\protocol\CraftingDataPacket;
 use pocketmine\network\mcpe\protocol\types\recipe\CraftingRecipeBlockName;
 use pocketmine\network\mcpe\protocol\types\recipe\FurnaceRecipe as ProtocolFurnaceRecipe;
@@ -39,6 +42,8 @@ use pocketmine\network\mcpe\protocol\types\recipe\PotionTypeRecipe as ProtocolPo
 use pocketmine\network\mcpe\protocol\types\recipe\RecipeUnlockingRequirement;
 use pocketmine\network\mcpe\protocol\types\recipe\ShapedRecipe as ProtocolShapedRecipe;
 use pocketmine\network\mcpe\protocol\types\recipe\ShapelessRecipe as ProtocolShapelessRecipe;
+use pocketmine\network\mcpe\protocol\types\recipe\SmithingTransformRecipe as ProtocolSmithingTransformRecipe;
+use pocketmine\network\mcpe\protocol\types\recipe\SmithingTrimRecipe as ProtocolSmithingTrimRecipe;
 use pocketmine\timings\Timings;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Binary;
@@ -56,10 +61,6 @@ final class CraftingDataCache{
 	 */
 	private array $caches = [];
 
-	/**
-	 * The client doesn't like recipes with ID 0 (as of 1.21.100) and complains about them in the content log
-	 * This doesn't actually affect the function of the recipe, but it is annoying, so this offset fixes it
-	 */
 	public const RECIPE_ID_OFFSET = 1;
 
 	public function getCache(CraftingManager $manager) : CraftingDataPacket{
@@ -88,8 +89,6 @@ final class CraftingDataCache{
 
 		$noUnlockingRequirement = new RecipeUnlockingRequirement(null);
 		foreach($manager->getCraftingRecipeIndex() as $index => $recipe){
-			//the client doesn't like recipes with an ID of 0, so we need to offset them
-			$recipeNetId = $index + self::RECIPE_ID_OFFSET;
 			if($recipe instanceof ShapelessRecipe){
 				$typeTag = match($recipe->getType()){
 					ShapelessRecipeType::CRAFTING => CraftingRecipeBlockName::CRAFTING_TABLE,
@@ -99,14 +98,14 @@ final class CraftingDataCache{
 				};
 				$recipesWithTypeIds[] = new ProtocolShapelessRecipe(
 					CraftingDataPacket::ENTRY_SHAPELESS,
-					Binary::writeInt($recipeNetId),
+					Binary::writeInt($index),
 					array_map($converter->coreRecipeIngredientToNet(...), $recipe->getIngredientList()),
 					array_map($converter->coreItemStackToNet(...), $recipe->getResults()),
 					$nullUUID,
 					$typeTag,
 					50,
 					$noUnlockingRequirement,
-					$recipeNetId
+					$index
 				);
 			}elseif($recipe instanceof ShapedRecipe){
 				$inputs = [];
@@ -118,7 +117,7 @@ final class CraftingDataCache{
 				}
 				$recipesWithTypeIds[] = $r = new ProtocolShapedRecipe(
 					CraftingDataPacket::ENTRY_SHAPED,
-					Binary::writeInt($recipeNetId),
+					Binary::writeInt($index),
 					$inputs,
 					array_map($converter->coreItemStackToNet(...), $recipe->getResults()),
 					$nullUUID,
@@ -126,7 +125,7 @@ final class CraftingDataCache{
 					50,
 					true,
 					$noUnlockingRequirement,
-					$recipeNetId,
+					$index,
 				);
 			}else{
 				//TODO: probably special recipe types
@@ -154,6 +153,33 @@ final class CraftingDataCache{
 					$typeTag
 				);
 			}
+		}
+
+		$index = InventoryManager::SMITHING_RECIPE_NETWORK_OFFSET;
+		foreach($manager->getSmithingRecipes() as $recipe){
+			if($recipe instanceof SmithingTransformRecipe){
+				$recipesWithTypeIds[] = new ProtocolSmithingTransformRecipe(
+					CraftingDataPacket::ENTRY_SMITHING_TRANSFORM,
+					Binary::writeInt($index),
+					$converter->coreRecipeIngredientToNet($recipe->getTemplate()),
+					$converter->coreRecipeIngredientToNet($recipe->getInput()),
+					$converter->coreRecipeIngredientToNet($recipe->getAddition()),
+					$converter->coreItemStackToNet($recipe->getResult()),
+					CraftingRecipeBlockName::SMITHING_TABLE,
+					$index
+				);
+			}elseif($recipe instanceof SmithingTrimRecipe){
+				$recipesWithTypeIds[] = new ProtocolSmithingTrimRecipe(
+					CraftingDataPacket::ENTRY_SMITHING_TRIM,
+					Binary::writeInt($index),
+					$converter->coreRecipeIngredientToNet($recipe->getTemplate()),
+					$converter->coreRecipeIngredientToNet($recipe->getInput()),
+					$converter->coreRecipeIngredientToNet($recipe->getAddition()),
+					CraftingRecipeBlockName::SMITHING_TABLE,
+					$index
+				);
+			}
+			$index++;
 		}
 
 		$potionTypeRecipes = [];

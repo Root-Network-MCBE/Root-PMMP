@@ -40,6 +40,7 @@ use pocketmine\network\mcpe\cache\ChunkCache;
 use pocketmine\network\mcpe\compression\CompressBatchPromise;
 use pocketmine\network\mcpe\compression\Compressor;
 use pocketmine\network\mcpe\compression\DecompressionException;
+use pocketmine\network\mcpe\convert\NetworkSessionTypeConverter;
 use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\encryption\DecryptionException;
 use pocketmine\network\mcpe\encryption\EncryptionContext;
@@ -1092,18 +1093,21 @@ class NetworkSession{
 	}
 
 	public function syncAvailableCommands() : void{
-		$commandData = [];
-		foreach($this->server->getCommandMap()->getCommands() as $command){
-			if(isset($commandData[$command->getLabel()]) || $command->getLabel() === "help" || !$command->testPermissionSilent($this->player)){
+		$commandData     = [];
+		$softEnums       = [];
+		$hardcodedEnums  = [];
+		$enumConstraints = [];
+
+		foreach ($this->server->getCommandMap()->getCommands() as $command) {
+			if (isset($commandData[$command->getLabel()]) || $command->getLabel() === "help" || !$command->testPermissionSilent($this->player)) {
 				continue;
 			}
 
 			$lname = strtolower($command->getLabel());
 			$aliases = $command->getAliases();
 			$aliasObj = null;
-			if(count($aliases) > 0){
-				if(!in_array($lname, $aliases, true)){
-					//work around a client bug which makes the original name not show when aliases are used
+			if (count($aliases) > 0) {
+				if (!in_array($lname, $aliases, true)) {
 					$aliases[] = $lname;
 				}
 				$aliasObj = new CommandEnum(ucfirst($command->getLabel()) . "Aliases", $aliases);
@@ -1116,16 +1120,14 @@ class NetworkSession{
 				0,
 				0,
 				$aliasObj,
-				[
-					new CommandOverload(chaining: false, parameters: [CommandParameter::standard("args", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, true)])
-				],
+				$command->buildOverloads($hardcodedEnums, $softEnums, $enumConstraints),
 				chainedSubCommandData: []
 			);
 
 			$commandData[$command->getLabel()] = $data;
 		}
 
-		$this->sendDataPacket(AvailableCommandsPacket::create($commandData, [], [], []));
+		$this->sendDataPacket(AvailableCommandsPacket::create($commandData, hardcodedEnums: $hardcodedEnums, softEnums: $softEnums, enumConstraints: $enumConstraints));
 	}
 
 	/**
