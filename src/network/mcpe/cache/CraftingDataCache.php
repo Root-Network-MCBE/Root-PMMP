@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\cache;
 
+use pmmp\encoding\BE;
 use pocketmine\crafting\CraftingManager;
 use pocketmine\crafting\FurnaceType;
 use pocketmine\crafting\ShapedRecipe;
@@ -89,6 +90,7 @@ final class CraftingDataCache{
 
 		$noUnlockingRequirement = new RecipeUnlockingRequirement(null);
 		foreach($manager->getCraftingRecipeIndex() as $index => $recipe){
+			$recipeNetId = $index + self::RECIPE_ID_OFFSET;
 			if($recipe instanceof ShapelessRecipe){
 				$typeTag = match($recipe->getType()){
 					ShapelessRecipeType::CRAFTING => CraftingRecipeBlockName::CRAFTING_TABLE,
@@ -98,14 +100,14 @@ final class CraftingDataCache{
 				};
 				$recipesWithTypeIds[] = new ProtocolShapelessRecipe(
 					CraftingDataPacket::ENTRY_SHAPELESS,
-					Binary::writeInt($index),
+					BE::packUnsignedInt($recipeNetId),
 					array_map($converter->coreRecipeIngredientToNet(...), $recipe->getIngredientList()),
 					array_map($converter->coreItemStackToNet(...), $recipe->getResults()),
 					$nullUUID,
 					$typeTag,
 					50,
 					$noUnlockingRequirement,
-					$index
+					$recipeNetId
 				);
 			}elseif($recipe instanceof ShapedRecipe){
 				$inputs = [];
@@ -117,7 +119,7 @@ final class CraftingDataCache{
 				}
 				$recipesWithTypeIds[] = $r = new ProtocolShapedRecipe(
 					CraftingDataPacket::ENTRY_SHAPED,
-					Binary::writeInt($index),
+					BE::packUnsignedInt($recipeNetId), //TODO: this should probably be changed to something human-readable
 					$inputs,
 					array_map($converter->coreItemStackToNet(...), $recipe->getResults()),
 					$nullUUID,
@@ -125,7 +127,7 @@ final class CraftingDataCache{
 					50,
 					true,
 					$noUnlockingRequirement,
-					$index,
+					$recipeNetId,
 				);
 			}else{
 				//TODO: probably special recipe types
