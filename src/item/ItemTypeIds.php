@@ -354,7 +354,13 @@ final class ItemTypeIds{
 	public const COPPER_CHESTPLATE = 20314;
 	public const COPPER_LEGGINGS = 20315;
 	public const COPPER_BOOTS = 20316;
-	public const FIRST_UNUSED_ITEM_ID = 20317;
+	public const COPPER_SWORD = 20317;
+	public const COPPER_PICKAXE = 20318;
+	public const COPPER_AXE = 20319;
+	public const COPPER_HOE = 20320;
+	public const COPPER_SHOVEL = 20321;
+
+	public const FIRST_UNUSED_ITEM_ID = 20322;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_ITEM_ID;
 

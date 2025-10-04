@@ -362,6 +362,12 @@ use function strtolower;
  * @method static Armor COPPER_CHESTPLATE()
  * @method static Armor COPPER_LEGGINGS()
  * @method static Armor COPPER_BOOTS()
+ *
+ * @method static Sword COPPER_SWORD()
+ * @method static Sword COPPER_PICKAXE()
+ * @method static Sword COPPER_AXE()
+ * @method static Sword COPPER_HOE()
+ * @method static Sword COPPER_SHOVEL()
  */
 final class VanillaItems{
 	use CloningRegistryTrait;
@@ -704,6 +710,12 @@ final class VanillaItems{
 		self::register("netherite_sword", fn(IID $id) => new Sword($id, "Netherite Sword", ToolTier::NETHERITE, [EnchantmentTags::SWORD]));
 		self::register("stone_sword", fn(IID $id) => new Sword($id, "Stone Sword", ToolTier::STONE, [EnchantmentTags::SWORD]));
 		self::register("wooden_sword", fn(IID $id) => new Sword($id, "Wooden Sword", ToolTier::WOOD, [EnchantmentTags::SWORD]));
+
+		self::register("copper_sword", fn(IID $id) => new Sword($id, "Copper Sword", ToolTier::COPPER, [EnchantmentTags::SWORD]));
+		self::register("copper_pickaxe", fn(IID $id) => new Pickaxe($id, "Copper Pickaxe", ToolTier::COPPER, [EnchantmentTags::PICKAXE]));
+		self::register("copper_axe", fn(IID $id) => new Axe($id, "Copper Axe", ToolTier::COPPER, [EnchantmentTags::AXE]));
+		self::register("copper_hoe", fn(IID $id) => new Hoe($id, "Copper Hoe", ToolTier::COPPER, [EnchantmentTags::HOE]));
+		self::register("copper_shovel", fn(IID $id) => new Shovel($id, "Copper Shovel", ToolTier::COPPER, [EnchantmentTags::SHOVEL]));
 	}
 
 	private static function registerArmorItems() : void{

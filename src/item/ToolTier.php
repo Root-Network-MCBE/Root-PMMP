@@ -42,6 +42,7 @@ enum ToolTier{
 	use LegacyEnumShimTrait;
 
 	case WOOD;
+	case COPPER;
 	case GOLD;
 	case STONE;
 	case IRON;
@@ -62,6 +63,7 @@ enum ToolTier{
 	private function getMetadata() : array{
 		return match($this){
 			self::WOOD => self::meta(1, 60, 5, 2, 15),
+			self::COPPER => self::meta(1, 191, 6, 5, 13),
 			self::GOLD => self::meta(2, 33, 5, 12, 22),
 			self::STONE => self::meta(3, 132, 6, 4, 5),
 			self::IRON => self::meta(4, 251, 7, 6, 14),

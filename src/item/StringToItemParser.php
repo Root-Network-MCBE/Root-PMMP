@@ -1588,6 +1588,12 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("copper_chestplate", fn() => Items::COPPER_CHESTPLATE());
 		$result->register("copper_leggings", fn() => Items::COPPER_LEGGINGS());
 		$result->register("copper_boots", fn() => Items::COPPER_BOOTS());
+
+		$result->register("copper_sword", fn() => Items::COPPER_SWORD());
+		$result->register("copper_pickaxe", fn() => Items::COPPER_PICKAXE());
+		$result->register("copper_axe", fn() => Items::COPPER_AXE());
+		$result->register("copper_hoe", fn() => Items::COPPER_HOE());
+		$result->register("copper_shovel", fn() => Items::COPPER_SHOVEL());
 	}
 
 	/**
