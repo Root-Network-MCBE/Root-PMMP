@@ -370,6 +370,7 @@ final class VanillaBlockMappings{
 		$reg->mapSimple(Blocks::INVISIBLE_BEDROCK(), Ids::INVISIBLE_BEDROCK);
 		$reg->mapSimple(Blocks::IRON(), Ids::IRON_BLOCK);
 		$reg->mapSimple(Blocks::IRON_BARS(), Ids::IRON_BARS);
+		$reg->mapSimple(Blocks::COPPER_BARS(), Ids::COPPER_BARS);
 		$reg->mapSimple(Blocks::IRON_ORE(), Ids::IRON_ORE);
 		$reg->mapSimple(Blocks::JUKEBOX(), Ids::JUKEBOX);
 		$reg->mapSimple(Blocks::LAPIS_LAZULI(), Ids::LAPIS_BLOCK);
@@ -1189,7 +1190,8 @@ final class VanillaBlockMappings{
 			[Blocks::RED_TORCH(), Ids::COLORED_TORCH_RED],
 			[Blocks::SOUL_TORCH(), Ids::SOUL_TORCH],
 			[Blocks::TORCH(), Ids::TORCH],
-			[Blocks::UNDERWATER_TORCH(), Ids::UNDERWATER_TORCH]
+			[Blocks::UNDERWATER_TORCH(), Ids::UNDERWATER_TORCH],
+			[Blocks::COPPER_TORCH(), Ids::COPPER_TORCH]
 		] as [$block, $id]){
 			$reg->mapModel(Model::create($block, $id)->properties([$commonProperties->torchFacing]));
 		}

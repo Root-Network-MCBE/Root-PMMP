@@ -142,7 +142,7 @@ function main() : void{
 	if(isset($opts["git"])){
 		$gitHash = $opts["git"];
 	}else{
-		$gitHash = "c10e5172c2e64062c568474e85e677c683705475";
+		$gitHash = "395ddc797c7b6a4c95d35a0bb67581ee570586d4";
 		echo "Git hash detected as $gitHash" . PHP_EOL;
 	}
 	if(isset($opts["build"])){

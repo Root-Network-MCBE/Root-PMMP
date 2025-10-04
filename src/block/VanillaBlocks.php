@@ -498,6 +498,7 @@ use function strtolower;
  * @method static Transparent INVISIBLE_BEDROCK()
  * @method static Opaque IRON()
  * @method static Thin IRON_BARS()
+ * @method static Thin COPPER_BARS()
  * @method static Door IRON_DOOR()
  * @method static IronOre IRON_ORE()
  * @method static Trapdoor IRON_TRAPDOOR()
@@ -683,6 +684,7 @@ use function strtolower;
  * @method static Pumpkin PUMPKIN()
  * @method static PumpkinStem PUMPKIN_STEM()
  * @method static Torch PURPLE_TORCH()
+ * @method static Torch COPPER_TORCH()
  * @method static Opaque PURPUR()
  * @method static SimplePillar PURPUR_PILLAR()
  * @method static Slab PURPUR_SLAB()
@@ -1035,6 +1037,7 @@ final class VanillaBlocks{
 		$ironBreakInfo = new Info(BreakInfo::pickaxe(5.0, ToolTier::STONE, 30.0));
 		self::register("iron", fn(BID $id) => new Opaque($id, "Iron Block", $ironBreakInfo));
 		self::register("iron_bars", fn(BID $id) => new Thin($id, "Iron Bars", $ironBreakInfo));
+		self::register("copper_bars", fn(BID $id) => new Thin($id, "Copper Bars", $ironBreakInfo));
 
 		self::register("iron_door", fn(BID $id) => new Door($id, "Iron Door", new Info(BreakInfo::pickaxe(5.0))));
 		self::register("iron_trapdoor", fn(BID $id) => new Trapdoor($id, "Iron Trapdoor", new Info(BreakInfo::pickaxe(5.0, ToolTier::WOOD))));
@@ -1683,6 +1686,7 @@ final class VanillaBlocks{
 		self::register("cracked_polished_blackstone_bricks", fn(BID $id) => new Opaque($id, "Cracked Polished Blackstone Bricks", $blackstoneBreakInfo));
 
 		self::register("soul_torch", fn(BID $id) => new Torch($id, "Soul Torch", new Info(BreakInfo::instant())));
+		self::register("copper_torch", fn(BID $id) => new Torch($id, "Copper Torch", new Info(BreakInfo::instant())));
 		self::register("soul_fire", fn(BID $id) => new SoulFire($id, "Soul Fire", new Info(BreakInfo::instant(), [Tags::FIRE])));
 
 		self::register("soul_soil", fn(BID $id) => new Opaque($id, "Soul Soil", new Info(BreakInfo::shovel(0.5))));

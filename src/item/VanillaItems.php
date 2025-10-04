@@ -362,12 +362,12 @@ use function strtolower;
  * @method static Armor COPPER_CHESTPLATE()
  * @method static Armor COPPER_LEGGINGS()
  * @method static Armor COPPER_BOOTS()
- *
  * @method static Sword COPPER_SWORD()
- * @method static Sword COPPER_PICKAXE()
- * @method static Sword COPPER_AXE()
- * @method static Sword COPPER_HOE()
- * @method static Sword COPPER_SHOVEL()
+ * @method static Pickaxe COPPER_PICKAXE()
+ * @method static Axe COPPER_AXE()
+ * @method static Hoe COPPER_HOE()
+ * @method static Shovel COPPER_SHOVEL()
+ * @method static Item COPPER_NUGGET()
  */
 final class VanillaItems{
 	use CloningRegistryTrait;
@@ -654,6 +654,8 @@ final class VanillaItems{
 		self::register("wheat_seeds", fn(IID $id) => new WheatSeeds($id, "Wheat Seeds"));
 		self::register("writable_book", fn(IID $id) => new WritableBook($id, "Book & Quill"));
 		self::register("written_book", fn(IID $id) => new WrittenBook($id, "Written Book"));
+
+		self::register("copper_nugget", fn(IID $id) => new Item($id, "Copper Nugget"));
 
 		foreach(BoatType::cases() as $type){
 			//boat type is static, because different types of wood may have different properties
