@@ -39,11 +39,11 @@ use pocketmine\lang\Translatable;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\StringTag;
+use pocketmine\network\FilterNoisyPacketException;
 use pocketmine\network\mcpe\cache\ChunkCache;
 use pocketmine\network\mcpe\compression\CompressBatchPromise;
 use pocketmine\network\mcpe\compression\Compressor;
 use pocketmine\network\mcpe\compression\DecompressionException;
-use pocketmine\network\mcpe\convert\NetworkSessionTypeConverter;
 use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\encryption\DecryptionException;
 use pocketmine\network\mcpe\encryption\EncryptionContext;
@@ -73,6 +73,7 @@ use pocketmine\network\mcpe\protocol\PlayerListPacket;
 use pocketmine\network\mcpe\protocol\PlayerStartItemCooldownPacket;
 use pocketmine\network\mcpe\protocol\PlayStatusPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
+use pocketmine\network\mcpe\protocol\serializer\AvailableCommandsPacketAssembler;
 use pocketmine\network\mcpe\protocol\serializer\PacketBatch;
 use pocketmine\network\mcpe\protocol\ServerboundPacket;
 use pocketmine\network\mcpe\protocol\ServerToClientHandshakePacket;
@@ -88,7 +89,7 @@ use pocketmine\network\mcpe\protocol\types\AbilitiesData;
 use pocketmine\network\mcpe\protocol\types\AbilitiesLayer;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
 use pocketmine\network\mcpe\protocol\types\command\CommandData;
-use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\network\mcpe\protocol\types\command\CommandPermissions;
@@ -119,6 +120,7 @@ use pocketmine\world\Position;
 use pocketmine\world\World;
 use pocketmine\YmlServerProperties;
 use function array_map;
+use function array_values;
 use function base64_encode;
 use function bin2hex;
 use function count;
@@ -144,6 +146,8 @@ class NetworkSession{
 
 	private const INCOMING_GAME_PACKETS_PER_TICK = 2;
 	private const INCOMING_GAME_PACKETS_BUFFER_TICKS = 100;
+
+	private const INCOMING_PACKET_BATCH_HARD_LIMIT = 300;
 
 	private PacketRateLimiter $packetBatchLimiter;
 	private PacketRateLimiter $gamePacketLimiter;
@@ -194,6 +198,9 @@ class NetworkSession{
 	 * @phpstan-var ObjectSet<\Closure() : void>
 	 */
 	private ObjectSet $disposeHooks;
+
+	private string $noisyPacketBuffer = "";
+	private int $noisyPacketsDropped = 0;
 
 	public function __construct(
 		private Server $server,
@@ -351,6 +358,20 @@ class NetworkSession{
 		}
 	}
 
+	private function checkRepeatedPacketFilter(string $buffer) : bool{
+		if($buffer === $this->noisyPacketBuffer){
+			$this->noisyPacketsDropped++;
+			return true;
+		}
+		//stop filtering once we see a packet with a different buffer
+		//this won't be any good for interleaved spammy packets, but we haven't seen any of those so far, and this
+		//is the simplest and most conservative filter we can do
+		$this->noisyPacketBuffer = "";
+		$this->noisyPacketsDropped = 0;
+
+		return false;
+	}
+
 	/**
 	 * @throws PacketHandlingException
 	 */
@@ -401,9 +422,21 @@ class NetworkSession{
 				$decompressed = $payload;
 			}
 
+			$count = 0;
 			try{
 				$stream = new ByteBufferReader($decompressed);
 				foreach(PacketBatch::decodeRaw($stream) as $buffer){
+					if(++$count >= self::INCOMING_PACKET_BATCH_HARD_LIMIT){
+						//this should be well more than enough; under normal conditions the game packet rate limiter
+						//will kick in well before this. This is only here to make sure we can't get huge batches of
+						//noisy packets to bog down the server, since those aren't counted by the regular limiter.
+						throw new PacketHandlingException("Reached hard limit of " . self::INCOMING_PACKET_BATCH_HARD_LIMIT . " per batch packet");
+					}
+
+					if($this->checkRepeatedPacketFilter($buffer)){
+						continue;
+					}
+
 					$this->gamePacketLimiter->decrement();
 					$packet = $this->packetPool->getPacket($buffer);
 					if($packet === null){
@@ -415,6 +448,8 @@ class NetworkSession{
 					}catch(PacketHandlingException $e){
 						$this->logger->debug($packet->getName() . ": " . base64_encode($buffer));
 						throw PacketHandlingException::wrap($e, "Error processing " . $packet->getName());
+					}catch(FilterNoisyPacketException){
+						$this->noisyPacketBuffer = $buffer;
 					}
 					if(!$this->isConnected()){
 						//handling this packet may have caused a disconnection
@@ -433,6 +468,7 @@ class NetworkSession{
 
 	/**
 	 * @throws PacketHandlingException
+	 * @throws FilterNoisyPacketException
 	 */
 	public function handleDataPacket(Packet $packet, string $buffer) : void{
 		if(!($packet instanceof ServerboundPacket)){
@@ -1095,24 +1131,21 @@ class NetworkSession{
 	}
 
 	public function syncAvailableCommands() : void{
-		$commandData     = [];
-		$softEnums       = [];
-		$hardcodedEnums  = [];
-		$enumConstraints = [];
-
-		foreach ($this->server->getCommandMap()->getCommands() as $command) {
-			if (isset($commandData[$command->getLabel()]) || $command->getLabel() === "help" || !$command->testPermissionSilent($this->player)) {
+		$commandData = [];
+		foreach($this->server->getCommandMap()->getCommands() as $command){
+			if(isset($commandData[$command->getLabel()]) || $command->getLabel() === "help" || !$command->testPermissionSilent($this->player)){
 				continue;
 			}
 
 			$lname = strtolower($command->getLabel());
 			$aliases = $command->getAliases();
 			$aliasObj = null;
-			if (count($aliases) > 0) {
-				if (!in_array($lname, $aliases, true)) {
+			if(count($aliases) > 0){
+				if(!in_array($lname, $aliases, true)){
+					//work around a client bug which makes the original name not show when aliases are used
 					$aliases[] = $lname;
 				}
-				$aliasObj = new CommandEnum(ucfirst($command->getLabel()) . "Aliases", $aliases);
+				$aliasObj = new CommandHardEnum(ucfirst($command->getLabel()) . "Aliases", $aliases);
 			}
 
 			$description = $command->getDescription();
@@ -1122,14 +1155,16 @@ class NetworkSession{
 				0,
 				0,
 				$aliasObj,
-				$command->buildOverloads($hardcodedEnums, $softEnums, $enumConstraints),
+				[
+					new CommandOverload(chaining: false, parameters: [CommandParameter::standard("args", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, true)])
+				],
 				chainedSubCommandData: []
 			);
 
 			$commandData[$command->getLabel()] = $data;
 		}
 
-		$this->sendDataPacket(AvailableCommandsPacket::create($commandData, hardcodedEnums: $hardcodedEnums, softEnums: $softEnums, enumConstraints: $enumConstraints));
+		$this->sendDataPacket(AvailableCommandsPacketAssembler::assemble(array_values($commandData), [], []));
 	}
 
 	/**

@@ -30,10 +30,11 @@ use function is_int;
 use function str_repeat;
 
 final class VersionInfo{
-	public const NAME = "hPocketMine-MP";
-	public const BASE_VERSION = "5.35.0";
+	public const NAME = "rPocketMine-MP";
+	public const BASE_VERSION = "5.37.0";
 	public const IS_DEVELOPMENT_BUILD = false;
 	public const BUILD_CHANNEL = "stable";
+	public const GITHUB_URL = "https://github.com/pmmp/PocketMine-MP";
 
 	/**
 	 * PocketMine-MP-specific version ID for world data. Used to determine what fixes need to be applied to old world
