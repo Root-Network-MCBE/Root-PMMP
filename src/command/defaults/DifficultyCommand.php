@@ -29,6 +29,7 @@ use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
@@ -54,7 +55,7 @@ class DifficultyCommand extends VanillaCommand{
 		$difficultyOptions = array_map(fn(string $difficultyString) => substr($difficultyString, strlen('DIFFICULTY_')), $difficultyOptions);
 		$difficultyOptions = array_merge($difficultyOptions, array_map(fn(string $difficultyString) => $difficultyString[0], $difficultyOptions));
 		$difficultyOptions = array_map(fn(string $difficultyString) => mb_strtolower($difficultyString), $difficultyOptions);
-		$difficultyEnum = new CommandEnum('Difficulty', $difficultyOptions, false);
+		$difficultyEnum = new CommandHardEnum('Difficulty', $difficultyOptions, false);
 
 		return [
 			new CommandOverload(chaining: false, parameters: [

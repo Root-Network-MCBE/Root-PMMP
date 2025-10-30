@@ -28,6 +28,9 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\lang\KnownTranslationFactory;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use function count;
 
@@ -41,6 +44,12 @@ class KillCommand extends VanillaCommand{
 			["suicide"]
 		);
 		$this->setPermissions([DefaultPermissionNames::COMMAND_KILL_SELF, DefaultPermissionNames::COMMAND_KILL_OTHER]);
+	}
+
+	public function buildOverloads(array &$hardcodedEnums, array &$softEnums, array &$enumConstraints) : array{
+		return [new CommandOverload(chaining: false, parameters: [
+			CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, false),
+		])];
 	}
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){

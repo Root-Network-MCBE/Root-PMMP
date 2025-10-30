@@ -28,6 +28,7 @@ use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
@@ -50,7 +51,7 @@ class DefaultGamemodeCommand extends VanillaCommand{
 		$gamemodeOptions = array_keys(GameMode::getAll());
 		$gamemodeOptions = array_merge($gamemodeOptions, array_map(fn(string $gameModeString) => $gameModeString[0], $gamemodeOptions));
 		$gamemodeOptions = array_map(fn(string $gameModeString) => mb_strtolower($gameModeString), $gamemodeOptions);
-		$gamemodeEnum = new CommandEnum('GameMode', $gamemodeOptions, false);
+		$gamemodeEnum = new CommandHardEnum('GameMode', $gamemodeOptions, false);
 
 		return [
 			new CommandOverload(chaining: false, parameters: [

@@ -35,6 +35,7 @@ use pocketmine\nbt\NbtDataException;
 use pocketmine\nbt\NbtException;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
@@ -61,7 +62,7 @@ class GiveCommand extends VanillaCommand{
 		return [
 			new CommandOverload(chaining: false, parameters: [
 				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, false),
-				CommandParameter::enum("itemName", new CommandEnum('Item', [], false), 0, false),
+				CommandParameter::enum("itemName", new CommandHardEnum('Item', [], false), 0, false),
 				CommandParameter::standard("amount", AvailableCommandsPacket::ARG_TYPE_INT, 0, true),
 				CommandParameter::standard("data", AvailableCommandsPacket::ARG_TYPE_JSON, 0, true),
 			]),

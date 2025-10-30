@@ -32,8 +32,10 @@ use pocketmine\lang\Translatable;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandEnumConstraint;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
+use pocketmine\network\mcpe\protocol\types\command\raw\CommandEnumConstraintRawData;
 use pocketmine\permission\PermissionManager;
 use pocketmine\Server;
 use pocketmine\utils\BroadcastLoggerForwarder;
@@ -96,9 +98,9 @@ abstract class Command{
 	abstract public function execute(CommandSender $sender, string $commandLabel, array $args);
 
 	/**
-	 * @param CommandEnum[]           $hardcodedEnums
-	 * @param CommandEnum[]           $softEnums
-	 * @param CommandEnumConstraint[] $enumConstraints
+	 * @param CommandHardEnum[]              $hardcodedEnums
+	 * @param CommandHardEnum[]              $softEnums
+	 * @param CommandEnumConstraintRawData[] $enumConstraints
 	 *
 	 * @return array
 	 */
