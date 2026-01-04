@@ -101,13 +101,14 @@ class EffectCommand extends VanillaCommand{
 		$infinite = false;
 
 		if(count($args) >= 3){
-			if($args[2] === "infinite") {
-				$infinite = true;
+			if(strtolower($args[2]) === "infinite"){
 				$duration = null;
-			}elseif(($d = $this->getBoundedInt($sender, $args[2], 0, (int) (Limits::INT32_MAX / 20))) === null){
-				return false;
+				$infinite = true;
 			}else{
-				$duration = $d * 20; //ticks
+				if(($d = $this->getBoundedInt($sender, $args[2], 0, (int) (Limits::INT32_MAX / 20))) === null){
+					return false;
+				}
+				$duration = $d * 20; // ticks
 			}
 		}else{
 			$duration = null;
@@ -141,15 +142,14 @@ class EffectCommand extends VanillaCommand{
 			$effectManager->remove($effect);
 			$sender->sendMessage(KnownTranslationFactory::commands_effect_success_removed($effect->getName(), $player->getDisplayName()));
 		}else{
-			$instance = new EffectInstance($effect, $duration, $amplification, $visible);
-			if($infinite){
-				$instance->setInfinite();
-			}
+			$instance = new EffectInstance($effect, $duration, $amplification, $visible, infinite: $infinite);
 			$effectManager->add($instance);
-			self::broadcastCommandMessage($sender, $infinite
-				? KnownTranslationFactory::commands_effect_success_infinite($effect->getName(), (string) $instance->getAmplifier(), $player->getDisplayName())
-				: KnownTranslationFactory::commands_effect_success($effect->getName(), (string) $instance->getAmplifier(), $player->getDisplayName(), (string) ($instance->getDuration() / 20))
-			);
+
+			if($infinite){
+				self::broadcastCommandMessage($sender, KnownTranslationFactory::commands_effect_success_infinite($effect->getName(), (string) $instance->getAmplifier(), $player->getDisplayName()));
+			}else{
+				self::broadcastCommandMessage($sender, KnownTranslationFactory::commands_effect_success($effect->getName(), (string) $instance->getAmplifier(), $player->getDisplayName(), (string) ($instance->getDuration() / 20)));
+			}
 		}
 
 		return true;

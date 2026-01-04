@@ -81,28 +81,17 @@ final class StandardEntityEventBroadcaster implements EntityEventBroadcaster{
 	}
 
 	public function onEntityEffectAdded(array $recipients, Living $entity, EffectInstance $effect, bool $replacesOldEffect) : void{
-		$clientDuration = $this->getClientEffectDuration($effect);
+		//TODO: we may need yet another effect <=> ID map in the future depending on protocol changes
 		$this->sendDataPacket($recipients, MobEffectPacket::add(
 			$entity->getId(),
 			$replacesOldEffect,
 			EffectIdMap::getInstance()->toId($effect->getType()),
 			$effect->getAmplifier(),
 			$effect->isVisible(),
-			$clientDuration,
-			tick: 0
+			$effect->isInfinite() ? -1 : $effect->getDuration(),
+			tick: 0,
+			ambient: $effect->isAmbient()
 		));
-	}
-
-	private function getClientEffectDuration(EffectInstance $effect) : int{
-		if($effect->isInfinite()){
-			return -1;
-		}
-
-		if($effect->getDuration() >= 630720000){
-			return -1;
-		}
-
-		return $effect->getDuration();
 	}
 
 	public function onEntityEffectRemoved(array $recipients, Living $entity, EffectInstance $effect) : void{

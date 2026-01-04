@@ -30,9 +30,9 @@ use function is_int;
 use function str_repeat;
 
 final class VersionInfo{
-	public const NAME = "rPocketMine-MP";
-	public const BASE_VERSION = "5.37.3";
-	public const IS_DEVELOPMENT_BUILD = false;
+	public const NAME = "RootMine-MP";
+	public const BASE_VERSION = "5.39.3";
+	public const IS_DEVELOPMENT_BUILD = true;
 	public const BUILD_CHANNEL = "stable";
 	public const GITHUB_URL = "https://github.com/pmmp/PocketMine-MP";
 

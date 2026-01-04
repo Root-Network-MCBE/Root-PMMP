@@ -34,17 +34,19 @@ class EffectInstance{
 	private bool $visible;
 	private bool $ambient;
 	private Color $color;
+	private bool $infinite;
 
 	/**
 	 * @param int|null $duration Passing null will use the effect type's default duration
 	 */
-	public function __construct(Effect $effectType, ?int $duration = null, int $amplifier = 0, bool $visible = true, bool $ambient = false, ?Color $overrideColor = null){
+	public function __construct(Effect $effectType, ?int $duration = null, int $amplifier = 0, bool $visible = true, bool $ambient = false, ?Color $overrideColor = null, bool $infinite = false){
 		$this->effectType = $effectType;
 		$this->setDuration($duration ?? $effectType->getDefaultDuration());
 		$this->setAmplifier($amplifier);
 		$this->visible = $visible;
 		$this->ambient = $ambient;
 		$this->color = $overrideColor ?? $effectType->getColor();
+		$this->infinite = $infinite;
 	}
 
 	public function getType() : Effect{
@@ -66,8 +68,8 @@ class EffectInstance{
 	 * @return $this
 	 */
 	public function setDuration(int $duration) : EffectInstance{
-		if($duration < -1 || $duration > Limits::INT32_MAX){
-			throw new \InvalidArgumentException("Effect duration must be in range -1 (infinite) - " . Limits::INT32_MAX . ", got $duration");
+		if($duration < 0 || $duration > Limits::INT32_MAX){
+			throw new \InvalidArgumentException("Effect duration must be in range 0 - " . Limits::INT32_MAX . ", got $duration");
 		}
 		$this->duration = $duration;
 
@@ -76,13 +78,21 @@ class EffectInstance{
 
 	/**
 	 * Decreases the duration by the given number of ticks, without dropping below zero.
+	 * Note: Infinite effects will still have their durations updated, but they'll wrap around to Limits::INT32_MAX
+	 * if they drop below zero. This is because periodic effects rely on the duration ticker to know when to tick.
 	 *
 	 * @return $this
 	 */
 	public function decreaseDuration(int $ticks) : EffectInstance{
-		if(!$this->isInfinite()) {
-			$this->duration = max(0, $this->duration - $ticks);
+		$newDuration = $this->duration - $ticks;
+		if($newDuration <= 0){
+			if($this->infinite){ //wrap around
+				$newDuration += Limits::INT32_MAX;
+			}else{
+				$newDuration = 0;
+			}
 		}
+		$this->duration = $newDuration;
 
 		return $this;
 	}
@@ -91,7 +101,7 @@ class EffectInstance{
 	 * Returns whether the duration has run out.
 	 */
 	public function hasExpired() : bool{
-		return !$this->isInfinite() && $this->duration <= 0;
+		return $this->duration <= 0;
 	}
 
 	public function getAmplifier() : int{
@@ -178,18 +188,9 @@ class EffectInstance{
 	}
 
 	/**
-	 * Set if effect duration is infinite, does not expire.
-	 */
-	public function setInfinite() : EffectInstance{
-		$this->duration = -1;
-
-		return $this;
-	}
-
-	/**
-	 *	Returns if effect duration is infinite.
+	 * Returns whether the effect is meant to last indefinitely
 	 */
 	public function isInfinite() : bool{
-		return $this->duration === -1;
+		return $this->infinite;
 	}
 }
