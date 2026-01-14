@@ -436,17 +436,6 @@ final class ItemSerializerDeserializerRegistrar{
 		$this->map1to1Item(Ids::WRITABLE_BOOK, Items::WRITABLE_BOOK());
 		$this->map1to1Item(Ids::WRITTEN_BOOK, Items::WRITTEN_BOOK());
 		$this->map1to1Item(Ids::ZOMBIE_SPAWN_EGG, Items::ZOMBIE_SPAWN_EGG());
-
-		$this->map1to1Item(Ids::COPPER_HELMET, Items::COPPER_HELMET());
-		$this->map1to1Item(Ids::COPPER_CHESTPLATE, Items::COPPER_CHESTPLATE());
-		$this->map1to1Item(Ids::COPPER_LEGGINGS, Items::COPPER_LEGGINGS());
-		$this->map1to1Item(Ids::COPPER_BOOTS, Items::COPPER_BOOTS());
-		$this->map1to1Item(Ids::COPPER_SWORD, Items::COPPER_SWORD());
-		$this->map1to1Item(Ids::COPPER_PICKAXE, Items::COPPER_PICKAXE());
-		$this->map1to1Item(Ids::COPPER_AXE, Items::COPPER_AXE());
-		$this->map1to1Item(Ids::COPPER_HOE, Items::COPPER_HOE());
-		$this->map1to1Item(Ids::COPPER_SHOVEL, Items::COPPER_SHOVEL());
-		$this->map1to1Item(Ids::COPPER_NUGGET, Items::COPPER_NUGGET());
 	}
 
 	/**

@@ -74,7 +74,6 @@ final class VanillaArmorMaterials{
 		self::register("leather", new ArmorMaterial(15, new ArmorEquipLeatherSound()));
 		self::register("copper", new ArmorMaterial(8, new ArmorEquipCopperSound()));
 		self::register("chainmail", new ArmorMaterial(12, new ArmorEquipChainSound()));
-		self::register("copper", new ArmorMaterial(8, new ArmorEquipCopperSound()));
 		self::register("iron", new ArmorMaterial(9, new ArmorEquipIronSound()));
 		self::register("turtle", new ArmorMaterial(9, new ArmorEquipGenericSound()));
 		self::register("gold", new ArmorMaterial(25, new ArmorEquipGoldSound()));
