@@ -104,6 +104,7 @@ use pocketmine\item\enchantment\MeleeWeaponEnchantment;
 use pocketmine\item\Item;
 use pocketmine\item\ItemUseResult;
 use pocketmine\item\Releasable;
+use pocketmine\item\Spear;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\lang\Language;
 use pocketmine\lang\Translatable;
@@ -317,6 +318,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 	protected \Logger $logger;
 
 	protected ?SurvivalBlockBreakHandler $blockBreakHandler = null;
+	protected float $currentVelocity = 0.0;
 
 	public function __construct(Server $server, NetworkSession $session, PlayerInfo $playerInfo, bool $authenticated, Location $spawnLocation, ?CompoundTag $namedtag){
 		$username = TextFormat::clean($playerInfo->getUsername());
@@ -1424,6 +1426,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 	 */
 	protected function processMostRecentMovements() : void{
 		$now = microtime(true);
+		$this->currentVelocity = $this->location->subtractVector($this->lastLocation)->length() / Server::TARGET_SECONDS_PER_TICK;
 		$multiplier = $this->lastMovementProcess !== null ? ($now - $this->lastMovementProcess) * 20 : 1;
 		$exceededRateLimit = $this->moveRateLimit < 0;
 		$this->moveRateLimit = min(self::MOVE_BACKLOG_SIZE, max(0, $this->moveRateLimit) + self::MOVES_PER_TICK * $multiplier);
@@ -1555,6 +1558,11 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 				Timings::$playerCheckNearEntities->stopTiming();
 			}
 
+			$item = $this->getInventory()->getItemInHand();
+			if ($this->isUsingItem() && $item instanceof Spear) {
+				$item->onUsingTick($this, $this->getItemUseDuration());
+			}
+
 			if($this->blockBreakHandler !== null && !$this->blockBreakHandler->update()){
 				$this->blockBreakHandler = null;
 			}
@@ -1567,6 +1575,13 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		$this->timings->stopTiming();
 
 		return true;
+	}
+
+	/**
+	 * Returns the current velocity the entity is moving at based on movement between ticks.
+	 */
+	public function getCurrentVelocity(): float{
+		return $this->currentVelocity;
 	}
 
 	public function canEat() : bool{
