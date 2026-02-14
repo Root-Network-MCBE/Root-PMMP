@@ -26,6 +26,7 @@ namespace pocketmine\data\bedrock\block\convert;
 use pocketmine\block\ActivatorRail;
 use pocketmine\block\AmethystCluster;
 use pocketmine\block\Anvil;
+use pocketmine\block\Azalea;
 use pocketmine\block\Bamboo;
 use pocketmine\block\BambooSapling;
 use pocketmine\block\Barrel;
@@ -64,6 +65,7 @@ use pocketmine\block\Leaves;
 use pocketmine\block\Lectern;
 use pocketmine\block\Lever;
 use pocketmine\block\Light;
+use pocketmine\block\MangrovePropagule;
 use pocketmine\block\MobHead;
 use pocketmine\block\NetherPortal;
 use pocketmine\block\NetherVines;
@@ -548,13 +550,45 @@ final class VanillaBlockMappings{
 		foreach([
 			Ids::ACACIA_SAPLING => Blocks::ACACIA_SAPLING(),
 			Ids::BIRCH_SAPLING => Blocks::BIRCH_SAPLING(),
+			Ids::CHERRY_SAPLING => Blocks::CHERRY_SAPLING(),
 			Ids::DARK_OAK_SAPLING => Blocks::DARK_OAK_SAPLING(),
 			Ids::JUNGLE_SAPLING => Blocks::JUNGLE_SAPLING(),
 			Ids::OAK_SAPLING => Blocks::OAK_SAPLING(),
+			Ids::PALE_OAK_SAPLING => Blocks::PALE_OAK_SAPLING(),
 			Ids::SPRUCE_SAPLING => Blocks::SPRUCE_SAPLING(),
 		] as $id => $block){
 			$reg->mapModel(Model::create($block, $id)->properties($properties));
 		}
+
+		self::registerAzaleaMappings($reg);
+		self::registerMangrovePropaguleMappings($reg);
+	}
+
+	private static function registerAzaleaMappings(BlockSerializerDeserializerRegistrar $reg) : void{
+		foreach([
+			Ids::AZALEA => Blocks::AZALEA(),
+			Ids::FLOWERING_AZALEA => Blocks::FLOWERING_AZALEA(),
+		] as $id => $block){
+			$reg->mapModel(Model::create($block, $id));
+		}
+	}
+
+	private static function registerMangrovePropaguleMappings(BlockSerializerDeserializerRegistrar $reg) : void{
+		$properties = [
+			new IntProperty(StateNames::PROPAGULE_STAGE, 0, 4,
+				fn(MangrovePropagule $b) => $b->getStage(),
+				fn(MangrovePropagule $b, int $v) => $b->setStage($v)
+			),
+			new BoolProperty(StateNames::HANGING,
+				fn(MangrovePropagule $b) => $b->isHanging(),
+				fn(MangrovePropagule $b, bool $v) => $b->setHanging($v)
+			),
+		];
+
+		$reg->mapModel(
+			Model::create(Blocks::MANGROVE_PROPAGULE(), Ids::MANGROVE_PROPAGULE)
+				->properties($properties)
+		);
 	}
 
 	private static function registerPlantMappings(BlockSerializerDeserializerRegistrar $reg, CommonProperties $commonProperties) : void{
@@ -1626,6 +1660,7 @@ final class VanillaBlockMappings{
 		self::mapAsymmetricSerializer($reg, Model::create(Blocks::OMINOUS_BANNER(), Ids::STANDING_BANNER)->properties([$commonProperties->floorSignLikeRotation]));
 		self::mapAsymmetricSerializer($reg, Model::create(Blocks::OMINOUS_WALL_BANNER(), Ids::WALL_BANNER)->properties([$commonProperties->horizontalFacingClassic]));
 
+		/** @var string $id */
 		foreach([
 			Ids::ACACIA_HANGING_SIGN => [Blocks::ACACIA_CEILING_CENTER_HANGING_SIGN(), Blocks::ACACIA_CEILING_EDGES_HANGING_SIGN(), Blocks::ACACIA_WALL_HANGING_SIGN()],
 			Ids::BIRCH_HANGING_SIGN => [Blocks::BIRCH_CEILING_CENTER_HANGING_SIGN(), Blocks::BIRCH_CEILING_EDGES_HANGING_SIGN(), Blocks::BIRCH_WALL_HANGING_SIGN()],

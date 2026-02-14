@@ -23,8 +23,11 @@ declare(strict_types=1);
 
 namespace pocketmine\world\generator\object;
 
+use pocketmine\block\Azalea;
 use pocketmine\block\Block;
+use pocketmine\block\FloweringAzalea;
 use pocketmine\block\Leaves;
+use pocketmine\block\MangrovePropagule;
 use pocketmine\block\Sapling;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\utils\Random;
@@ -108,6 +111,10 @@ abstract class Tree{
 	}
 
 	protected function canOverride(Block $block) : bool{
-		return $block->canBeReplaced() || $block instanceof Sapling || $block instanceof Leaves;
+		return $block->canBeReplaced()
+			|| $block instanceof Sapling
+			|| $block instanceof Leaves
+			|| $block instanceof Azalea
+			|| $block instanceof MangrovePropagule;
 	}
 }

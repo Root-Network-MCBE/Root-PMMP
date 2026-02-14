@@ -860,6 +860,15 @@ use function strtolower;
  * @method static Flower WHITE_TULIP()
  * @method static WitherRose WITHER_ROSE()
  * @method static Wool WOOL()
+ *
+ * @method static Sapling CHERRY_SAPLING()
+ * @method static Sapling PALE_OAK_SAPLING()
+ *
+ * @method static MangrovePropagule MANGROVE_PROPAGULE()
+ *
+ * @method static Azalea AZALEA()
+ * @method static FloweringAzalea FLOWERING_AZALEA()
+ *
  */
 final class VanillaBlocks{
 	use CloningRegistryTrait;
@@ -1284,6 +1293,13 @@ final class VanillaBlocks{
 		$saplingTypeInfo = new Info(BreakInfo::instant(), [Tags::POTTABLE_PLANTS]);
 
 		foreach(SaplingType::cases() as $saplingType){
+			if($saplingType === SaplingType::AZALEA){
+				continue;
+			}
+			if($saplingType === SaplingType::MANGROVE){
+				continue;
+			}
+
 			$name = $saplingType->getDisplayName();
 			self::register(strtolower($saplingType->name) . "_sapling", fn(BID $id) => new Sapling($id, $name . " Sapling", $saplingTypeInfo, $saplingType));
 		}
@@ -1291,6 +1307,10 @@ final class VanillaBlocks{
 			$name = $leavesType->getDisplayName();
 			self::register(strtolower($leavesType->name) . "_leaves", fn(BID $id) => new Leaves($id, $name . " Leaves", $leavesBreakInfo, $leavesType));
 		}
+
+		self::register("mangrove_propagule", fn(BID $id) => new MangrovePropagule($id, "Mangrove Propagule", $saplingTypeInfo));
+		self::register("azalea", fn(BID $id) => new Azalea($id, "Azalea", $saplingTypeInfo));
+		self::register("flowering_azalea", fn(BID $id) => new FloweringAzalea($id, "Flowering Azalea", $saplingTypeInfo));
 
 		$sandstoneBreakInfo = new Info(BreakInfo::pickaxe(0.8, ToolTier::WOOD));
 		$smoothSandstoneBreakInfo = new Info(BreakInfo::pickaxe(2.0, ToolTier::WOOD, 30.0));

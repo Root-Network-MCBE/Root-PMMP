@@ -30,25 +30,35 @@ use pocketmine\utils\LegacyEnumShimTrait;
  *  These are retained for backwards compatibility only.
  *
  * @method static TreeType ACACIA()
+ * @method static TreeType AZALEA()
  * @method static TreeType BIRCH()
+ * @method static TreeType CHERRY()
  * @method static TreeType DARK_OAK()
  * @method static TreeType JUNGLE()
+ * @method static TreeType MANGROVE()
  * @method static TreeType OAK()
+ * @method static TreeType PALE_OAK()
  * @method static TreeType SPRUCE()
+ *
+ * @method static TreeType CRIMSON()
+ * @method static TreeType WARPED()
  */
 enum TreeType{
 	use LegacyEnumShimTrait;
 
+	// Overworld
 	case OAK;
 	case SPRUCE;
 	case BIRCH;
 	case JUNGLE;
 	case ACACIA;
 	case DARK_OAK;
+	case AZALEA;
+	case MANGROVE;
+	case CHERRY;
+	case PALE_OAK;
 	case CRIMSON;
 	case WARPED;
-	//TODO: cherry blossom, mangrove, azalea
-	//TODO: perhaps huge mushrooms should be here too???
 
 	public function getDisplayName() : string{
 		return match($this){
@@ -58,6 +68,10 @@ enum TreeType{
 			self::JUNGLE => "Jungle",
 			self::ACACIA => "Acacia",
 			self::DARK_OAK => "Dark Oak",
+			self::AZALEA => "Azalea",
+			self::MANGROVE => "Mangrove",
+			self::CHERRY => "Cherry",
+			self::PALE_OAK => "Pale Oak",
 			self::CRIMSON => "Crimson",
 			self::WARPED => "Warped",
 		};

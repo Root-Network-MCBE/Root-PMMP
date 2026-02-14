@@ -835,7 +835,12 @@ final class BlockTypeIds{
 	public const INFESTED_DEEPSLATE = 10805;
 	public const STRUCTURE_VOID = 10806;
 
-	public const FIRST_UNUSED_BLOCK_ID = 10807;
+	public const PALE_OAK_SAPLING = 10807;
+	public const MANGROVE_PROPAGULE = 10808;
+	public const AZALEA = 10809;
+	public const FLOWERING_AZALEA = 10810;
+
+	public const FIRST_UNUSED_BLOCK_ID = 10811;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_BLOCK_ID;
 

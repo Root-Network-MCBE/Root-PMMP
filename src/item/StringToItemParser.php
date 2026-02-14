@@ -1213,6 +1213,14 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("workbench", fn() => Blocks::CRAFTING_TABLE());
 		$result->registerBlock("yellow_flower", fn() => Blocks::DANDELION());
 		$result->registerBlock("zombie_head", fn() => Blocks::MOB_HEAD()->setMobHeadType(MobHeadType::ZOMBIE));
+
+		$result->registerBlock("cherry_sapling", fn() => Blocks::CHERRY_SAPLING());
+		$result->registerBlock("pale_oak_sapling", fn() => Blocks::PALE_OAK_SAPLING());
+
+		$result->registerBlock("mangrove_propagule", fn() => Blocks::MANGROVE_PROPAGULE());
+
+		$result->registerBlock("azalea", fn() => Blocks::AZALEA());
+		$result->registerBlock("flowering_azalea", fn() => Blocks::FLOWERING_AZALEA());
 	}
 
 	private static function registerDynamicItems(self $result) : void{
