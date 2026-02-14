@@ -37,6 +37,7 @@ use pocketmine\block\inventory\StonecutterInventory;
 use pocketmine\crafting\FurnaceType;
 use pocketmine\data\bedrock\EnchantmentIdMap;
 use pocketmine\inventory\Inventory;
+use pocketmine\inventory\TradeInventory;
 use pocketmine\inventory\transaction\action\SlotChangeAction;
 use pocketmine\inventory\transaction\InventoryTransaction;
 use pocketmine\item\enchantment\EnchantingOption;
@@ -51,6 +52,7 @@ use pocketmine\network\mcpe\protocol\InventoryContentPacket;
 use pocketmine\network\mcpe\protocol\InventorySlotPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\PlayerEnchantOptionsPacket;
+use pocketmine\network\mcpe\protocol\PlaySoundPacket;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
 use pocketmine\network\mcpe\protocol\types\Enchant;
 use pocketmine\network\mcpe\protocol\types\EnchantOption as ProtocolEnchantOption;
@@ -326,6 +328,7 @@ class InventoryManager{
 			$inventory instanceof CraftingTableInventory => UIInventorySlotOffset::CRAFTING3X3_INPUT,
 			$inventory instanceof CartographyTableInventory => UIInventorySlotOffset::CARTOGRAPHY_TABLE,
 			$inventory instanceof SmithingTableInventory => UIInventorySlotOffset::SMITHING_TABLE,
+			$inventory instanceof TradeInventory => UIInventorySlotOffset::TRADE2_INGREDIENT,
 			default => null,
 		};
 	}
@@ -391,6 +394,9 @@ class InventoryManager{
 				default => WindowTypes::CONTAINER
 			};
 			return [ContainerOpenPacket::blockInv($id, $windowType, $blockPosition)];
+		}
+		if($inv instanceof TradeInventory){
+			return $inv->createInventoryOpenPackets($id);
 		}
 		return null;
 	}
@@ -768,4 +774,52 @@ class InventoryManager{
 		$info = new ItemStackInfo($itemStackRequestId, $itemStack->getId() === 0 ? 0 : $this->newItemStackId());
 		return $entry->itemStackInfos[$slotId] = $info;
 	}
+
+	public function openTrade(\pocketmine\inventory\TradeInventory $inventory) : void{
+		$this->onCurrentWindowRemove();
+
+		$this->openWindowDeferred(function() use ($inventory) : void{
+			$player = $this->player;
+
+			if($player->getCurrentWindow() === $inventory){
+				return;
+			}
+
+			$inventory->onOpen($player);
+			$player->setCurrentWindow($inventory);
+
+			$existingId = $this->getWindowId($inventory);
+			if($existingId !== null){
+				$windowId = $existingId;
+			}else{
+				$slotMap = $this->createComplexSlotMapping($inventory) ?? throw new \LogicException("No slotmap for TradeInventory");
+				$windowId = $this->addComplexDynamic($slotMap, $inventory);
+			}
+
+			foreach($this->containerOpenCallbacks as $callback){
+				$pks = $callback($windowId, $inventory);
+				if($pks !== null){
+					foreach($pks as $pk){
+						$this->session->sendDataPacket($pk);
+					}
+
+					$this->currentWindowType = WindowTypes::TRADING;
+
+					$this->syncContents($inventory);
+
+					$pos = $player->getPosition();
+					$this->session->sendDataPacket(PlaySoundPacket::create(
+						"mob.wanderingtrader.haggle",
+						$pos->x, $pos->y, $pos->z,
+						1,
+						(float) round(0.8 + 0.4 * (mt_rand() / mt_getrandmax()), 2)
+					));
+					return;
+				}
+			}
+
+			throw new \LogicException("Unsupported inventory type");
+		});
+	}
+
 }
