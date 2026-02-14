@@ -26,6 +26,7 @@ namespace pocketmine\network\mcpe\handler;
 use pocketmine\block\inventory\EnchantInventory;
 use pocketmine\block\inventory\SmithingTableInventory;
 use pocketmine\inventory\Inventory;
+use pocketmine\inventory\TradeInventory;
 use pocketmine\inventory\transaction\action\CreateItemAction;
 use pocketmine\inventory\transaction\action\DestroyItemAction;
 use pocketmine\inventory\transaction\action\DropItemAction;
@@ -33,6 +34,7 @@ use pocketmine\inventory\transaction\CraftingTransaction;
 use pocketmine\inventory\transaction\EnchantingTransaction;
 use pocketmine\inventory\transaction\InventoryTransaction;
 use pocketmine\inventory\transaction\SmithingTransaction;
+use pocketmine\inventory\transaction\TradingTransaction;
 use pocketmine\inventory\transaction\TransactionBuilder;
 use pocketmine\inventory\transaction\TransactionBuilderInventory;
 use pocketmine\item\Durable;
@@ -297,7 +299,12 @@ class ItemStackRequestExecutor{
 	 * @throws ItemStackRequestProcessException
 	 */
 	private function assertDoingCrafting() : void{
-		if(!$this->specialTransaction instanceof CraftingTransaction && !$this->specialTransaction instanceof EnchantingTransaction && !$this->specialTransaction instanceof SmithingTransaction){
+		if(
+			!$this->specialTransaction instanceof CraftingTransaction &&
+			!$this->specialTransaction instanceof EnchantingTransaction &&
+			!$this->specialTransaction instanceof SmithingTransaction &&
+			!$this->specialTransaction instanceof TradingTransaction
+		){
 			if($this->specialTransaction === null){
 				throw new ItemStackRequestProcessException("Expected CraftRecipe or CraftRecipeAuto action to precede this action");
 			}else{
@@ -357,10 +364,27 @@ class ItemStackRequestExecutor{
 					$this->specialTransaction = new SmithingTransaction($this->player, $recipe);
 					$this->setNextCreatedItem($recipe->getResultFor($window->getContents()));
 				}
+			} elseif ($window instanceof TradeInventory) {
+				$recipeData = $window->getRecipeData();
+				$recipe = $recipeData->getRecipe($action->getRecipeId() - 1);
+				if ($recipe !== null) {
+					$this->specialTransaction = new TradingTransaction($this->player, $recipeData, $recipe);
+					$this->setNextCreatedItem($recipe->getSell());
+				}
 			}else{
 				$this->beginCrafting($action->getRecipeId(), $action->getRepetitions());
 			}
 		}elseif($action instanceof CraftRecipeAutoStackRequestAction){
+			$window = $this->player->getCurrentWindow();
+			if($window instanceof TradeInventory){
+				$recipeData = $window->getRecipeData();
+				$recipe = $recipeData->getRecipe($action->getRecipeId() - 1);
+				if($recipe !== null){
+					$this->specialTransaction = new TradingTransaction($this->player, $recipeData, $recipe);
+					$this->setNextCreatedItem($recipe->getSell());
+					return;
+				}
+			}
 			$this->beginCrafting($action->getRecipeId(), $action->getRepetitions());
 		}elseif($action instanceof CraftingConsumeInputStackRequestAction){
 			$this->assertDoingCrafting();
