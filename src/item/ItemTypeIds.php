@@ -372,12 +372,11 @@ final class ItemTypeIds{
 	public const TROPICAL_FISH = 20332;
 	public const SADDLE = 20333;
 
-	public const RECORD_LAVA_CHICKEN = 20323;
-	public const BAMBOO_HANGING_SIGN = 20324;
-	public const BAMBOO_SIGN = 20325;
+	public const RECORD_LAVA_CHICKEN = 20334;
+	public const BAMBOO_HANGING_SIGN = 20335;
+	public const BAMBOO_SIGN = 20336;
 
-	public const FIRST_UNUSED_ITEM_ID = 20334;
-	public const FIRST_UNUSED_ITEM_ID = 20326;
+	public const FIRST_UNUSED_ITEM_ID = 20337;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_ITEM_ID;
 

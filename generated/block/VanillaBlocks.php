@@ -838,6 +838,10 @@ final class VanillaBlocks{
 	private static WitherRose $_mWITHER_ROSE;
 	private static Wool $_mWOOL;
 
+	private static MangrovePropagule $_mMANGROVE_PROPAGULE;
+	private static Sapling $_mCHERRY_SAPLING;
+	private static Sapling $_mPALE_OAK_SAPLING;
+
 	/**
 	 * @var Block[]
 	 * @phpstan-var array<string, Block>
@@ -5701,5 +5705,20 @@ final class VanillaBlocks{
 	public static function WOOL() : Wool{
 		if(!isset(self::$_mWOOL)){ self::init(); }
 		return clone self::$_mWOOL;
+	}
+
+	public static function MANGROVE_PROPAGULE(): MangrovePropagule{
+		if(!isset(self::$_mMANGROVE_PROPAGULE)) { self::init(); }
+		return clone self::$_mMANGROVE_PROPAGULE;
+	}
+
+	public static function CHERRY_SAPLING(): Sapling{
+		if(!isset(self::$_mCHERRY_SAPLING)) { self::init(); }
+		return clone self::$_mCHERRY_SAPLING;
+	}
+
+	public static function PALE_OAK_SAPLING(): Sapling{
+		if(!isset(self::$_mPALE_OAK_SAPLING)) { self::init(); }
+		return clone self::$_mPALE_OAK_SAPLING;
 	}
 }

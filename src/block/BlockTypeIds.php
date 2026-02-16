@@ -855,11 +855,10 @@ final class BlockTypeIds{
 	public const AZALEA = 10825;
 	public const FLOWERING_AZALEA = 10826;
 
-	public const PALE_OAK_SAPLING = 10807;
-	public const MANGROVE_PROPAGULE = 10808;
+	public const PALE_OAK_SAPLING = 10827;
+	public const MANGROVE_PROPAGULE = 10828;
 
-	public const FIRST_UNUSED_BLOCK_ID = 10811;
-	public const FIRST_UNUSED_BLOCK_ID = 10827;
+	public const FIRST_UNUSED_BLOCK_ID = 10829;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_BLOCK_ID;
 
