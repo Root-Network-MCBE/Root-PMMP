@@ -435,6 +435,15 @@ abstract class Living extends Entity{
 		return $total;
 	}
 
+	public function getToughnessPoints() : int{
+		$total = 0;
+		foreach($this->armorInventory->getContents() as $item){
+			$total += $item->getToughnessPoints();
+		}
+
+		return $total;
+	}
+
 	/**
 	 * Returns the highest level of the specified enchantment on any armour piece that the entity is currently wearing.
 	 */
@@ -467,9 +476,26 @@ abstract class Living extends Entity{
 			$source->setModifier(-$this->lastDamageCause->getBaseDamage(), EntityDamageEvent::MODIFIER_PREVIOUS_DAMAGE_COOLDOWN);
 		}
 		if($source->canBeReducedByArmor()){
-			$armorPoints = $this->getArmorPoints();
-			$source->setModifier(-$source->getFinalDamage() * min($armorPoints / ($armorPoints + 5), 0.80), EntityDamageEvent::MODIFIER_ARMOR);
+			$armor = $this->getArmorPoints();
+			$toughness = $this->getToughnessPoints();
+
+			$damage = $source->getFinalDamage();
+
+			$armorCalcCap = 60.0;
+			$damageForArmor = min($damage, $armorCalcCap);
+
+			$f = min(
+				20.0,
+				max(
+					$armor / 5.0,
+					$armor - ($damageForArmor / (2.0 + $toughness / 4.0))
+				)
+			);
+
+			$reduction = $f / 25.0;
+			$source->setModifier(-$damage * $reduction, EntityDamageEvent::MODIFIER_ARMOR);
 		}
+
 
 		$cause = $source->getCause();
 		if(($resistance = $this->effectManager->get(VanillaEffects::RESISTANCE())) !== null && $cause !== EntityDamageEvent::CAUSE_VOID && $cause !== EntityDamageEvent::CAUSE_SUICIDE){

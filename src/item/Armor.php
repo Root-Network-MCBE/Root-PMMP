@@ -68,6 +68,10 @@ class Armor extends Durable{
 		return $this->armorInfo->getDefensePoints();
 	}
 
+	public function getToughnessPoints(): int {
+		return $this->armorInfo->getToughness();
+	}
+
 	/**
 	 * @see ArmorInventory
 	 */
