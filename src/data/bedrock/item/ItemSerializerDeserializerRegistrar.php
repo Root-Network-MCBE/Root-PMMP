@@ -167,6 +167,11 @@ final class ItemSerializerDeserializerRegistrar{
 	 * Registers mappings for item IDs which directly correspond to PocketMine-MP items.
 	 */
 	private function register1to1ItemMappings() : void{
+		$this->map1to1Item(Ids::COD, Items::RAW_COD());
+		$this->map1to1Item(Ids::COOKED_COD, Items::COOKED_COD());
+		$this->map1to1Item(Ids::TROPICAL_FISH, Items::TROPICAL_FISH());
+		$this->map1to1Item(Ids::SADDLE, Items::SADDLE());
+
 		$this->map1to1Item(Ids::ACACIA_BOAT, Items::ACACIA_BOAT());
 		$this->map1to1Item(Ids::ACACIA_HANGING_SIGN, Items::ACACIA_HANGING_SIGN());
 		$this->map1to1Item(Ids::ACACIA_SIGN, Items::ACACIA_SIGN());

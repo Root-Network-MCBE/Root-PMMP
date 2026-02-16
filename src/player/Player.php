@@ -46,6 +46,7 @@ use pocketmine\entity\Location;
 use pocketmine\entity\NeverSavedWithChunkEntity;
 use pocketmine\entity\object\ItemEntity;
 use pocketmine\entity\projectile\Arrow;
+use pocketmine\entity\projectile\FishingHook;
 use pocketmine\entity\Skin;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
@@ -294,6 +295,8 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 	protected bool $blockCollision = true;
 	protected bool $flying = false;
 	protected bool $sneakPressed = false;
+
+	protected ?FishingHook $fishingHook = null;
 
 	protected float $flightSpeedMultiplier = self::DEFAULT_FLIGHT_SPEED_MULTIPLIER;
 
@@ -1299,6 +1302,24 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 	 */
 	public function isSneakPressed() : bool{
 		return $this->sneakPressed;
+	}
+
+	public function getFishingHook() : ?FishingHook{
+		if($this->fishingHook !== null){
+			if($this->fishingHook->isClosed() || $this->fishingHook->isFlaggedForDespawn()){
+				$this->fishingHook = null;
+			}
+		}
+		return $this->fishingHook;
+	}
+
+	public function setFishingHook(?FishingHook $fishingHook) : void{
+		if($fishingHook !== null){
+			if($fishingHook->getOwningEntity() !== $this){
+				return;
+			}
+		}
+		$this->fishingHook = $fishingHook;
 	}
 
 	/**

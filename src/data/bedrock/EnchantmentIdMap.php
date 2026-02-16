@@ -69,6 +69,8 @@ final class EnchantmentIdMap{
 
 		$this->register(EnchantmentIds::FROST_WALKER, VanillaEnchantments::FROST_WALKER());
 
+		$this->register(EnchantmentIds::LUCK_OF_THE_SEA, VanillaEnchantments::LUCK_OF_THE_SEA());
 		$this->register(EnchantmentIds::LUNGE, VanillaEnchantments::LUNGE());
+		$this->register(EnchantmentIds::LURE, VanillaEnchantments::LURE());
 	}
 }

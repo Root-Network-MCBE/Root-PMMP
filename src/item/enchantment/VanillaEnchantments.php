@@ -44,7 +44,9 @@ use pocketmine\utils\RegistryTrait;
  * @method static Enchantment FROST_WALKER()
  * @method static Enchantment INFINITY()
  * @method static KnockbackEnchantment KNOCKBACK()
+ * @method static Enchantment LUCK_OF_THE_SEA()
  * @method static Enchantment LUNGE()
+ * @method static Enchantment LURE()
  * @method static Enchantment MENDING()
  * @method static Enchantment POWER()
  * @method static ProtectionEnchantment PROJECTILE_PROTECTION()
@@ -308,6 +310,22 @@ final class VanillaEnchantments{
 			3,
 			fn(int $level) : int => 6 * ($level - 1) + 3,
 			15
+		));
+
+		self::register("luck_of_the_sea", new Enchantment(
+			KnownTranslationFactory::enchantment_lootBonusFishing(),
+			Rarity::UNCOMMON,
+			0,
+			0,
+			3
+		));
+
+		self::register("lure", new Enchantment(
+			KnownTranslationFactory::enchantment_fishingSpeed(),
+			Rarity::UNCOMMON,
+			0,
+			0,
+			3
 		));
 	}
 

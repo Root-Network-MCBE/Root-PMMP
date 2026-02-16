@@ -367,7 +367,12 @@ final class ItemTypeIds{
 	public const DIAMOND_SPEAR = 20328;
 	public const NETHERITE_SPEAR = 20329;
 
-	public const FIRST_UNUSED_ITEM_ID = 20330;
+	public const RAW_COD = 20330;
+	public const COOKED_COD = 20331;
+	public const TROPICAL_FISH = 20332;
+	public const SADDLE = 20333;
+
+	public const FIRST_UNUSED_ITEM_ID = 20334;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_ITEM_ID;
 

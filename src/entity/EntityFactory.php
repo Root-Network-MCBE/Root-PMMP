@@ -44,6 +44,7 @@ use pocketmine\entity\projectile\Arrow;
 use pocketmine\entity\projectile\Egg;
 use pocketmine\entity\projectile\EnderPearl;
 use pocketmine\entity\projectile\ExperienceBottle;
+use pocketmine\entity\projectile\FishingHook;
 use pocketmine\entity\projectile\IceBomb;
 use pocketmine\entity\projectile\Snowball;
 use pocketmine\entity\projectile\SplashPotion;
@@ -210,6 +211,10 @@ final class EntityFactory{
 		$this->register(Human::class, function(World $world, CompoundTag $nbt) : Human{
 			return new Human(Helper::parseLocation($nbt, $world), Human::parseSkinNBT($nbt), $nbt);
 		}, ['Human']);
+
+		$this->register(FishingHook::class, function(World $world, CompoundTag $nbt) : FishingHook{
+			return new FishingHook(Helper::parseLocation($nbt, $world), null, $nbt);
+		}, ['FishingHook', 'minecraft:fishing_hook']);
 	}
 
 	/**

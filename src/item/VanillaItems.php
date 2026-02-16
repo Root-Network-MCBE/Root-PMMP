@@ -375,6 +375,11 @@ use function strtolower;
  * @method static WritableBook WRITABLE_BOOK()
  * @method static WrittenBook WRITTEN_BOOK()
  * @method static SpawnEgg ZOMBIE_SPAWN_EGG()
+ *
+ * @method static RawCod RAW_COD()
+ * @method static CookedCod COOKED_COD()
+ * @method static TropicalFish TROPICAL_FISH()
+ * @method static Item SADDLE()
  */
 final class VanillaItems{
 	use CloningRegistryTrait;
@@ -428,6 +433,11 @@ final class VanillaItems{
 		//this doesn't use the regular register() because it doesn't have an item typeID
 		//in the future we'll probably want to dissociate this from the air block and make a proper null item
 		self::_registryRegister("air", Blocks::AIR()->asItem()->setCount(0));
+
+		self::register("raw_cod", fn(IID $id) => new RawCod($id, "Raw Cod"));
+		self::register("cooked_cod", fn(IID $id) => new CookedCod($id, "Cooked Cod"));
+		self::register("tropical_fish", fn(IID $id) => new TropicalFish($id, "Tropical Fish"));
+		self::register("saddle", fn(IID $id) => new Item($id, "Saddle"));
 
 		self::register("acacia_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::ACACIA_SIGN(), Blocks::ACACIA_WALL_SIGN()));
 		self::register("acacia_hanging_sign", fn(IID $id) => new HangingSign($id, "Acacia Hanging Sign", Blocks::ACACIA_CEILING_CENTER_HANGING_SIGN(), Blocks::ACACIA_CEILING_EDGES_HANGING_SIGN(), Blocks::ACACIA_WALL_HANGING_SIGN()));
