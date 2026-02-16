@@ -47,6 +47,9 @@ final class VanillaEnchantments{
 	private static Enchantment $_mFROST_WALKER;
 	private static Enchantment $_mINFINITY;
 	private static KnockbackEnchantment $_mKNOCKBACK;
+	private static Enchantment $_mLUCK_OF_THE_SEA;
+	private static Enchantment $_mLUNGE;
+	private static Enchantment $_mLURE;
 	private static Enchantment $_mMENDING;
 	private static Enchantment $_mPOWER;
 	private static ProtectionEnchantment $_mPROJECTILE_PROTECTION;
@@ -104,6 +107,9 @@ final class VanillaEnchantments{
 			"FROST_WALKER" => fn(Enchantment $v) => self::$_mFROST_WALKER = $v,
 			"INFINITY" => fn(Enchantment $v) => self::$_mINFINITY = $v,
 			"KNOCKBACK" => fn(KnockbackEnchantment $v) => self::$_mKNOCKBACK = $v,
+			"luck_of_the_sea" => fn(Enchantment $v) => self::$_mLUCK_OF_THE_SEA = $v,
+			"LUNGE" => fn(Enchantment $v) => self::$_mLUNGE = $v,
+			"lure" => fn(Enchantment $v) => self::$_mLURE = $v,
 			"MENDING" => fn(Enchantment $v) => self::$_mMENDING = $v,
 			"POWER" => fn(Enchantment $v) => self::$_mPOWER = $v,
 			"PROJECTILE_PROTECTION" => fn(ProtectionEnchantment $v) => self::$_mPROJECTILE_PROTECTION = $v,
@@ -207,6 +213,21 @@ final class VanillaEnchantments{
 	public static function KNOCKBACK() : KnockbackEnchantment{
 		if(!isset(self::$_mKNOCKBACK)){ self::init(); }
 		return self::$_mKNOCKBACK;
+	}
+
+	public static function LUCK_OF_THE_SEA() : Enchantment{
+		if(!isset(self::$_mLUCK_OF_THE_SEA)){ self::init(); }
+		return self::$_mLUCK_OF_THE_SEA;
+	}
+
+	public static function LUNGE() : Enchantment{
+		if(!isset(self::$_mLUNGE)){ self::init(); }
+		return self::$_mLUNGE;
+	}
+
+	public static function LURE() : Enchantment{
+		if(!isset(self::$_mLURE)){ self::init(); }
+		return self::$_mLURE;
 	}
 
 	public static function MENDING() : Enchantment{

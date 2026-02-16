@@ -511,6 +511,13 @@ final class VanillaBlocksInputs extends RegistrySource{
 		$saplingTypeInfo = new Info(BreakInfo::instant(), [Tags::POTTABLE_PLANTS]);
 
 		foreach(SaplingType::cases() as $saplingType){
+			if ($saplingType->name === SaplingType::AZALEA->name) {
+				continue;
+			}
+			if ($saplingType->name === SaplingType::MANGROVE->name) {
+				continue;
+			}
+
 			$name = $saplingType->getDisplayName();
 			self::register(strtolower($saplingType->name) . "_sapling", fn(BID $id) => new Sapling($id, $name . " Sapling", $saplingTypeInfo, $saplingType));
 		}

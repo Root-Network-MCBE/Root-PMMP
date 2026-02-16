@@ -171,6 +171,7 @@ final class VanillaItemsInputs extends RegistrySource{
 		self::register("coal", fn(IID $id) => new Coal($id, "Coal"));
 		self::register("cocoa_beans", fn(IID $id) => new CocoaBeans($id, "Cocoa Beans"));
 		self::register("compass", fn(IID $id) => new Compass($id, "Compass", [EnchantmentTags::COMPASS]));
+		self::register("cooked_cod", fn(IID $id) => new CookedCod($id, "Cooked Cod"));
 		self::register("cooked_chicken", fn(IID $id) => new CookedChicken($id, "Cooked Chicken"));
 		self::register("cooked_fish", fn(IID $id) => new CookedFish($id, "Cooked Fish"));
 		self::register("cooked_mutton", fn(IID $id) => new CookedMutton($id, "Cooked Mutton"));
@@ -275,6 +276,7 @@ final class VanillaItemsInputs extends RegistrySource{
 		self::register("rabbit_stew", fn(IID $id) => new RabbitStew($id, "Rabbit Stew"));
 		self::register("raw_beef", fn(IID $id) => new RawBeef($id, "Raw Beef"));
 		self::register("raw_chicken", fn(IID $id) => new RawChicken($id, "Raw Chicken"));
+		self::register("raw_cod", fn(IID $id) => new RawCod($id, "Raw Cod"));
 		self::register("raw_copper", fn(IID $id) => new Item($id, "Raw Copper"));
 		self::register("raw_fish", fn(IID $id) => new RawFish($id, "Raw Fish"));
 		self::register("raw_gold", fn(IID $id) => new Item($id, "Raw Gold"));
@@ -307,6 +309,7 @@ final class VanillaItemsInputs extends RegistrySource{
 		self::register("redstone_dust", fn(IID $id) => new Redstone($id, "Redstone"));
 		self::register("resin_brick", fn(IID $id) => new Item($id, "Resin Brick"));
 		self::register("rotten_flesh", fn(IID $id) => new RottenFlesh($id, "Rotten Flesh"));
+		self::register("saddle", fn(IID $id) => new Item($id, "Saddle"));
 		self::register("scute", fn(IID $id) => new Item($id, "Scute"));
 		self::register("shears", fn(IID $id) => new Shears($id, "Shears", [EnchantmentTags::SHEARS]));
 		self::register("shulker_shell", fn(IID $id) => new Item($id, "Shulker Shell"));
@@ -326,6 +329,7 @@ final class VanillaItemsInputs extends RegistrySource{
 		self::register("torchflower_seeds", fn(IID $id) => new TorchflowerSeeds($id, "Torchflower Seeds"));
 		self::register("totem", fn(IID $id) => new Totem($id, "Totem of Undying"));
 		self::register("trident", fn(IID $id) => new Trident($id, "Trident"));
+		self::register("tropical_fish", fn(IID $id) => new TropicalFish($id, "Tropical Fish"));
 		self::registerDelayed("warped_sign", fn(string $name) : ItemBlockWallOrFloor => new ItemBlockWallOrFloor(self::makeIID($name), Blocks::WARPED_SIGN(), Blocks::WARPED_WALL_SIGN()));
 		self::registerDelayed("warped_hanging_sign", fn(string $name) : HangingSign => new HangingSign(self::makeIID($name), "Warped Hanging Sign", Blocks::WARPED_CEILING_CENTER_HANGING_SIGN(), Blocks::WARPED_CEILING_EDGES_HANGING_SIGN(), Blocks::WARPED_WALL_HANGING_SIGN()));
 		self::registerDelayed("water_bucket", fn(string $name) : LiquidBucket => new LiquidBucket(self::makeIID($name), "Water Bucket", Blocks::WATER()));
@@ -366,13 +370,14 @@ final class VanillaItemsInputs extends RegistrySource{
 			[ToolTier::IRON, "iron", "Iron"],
 			[ToolTier::NETHERITE, "netherite", "Netherite"],
 			[ToolTier::STONE, "stone", "Stone"],
-			[ToolTier::WOOD, "wooden", "Wooden"]
+			[ToolTier::WOOD, "wooden", "Wooden"],
 		] as [$tier, $idPrefix, $namePrefix]){
 			self::register($idPrefix . "_axe", fn(IID $id) => new Axe($id, $namePrefix . " Axe", $tier, [EnchantmentTags::AXE]));
 			self::register($idPrefix . "_hoe", fn(IID $id) => new Hoe($id, $namePrefix . " Hoe", $tier, [EnchantmentTags::HOE]));
 			self::register($idPrefix . "_pickaxe", fn(IID $id) => new Pickaxe($id, $namePrefix . " Pickaxe", $tier, [EnchantmentTags::PICKAXE]));
 			self::register($idPrefix . "_shovel", fn(IID $id) => new Shovel($id, $namePrefix . " Shovel", $tier, [EnchantmentTags::SHOVEL]));
 			self::register($idPrefix . "_sword", fn(IID $id) => new Sword($id, $namePrefix . " Sword", $tier, [EnchantmentTags::SWORD]));
+			self::register($idPrefix . "_spear", fn(IID $id) => new Spear($id, $namePrefix . " Spear", $tier, [EnchantmentTags::SPEAR]));
 		}
 	}
 

@@ -164,6 +164,7 @@ final class VanillaBlocks{
 	private static Wood $_mCHERRY_LOG;
 	private static Planks $_mCHERRY_PLANKS;
 	private static WoodenPressurePlate $_mCHERRY_PRESSURE_PLATE;
+	private static Sapling $_mCHERRY_SAPLING;
 	private static FloorSign $_mCHERRY_SIGN;
 	private static WoodenSlab $_mCHERRY_SLAB;
 	private static WoodenStairs $_mCHERRY_STAIRS;
@@ -536,6 +537,7 @@ final class VanillaBlocks{
 	private static Wood $_mMANGROVE_LOG;
 	private static Planks $_mMANGROVE_PLANKS;
 	private static WoodenPressurePlate $_mMANGROVE_PRESSURE_PLATE;
+	private static MangrovePropagule $_mMANGROVE_PROPAGULE;
 	private static MangroveRoots $_mMANGROVE_ROOTS;
 	private static FloorSign $_mMANGROVE_SIGN;
 	private static WoodenSlab $_mMANGROVE_SLAB;
@@ -615,6 +617,7 @@ final class VanillaBlocks{
 	private static Wood $_mPALE_OAK_LOG;
 	private static Planks $_mPALE_OAK_PLANKS;
 	private static WoodenPressurePlate $_mPALE_OAK_PRESSURE_PLATE;
+	private static Sapling $_mPALE_OAK_SAPLING;
 	private static FloorSign $_mPALE_OAK_SIGN;
 	private static WoodenSlab $_mPALE_OAK_SLAB;
 	private static WoodenStairs $_mPALE_OAK_STAIRS;
@@ -838,10 +841,6 @@ final class VanillaBlocks{
 	private static WitherRose $_mWITHER_ROSE;
 	private static Wool $_mWOOL;
 
-	private static MangrovePropagule $_mMANGROVE_PROPAGULE;
-	private static Sapling $_mCHERRY_SAPLING;
-	private static Sapling $_mPALE_OAK_SAPLING;
-
 	/**
 	 * @var Block[]
 	 * @phpstan-var array<string, Block>
@@ -1001,6 +1000,7 @@ final class VanillaBlocks{
 			"cherry_log" => fn(Wood $v) => self::$_mCHERRY_LOG = $v,
 			"cherry_planks" => fn(Planks $v) => self::$_mCHERRY_PLANKS = $v,
 			"cherry_pressure_plate" => fn(WoodenPressurePlate $v) => self::$_mCHERRY_PRESSURE_PLATE = $v,
+			"cherry_sapling" => fn(Sapling $v) => self::$_mCHERRY_SAPLING = $v,
 			"cherry_sign" => fn(FloorSign $v) => self::$_mCHERRY_SIGN = $v,
 			"cherry_slab" => fn(WoodenSlab $v) => self::$_mCHERRY_SLAB = $v,
 			"cherry_stairs" => fn(WoodenStairs $v) => self::$_mCHERRY_STAIRS = $v,
@@ -1373,6 +1373,7 @@ final class VanillaBlocks{
 			"mangrove_log" => fn(Wood $v) => self::$_mMANGROVE_LOG = $v,
 			"mangrove_planks" => fn(Planks $v) => self::$_mMANGROVE_PLANKS = $v,
 			"mangrove_pressure_plate" => fn(WoodenPressurePlate $v) => self::$_mMANGROVE_PRESSURE_PLATE = $v,
+			"mangrove_propagule" => fn(MangrovePropagule $v) => self::$_mMANGROVE_PROPAGULE = $v,
 			"mangrove_roots" => fn(MangroveRoots $v) => self::$_mMANGROVE_ROOTS = $v,
 			"mangrove_sign" => fn(FloorSign $v) => self::$_mMANGROVE_SIGN = $v,
 			"mangrove_slab" => fn(WoodenSlab $v) => self::$_mMANGROVE_SLAB = $v,
@@ -1452,6 +1453,7 @@ final class VanillaBlocks{
 			"pale_oak_log" => fn(Wood $v) => self::$_mPALE_OAK_LOG = $v,
 			"pale_oak_planks" => fn(Planks $v) => self::$_mPALE_OAK_PLANKS = $v,
 			"pale_oak_pressure_plate" => fn(WoodenPressurePlate $v) => self::$_mPALE_OAK_PRESSURE_PLATE = $v,
+			"pale_oak_sapling" => fn(Sapling $v) => self::$_mPALE_OAK_SAPLING = $v,
 			"pale_oak_sign" => fn(FloorSign $v) => self::$_mPALE_OAK_SIGN = $v,
 			"pale_oak_slab" => fn(WoodenSlab $v) => self::$_mPALE_OAK_SLAB = $v,
 			"pale_oak_stairs" => fn(WoodenStairs $v) => self::$_mPALE_OAK_STAIRS = $v,
@@ -2340,6 +2342,11 @@ final class VanillaBlocks{
 	public static function CHERRY_PRESSURE_PLATE() : WoodenPressurePlate{
 		if(!isset(self::$_mCHERRY_PRESSURE_PLATE)){ self::init(); }
 		return clone self::$_mCHERRY_PRESSURE_PLATE;
+	}
+
+	public static function CHERRY_SAPLING() : Sapling{
+		if(!isset(self::$_mCHERRY_SAPLING)){ self::init(); }
+		return clone self::$_mCHERRY_SAPLING;
 	}
 
 	public static function CHERRY_SIGN() : FloorSign{
@@ -4202,6 +4209,11 @@ final class VanillaBlocks{
 		return clone self::$_mMANGROVE_PRESSURE_PLATE;
 	}
 
+	public static function MANGROVE_PROPAGULE() : MangrovePropagule{
+		if(!isset(self::$_mMANGROVE_PROPAGULE)){ self::init(); }
+		return clone self::$_mMANGROVE_PROPAGULE;
+	}
+
 	public static function MANGROVE_ROOTS() : MangroveRoots{
 		if(!isset(self::$_mMANGROVE_ROOTS)){ self::init(); }
 		return clone self::$_mMANGROVE_ROOTS;
@@ -4595,6 +4607,11 @@ final class VanillaBlocks{
 	public static function PALE_OAK_PRESSURE_PLATE() : WoodenPressurePlate{
 		if(!isset(self::$_mPALE_OAK_PRESSURE_PLATE)){ self::init(); }
 		return clone self::$_mPALE_OAK_PRESSURE_PLATE;
+	}
+
+	public static function PALE_OAK_SAPLING() : Sapling{
+		if(!isset(self::$_mPALE_OAK_SAPLING)){ self::init(); }
+		return clone self::$_mPALE_OAK_SAPLING;
 	}
 
 	public static function PALE_OAK_SIGN() : FloorSign{
@@ -5705,20 +5722,5 @@ final class VanillaBlocks{
 	public static function WOOL() : Wool{
 		if(!isset(self::$_mWOOL)){ self::init(); }
 		return clone self::$_mWOOL;
-	}
-
-	public static function MANGROVE_PROPAGULE(): MangrovePropagule{
-		if(!isset(self::$_mMANGROVE_PROPAGULE)) { self::init(); }
-		return clone self::$_mMANGROVE_PROPAGULE;
-	}
-
-	public static function CHERRY_SAPLING(): Sapling{
-		if(!isset(self::$_mCHERRY_SAPLING)) { self::init(); }
-		return clone self::$_mCHERRY_SAPLING;
-	}
-
-	public static function PALE_OAK_SAPLING(): Sapling{
-		if(!isset(self::$_mPALE_OAK_SAPLING)) { self::init(); }
-		return clone self::$_mPALE_OAK_SAPLING;
 	}
 }

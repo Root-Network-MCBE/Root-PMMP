@@ -900,6 +900,10 @@ final class KnownTranslationFactory{
 		return new Translatable(KnownTranslationKeys::ENCHANTMENT_LOOTBONUSFISHING, []);
 	}
 
+	public static function enchantment_lunge() : Translatable{
+		return new Translatable(KnownTranslationKeys::ENCHANTMENT_LUNGE, []);
+	}
+
 	public static function enchantment_mending() : Translatable{
 		return new Translatable(KnownTranslationKeys::ENCHANTMENT_MENDING, []);
 	}
@@ -966,10 +970,6 @@ final class KnownTranslationFactory{
 
 	public static function enchantment_waterWorker() : Translatable{
 		return new Translatable(KnownTranslationKeys::ENCHANTMENT_WATERWORKER, []);
-	}
-
-	public static function enchantment_lunge() : Translatable{
-		return new Translatable(KnownTranslationKeys::ENCHANTMENT_LUNGE, []);
 	}
 
 	public static function gameMode_adventure() : Translatable{

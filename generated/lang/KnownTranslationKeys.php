@@ -195,6 +195,7 @@ final class KnownTranslationKeys{
 	public const ENCHANTMENT_LOOTBONUS = "enchantment.lootBonus";
 	public const ENCHANTMENT_LOOTBONUSDIGGER = "enchantment.lootBonusDigger";
 	public const ENCHANTMENT_LOOTBONUSFISHING = "enchantment.lootBonusFishing";
+	public const ENCHANTMENT_LUNGE = "enchantment.lunge";
 	public const ENCHANTMENT_MENDING = "enchantment.mending";
 	public const ENCHANTMENT_OXYGEN = "enchantment.oxygen";
 	public const ENCHANTMENT_PROTECT_ALL = "enchantment.protect.all";
@@ -212,7 +213,6 @@ final class KnownTranslationKeys{
 	public const ENCHANTMENT_UNTOUCHING = "enchantment.untouching";
 	public const ENCHANTMENT_WATERWALKER = "enchantment.waterWalker";
 	public const ENCHANTMENT_WATERWORKER = "enchantment.waterWorker";
-	public const ENCHANTMENT_LUNGE = "enchantment.lunge";
 	public const GAMEMODE_ADVENTURE = "gameMode.adventure";
 	public const GAMEMODE_CHANGED = "gameMode.changed";
 	public const GAMEMODE_CREATIVE = "gameMode.creative";

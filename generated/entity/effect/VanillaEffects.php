@@ -58,6 +58,7 @@ final class VanillaEffects{
 	private static Effect $_mRESISTANCE;
 	private static SaturationEffect $_mSATURATION;
 	private static SlownessEffect $_mSLOWNESS;
+	private static SlowFallingEffect $_mSLOW_FALLING;
 	private static SpeedEffect $_mSPEED;
 	private static Effect $_mSTRENGTH;
 	private static Effect $_mWATER_BREATHING;
@@ -119,6 +120,7 @@ final class VanillaEffects{
 			"resistance" => fn(Effect $v) => self::$_mRESISTANCE = $v,
 			"saturation" => fn(SaturationEffect $v) => self::$_mSATURATION = $v,
 			"slowness" => fn(SlownessEffect $v) => self::$_mSLOWNESS = $v,
+			"slow_falling" => fn(SlowFallingEffect $v) => self::$_mSLOW_FALLING = $v,
 			"speed" => fn(SpeedEffect $v) => self::$_mSPEED = $v,
 			"strength" => fn(Effect $v) => self::$_mSTRENGTH = $v,
 			"water_breathing" => fn(Effect $v) => self::$_mWATER_BREATHING = $v,
@@ -270,6 +272,11 @@ final class VanillaEffects{
 	public static function SLOWNESS() : SlownessEffect{
 		if(!isset(self::$_mSLOWNESS)){ self::init(); }
 		return self::$_mSLOWNESS;
+	}
+
+	public static function SLOW_FALLING() : SlowFallingEffect{
+		if(!isset(self::$_mSLOW_FALLING)){ self::init(); }
+		return self::$_mSLOW_FALLING;
 	}
 
 	public static function SPEED() : SpeedEffect{
