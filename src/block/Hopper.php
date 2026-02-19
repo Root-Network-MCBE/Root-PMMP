@@ -1,24 +1,5 @@
 <?php
 
-/*
- *
- *  ____            _        _   __  __ _                  __  __ ____
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
- * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * @author PocketMine Team
- * @link http://www.pocketmine.net/
- *
- *
- */
-
 declare(strict_types=1);
 
 namespace pocketmine\block;
@@ -31,6 +12,7 @@ use pocketmine\data\runtime\RuntimeDataDescriber;
 use pocketmine\entity\object\ItemEntity;
 use pocketmine\event\block\HopperActionEvent;
 use pocketmine\event\block\HopperPickupItemEvent;
+use pocketmine\inventory\Inventory;
 use pocketmine\item\Item;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
@@ -47,6 +29,10 @@ class Hopper extends Transparent implements HopperInteractable{
 
 	public const TRANSFER_COOLDOWN = 8;
 	public const ENTITY_PICKUP_COOLDOWN = 8;
+
+	public const TRANSFER_PER_ACTION = 1;
+
+	public const ENTITY_PICKUP_PER_ACTION = 1;
 
 	private int $facing = Facing::DOWN;
 
@@ -65,7 +51,6 @@ class Hopper extends Transparent implements HopperInteractable{
 		if($tile instanceof TileHopper){
 			$this->lastTransferActionTick = $this->position->getWorld()->getServer()->getTick() - $tile->getTransferCooldown();
 		}
-
 		return $this;
 	}
 
@@ -89,10 +74,10 @@ class Hopper extends Transparent implements HopperInteractable{
 
 	protected function recalculateCollisionBoxes() : array{
 		$result = [
-			AxisAlignedBB::one()->trim(Facing::UP, 6 / 16) //the empty area around the bottom is currently considered solid
+			AxisAlignedBB::one()->trim(Facing::UP, 6 / 16)
 		];
 
-		foreach(Facing::HORIZONTAL as $f){ //add the frame parts around the bowl
+		foreach(Facing::HORIZONTAL as $f){
 			$result[] = AxisAlignedBB::one()->trim($f, 14 / 16);
 		}
 		return $result;
@@ -120,7 +105,7 @@ class Hopper extends Transparent implements HopperInteractable{
 	public function onInteract(Item $item, int $face, Vector3 $clickVector, ?Player $player = null, array &$returnedItems = []) : bool{
 		if($player !== null){
 			$tile = $this->position->getWorld()->getTile($this->position);
-			if($tile instanceof TileHopper){ //TODO: find a way to have inventories open on click without this boilerplate in every block
+			if($tile instanceof TileHopper){
 				$player->setCurrentWindow($tile->getInventory());
 			}
 			return true;
@@ -128,61 +113,93 @@ class Hopper extends Transparent implements HopperInteractable{
 		return false;
 	}
 
+	protected function transferMultiple(Inventory $from, Inventory $to, int $count) : bool{
+		$moved = false;
+		$count = max(0, $count);
+		for($i = 0; $i < $count; $i++){
+			if(!HopperTransferHelper::transferOneItem($from, $to)){
+				break;
+			}
+			$moved = true;
+		}
+		return $moved;
+	}
+
 	public function onScheduledUpdate() : void{
 		$world = $this->position->getWorld();
 
-		if(!$this->powered && !$this->isTransferInCooldown()){
+		if (!$this->powered && !$this->isTransferInCooldown()) {
 			$facingBlock = $this->getSide($this->facing);
 			$pushSuccess = false;
+
 			$ev = new HopperActionEvent($this, $facingBlock, HopperActionEvent::ACTION_PUSH);
 			$ev->call();
-			if(!$ev->isCancelled() && $facingBlock instanceof HopperInteractable){
-				$pushSuccess = $facingBlock->doHopperPush($this);
+			if (!$ev->isCancelled() && $facingBlock instanceof HopperInteractable) {
+				for ($i = 0; $i < static::TRANSFER_PER_ACTION; $i++) {
+					if (!$facingBlock->doHopperPush($this)) {
+						break;
+					}
+					$pushSuccess = true;
+				}
 			}
 
 			$topBlock = $this->getSide(Facing::UP);
 			$pullSuccess = false;
+
 			$ev = new HopperActionEvent($this, $topBlock, HopperActionEvent::ACTION_PULL);
 			$ev->call();
-			if(!$ev->isCancelled() && $topBlock instanceof HopperInteractable){
-				$pullSuccess = $topBlock->doHopperPull($this);
+			if (!$ev->isCancelled() && $topBlock instanceof HopperInteractable) {
+				for ($i = 0; $i < static::TRANSFER_PER_ACTION; $i++) {
+					if (!$topBlock->doHopperPull($this)) {
+						break;
+					}
+					$pullSuccess = true;
+				}
 			}
 
-			if($pullSuccess || $pushSuccess){
+			if ($pushSuccess || $pullSuccess) {
 				$this->updateTransferCooldown();
 			}
 		}
 
-		if(!$this->powered && !$this->isEntityPickingInCooldown()){
+		if (!$this->powered && !$this->isEntityPickingInCooldown()) {
 			$currentTile = $world->getTile($this->position);
-			if(!$currentTile instanceof TileHopper){
+			if (!$currentTile instanceof TileHopper) {
 				return;
 			}
 
-			foreach($world->getNearbyEntities($this->getPickingBox()) as $entity){
-				if(!$entity instanceof ItemEntity){
+			foreach ($world->getNearbyEntities($this->getPickingBox()) as $entity) {
+				if (!$entity instanceof ItemEntity) {
 					continue;
 				}
 
-				if(HopperPickupItemEvent::hasHandlers()){
+				if (HopperPickupItemEvent::hasHandlers()) {
 					$ev = new HopperPickupItemEvent($entity, $this);
 					$ev->call();
-					if($ev->isCancelled()){
+					if ($ev->isCancelled()) {
 						continue;
 					}
 				}
 
-				$item = $entity->getItem();
-				$ret = $currentTile->getInventory()->addItem($item);
-				if(count($ret) > 0){
-					$newItem = array_shift($ret);
-					$entity->setStackSize($newItem->getCount());
-				}else{
+				$stack = $entity->getItem();
+				if ($stack->getCount() <= 0) {
+					continue;
+				}
+
+				$toInsert = clone $stack;
+				$ret = $currentTile->getInventory()->addItem($toInsert);
+
+				if (count($ret) > 0) {
+					$remaining = 0;
+					foreach ($ret as $left) {
+						$remaining += $left->getCount();
+					}
+					$entity->setStackSize($remaining);
+				} else {
 					$entity->flagForDespawn();
 				}
 
 				$this->updateEntityPickingCooldown();
-
 				break;
 			}
 		}
@@ -205,12 +222,14 @@ class Hopper extends Transparent implements HopperInteractable{
 			return false;
 		}
 
-		if(HopperTransferHelper::transferOneItem(
+		$ok = $this->transferMultiple(
 			$tileHopper->getInventory(),
-			$currentTile->getInventory()
-		)){
+			$currentTile->getInventory(),
+			static::TRANSFER_PER_ACTION
+		);
+
+		if($ok){
 			$hopperBlock->updateTransferCooldown();
-			// don't schedule another update, hopper block update themselves automatically if needed
 			return true;
 		}
 
@@ -232,9 +251,10 @@ class Hopper extends Transparent implements HopperInteractable{
 			return false;
 		}
 
-		return HopperTransferHelper::transferOneItem(
+		return $this->transferMultiple(
 			$currentTile->getInventory(),
-			$tileHopper->getInventory()
+			$tileHopper->getInventory(),
+			static::TRANSFER_PER_ACTION
 		);
 	}
 
@@ -248,12 +268,12 @@ class Hopper extends Transparent implements HopperInteractable{
 
 	private function isTransferInCooldown() : bool{
 		$currentTick = $this->position->getWorld()->getServer()->getTick();
-		return $currentTick - $this->lastTransferActionTick < self::TRANSFER_COOLDOWN;
+		return $currentTick - $this->lastTransferActionTick < static::TRANSFER_COOLDOWN;
 	}
 
 	private function isEntityPickingInCooldown() : bool{
 		$currentTick = $this->position->getWorld()->getServer()->getTick();
-		return $currentTick - $this->lastEntityPickupTick < self::ENTITY_PICKUP_COOLDOWN;
+		return $currentTick - $this->lastEntityPickupTick < static::ENTITY_PICKUP_COOLDOWN;
 	}
 
 	private function updateTransferCooldown() : void{
@@ -269,10 +289,10 @@ class Hopper extends Transparent implements HopperInteractable{
 
 		$nextTick = 1;
 		if($this->isTransferInCooldown()){
-			$nextTick = self::TRANSFER_COOLDOWN - ($currentTick - $this->lastTransferActionTick);
+			$nextTick = static::TRANSFER_COOLDOWN - ($currentTick - $this->lastTransferActionTick);
 		}
 		if($this->isEntityPickingInCooldown()){
-			$nextTick = min($nextTick, self::ENTITY_PICKUP_COOLDOWN - ($currentTick - $this->lastEntityPickupTick));
+			$nextTick = min($nextTick, static::ENTITY_PICKUP_COOLDOWN - ($currentTick - $this->lastEntityPickupTick));
 		}
 
 		return $nextTick;
