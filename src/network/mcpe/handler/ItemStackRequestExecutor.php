@@ -366,25 +366,74 @@ class ItemStackRequestExecutor{
 				}
 			} elseif ($window instanceof TradeInventory) {
 				$recipeData = $window->getRecipeData();
-				$recipe = $recipeData->getRecipe($action->getRecipeId() - 1);
-				if ($recipe !== null) {
-					$this->specialTransaction = new TradingTransaction($this->player, $recipeData, $recipe);
-					$this->setNextCreatedItem($recipe->getSell());
+				$rid = $action->getRecipeId();
+				$rep = $action->getRepetitions();
+
+				// Debug
+				$this->dbg("CraftRecipeStackRequestAction recipeId=$rid reps=$rep");
+
+				// Tolérant 0-based / 1-based
+				$recipe = $recipeData->getRecipe($rid) ?? ($rid > 0 ? $recipeData->getRecipe($rid - 1) : null);
+				if($recipe === null){
+					$this->dbg("Recipe not found for rid=$rid (or rid-1)");
+					// Laisse tomber -> le client recevra un rejet propre plutôt qu'un crash
+					return;
 				}
-			}else{
+
+				$this->specialTransaction = new TradingTransaction($this->player, $recipeData, $recipe);
+
+				// IMPORTANT: shift-click = reps > 1 parfois
+				$result = clone $recipe->getSell();
+				if($rep > 1){
+					$result->setCount($result->getCount() * $rep);
+				}
+				$this->setNextCreatedItem($result);
+
+				// IMPORTANT: resync slots trade + output "created"
+				// Selon versions Bedrock, c'est généralement TRADE2.
+				$this->markSlotForSync(ContainerUIIds::TRADE2_INGREDIENT1, 0);
+				$this->markSlotForSync(ContainerUIIds::TRADE2_INGREDIENT2, 1);
+				$this->markSlotForSync(ContainerUIIds::TRADE2_RESULT_PREVIEW, 2);
+				$this->markSlotForSync(ContainerUIIds::CREATED_OUTPUT, UIInventorySlotOffset::CREATED_ITEM_OUTPUT);
+
+				return;
+			} else {
 				$this->beginCrafting($action->getRecipeId(), $action->getRepetitions());
 			}
 		}elseif($action instanceof CraftRecipeAutoStackRequestAction){
 			$window = $this->player->getCurrentWindow();
+
 			if($window instanceof TradeInventory){
 				$recipeData = $window->getRecipeData();
-				$recipe = $recipeData->getRecipe($action->getRecipeId() - 1);
-				if($recipe !== null){
-					$this->specialTransaction = new TradingTransaction($this->player, $recipeData, $recipe);
-					$this->setNextCreatedItem($recipe->getSell());
+				$rid = $action->getRecipeId();
+				$rep = $action->getRepetitions();
+
+				// Debug
+				$this->dbg("CraftRecipeAutoStackRequestAction recipeId=$rid reps=$rep");
+
+				$recipe = $recipeData->getRecipe($rid) ?? ($rid > 0 ? $recipeData->getRecipe($rid - 1) : null);
+				if($recipe === null){
+					$this->dbg("Recipe not found for rid=$rid (or rid-1)");
 					return;
 				}
+
+				$this->specialTransaction = new TradingTransaction($this->player, $recipeData, $recipe);
+
+				$result = clone $recipe->getSell();
+				if($rep > 1){
+					$result->setCount($result->getCount() * $rep);
+				}
+				$this->setNextCreatedItem($result);
+
+				// Resync indispensable pour éviter mismatch sur consume
+				$this->markSlotForSync(ContainerUIIds::TRADE2_INGREDIENT1, 0);
+				$this->markSlotForSync(ContainerUIIds::TRADE2_INGREDIENT2, 1);
+				$this->markSlotForSync(ContainerUIIds::TRADE2_RESULT_PREVIEW, 2);
+				$this->markSlotForSync(ContainerUIIds::CREATED_OUTPUT, UIInventorySlotOffset::CREATED_ITEM_OUTPUT);
+
+				return;
 			}
+
 			$this->beginCrafting($action->getRecipeId(), $action->getRepetitions());
 		}elseif($action instanceof CraftingConsumeInputStackRequestAction){
 			$this->assertDoingCrafting();
@@ -413,6 +462,33 @@ class ItemStackRequestExecutor{
 		}else{
 			throw new ItemStackRequestProcessException("Unhandled item stack request action");
 		}
+	}
+
+	private bool $debugTrades = true; // <- passe à false quand c'est OK
+
+	private function dbg(string $msg) : void{
+		if($this->debugTrades){
+			$this->player->getServer()->getLogger()->debug("[TradeISR] " . $msg);
+		}
+	}
+
+	private function markSlotForSync(int $containerId, int $slotId) : void{
+		try{
+			ItemStackContainerIdTranslator::translate(
+				$containerId,
+				$this->inventoryManager->getCurrentWindowId(),
+				$slotId
+			);
+		}catch(\Throwable $e){
+			$this->dbg("Skip sync for unsupported containerId=$containerId slot=$slotId (" . $e->getMessage() . ")");
+			return;
+		}
+
+		$this->requestSlotInfos[] = new ItemStackRequestSlotInfo(
+			new FullContainerName($containerId),
+			$slotId,
+			$this->request->getRequestId()
+		);
 	}
 
 	/**

@@ -75,6 +75,8 @@ final class ItemStackContainerIdTranslator{
 			ContainerUIIds::TRADE2_INGREDIENT1,
 			ContainerUIIds::TRADE2_INGREDIENT2,
 			ContainerUIIds::TRADE_INGREDIENT1,
+			ContainerUIIds::TRADE2_RESULT_PREVIEW,
+			ContainerUIIds::TRADE_RESULT_PREVIEW,
 			ContainerUIIds::TRADE_INGREDIENT2 => [ContainerIds::UI, $slotId],
 
 			ContainerUIIds::BARREL,
