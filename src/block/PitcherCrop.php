@@ -46,7 +46,7 @@ final class PitcherCrop extends Flowable implements Ageable{
 	public const MAX_AGE = 2;
 
 	private function canBeSupportedAt(Block $block) : bool{
-		return $block->getSide(Facing::DOWN)->getTypeId() === BlockTypeIds::FARMLAND;
+		return $block->getSide(Facing::DOWN) instanceof Farmland;
 	}
 
 	protected function recalculateCollisionBoxes() : array{

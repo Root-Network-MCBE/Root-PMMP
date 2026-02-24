@@ -63,7 +63,7 @@ class SweetBerryBush extends Flowable implements Ageable{
 	 * @deprecated
 	 */
 	protected function canBeSupportedBy(Block $block) : bool{
-		return $block->getTypeId() !== BlockTypeIds::FARMLAND && //bedrock-specific thing (bug?)
+		return $block instanceof Farmland && //bedrock-specific thing (bug?)
 			($block->hasTypeTag(BlockTypeTags::DIRT) || $block->hasTypeTag(BlockTypeTags::MUD));
 	}
 

@@ -886,13 +886,13 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			$this->usedChunks[$index] = UsedChunkStatus::REQUESTED_GENERATION;
 			$this->activeChunkGenerationRequests[$index] = true;
 			unset($this->loadQueue[$index]);
-			$world->registerChunkLoader($this->chunkLoader, $X, $Z, true);
-			$world->registerChunkListener($this, $X, $Z);
+			$world->registerChunkLoader($this->chunkLoader, (int)$X, (int)$Z, true);
+			$world->registerChunkListener($this, (int)$X, (int)$Z);
 			if(isset($this->tickingChunks[$index])){
-				$world->registerTickingChunk($this->chunkTicker, $X, $Z);
+				$world->registerTickingChunk($this->chunkTicker, (int)$X, (int)$Z);
 			}
 
-			$world->requestChunkPopulation($X, $Z, $this->chunkLoader)->onCompletion(
+			$world->requestChunkPopulation((int)$X, (int)$Z, $this->chunkLoader)->onCompletion(
 				function() use ($X, $Z, $index, $world) : void{
 					if(!$this->isConnected() || !isset($this->usedChunks[$index]) || $world !== $this->getWorld()){
 						return;
@@ -906,10 +906,10 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 					unset($this->activeChunkGenerationRequests[$index]);
 					$this->usedChunks[$index] = UsedChunkStatus::REQUESTED_SENDING;
 
-					$this->getNetworkSession()->startUsingChunk($X, $Z, function() use ($X, $Z, $index) : void{
+					$this->getNetworkSession()->startUsingChunk((int)$X, (int)$Z, function() use ($X, $Z, $index) : void{
 						$this->usedChunks[$index] = UsedChunkStatus::SENT;
 						if($this->spawnChunkLoadCount === -1){
-							$this->spawnEntitiesOnChunk($X, $Z);
+							$this->spawnEntitiesOnChunk((int)$X, (int)$Z);
 						}elseif($this->spawnChunkLoadCount++ === $this->spawnThreshold){
 							$this->spawnChunkLoadCount = -1;
 
@@ -917,7 +917,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 
 							$this->getNetworkSession()->notifyTerrainReady();
 						}
-						(new PlayerPostChunkSendEvent($this, $X, $Z))->call();
+						(new PlayerPostChunkSendEvent($this, (int)$X, (int)$Z))->call();
 					});
 				},
 				static function() : void{
@@ -1584,8 +1584,11 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 				$item->onUsingTick($this, $this->getItemUseDuration());
 			}
 
-			if($this->blockBreakHandler !== null && !$this->blockBreakHandler->update()){
-				$this->blockBreakHandler = null;
+			if ($this->blockBreakHandler !== null) {
+				$this->blockBreakHandler->update();
+				if ($this->blockBreakHandler->getBreakProgress() >= 1) {
+					$this->breakBlock($this->blockBreakHandler->getBlockPos());
+				}
 			}
 
 			if($this->isUsingItem() && $this->getItemUseDuration() % 4 === 0 && ($item = $this->inventory->getItemInHand()) instanceof ConsumableItem){
