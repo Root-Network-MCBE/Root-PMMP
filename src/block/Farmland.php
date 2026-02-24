@@ -45,7 +45,7 @@ class Farmland extends Transparent{
 	/** Total possible options for water X/Z indexes */
 	private const WATER_POSITION_INDICES_TOTAL = (self::WATER_SEARCH_HORIZONTAL_LENGTH ** 2) * 2;
 
-	protected int $wetness = 0; //"moisture" blockstate property in PC
+	protected int $wetness = 7;
 
 	/**
 	 * Cached value indicating the relative coordinates of the most recently found water block.
@@ -105,90 +105,6 @@ class Farmland extends Transparent{
 	}
 
 	public function ticksRandomly() : bool{
-		return true;
-	}
-
-	public function onRandomTick() : void{
-		$world = $this->position->getWorld();
-
-		//this property may be updated by canHydrate() - track this so we know if we need to set the block again
-		$oldWaterPositionIndex = $this->waterPositionIndex;
-		$changed = false;
-
-		if(!$this->canHydrate()){
-			if($this->wetness > 0){
-				$event = new FarmlandHydrationChangeEvent($this, $this->wetness, $this->wetness - 1);
-				$event->call();
-				if(!$event->isCancelled()){
-					$this->wetness = $event->getNewHydration();
-					$world->setBlock($this->position, $this, false);
-					$changed = true;
-				}
-			}else{
-				$world->setBlock($this->position, VanillaBlocks::DIRT());
-				$changed = true;
-			}
-		}elseif($this->wetness < self::MAX_WETNESS){
-			$event = new FarmlandHydrationChangeEvent($this, $this->wetness, self::MAX_WETNESS);
-			$event->call();
-			if(!$event->isCancelled()){
-				$this->wetness = $event->getNewHydration();
-				$world->setBlock($this->position, $this, false);
-				$changed = true;
-			}
-		}
-
-		if(!$changed && $oldWaterPositionIndex !== $this->waterPositionIndex){
-			//ensure the water square index is saved regardless of whether anything else happened
-			$world->setBlock($this->position, $this, false);
-		}
-	}
-
-	public function onEntityLand(Entity $entity) : ?float{
-		if($entity instanceof Living && Utils::getRandomFloat() < $entity->getFallDistance() - 0.5){
-			$ev = new EntityTrampleFarmlandEvent($entity, $this);
-			$ev->call();
-			if(!$ev->isCancelled()){
-				$this->position->getWorld()->setBlock($this->position, VanillaBlocks::DIRT());
-			}
-		}
-		return null;
-	}
-
-	protected function canHydrate() : bool{
-		$world = $this->position->getWorld();
-
-		$startX = $this->position->getFloorX() - (int) (self::WATER_SEARCH_HORIZONTAL_LENGTH / 2);
-		$startY = $this->position->getFloorY();
-		$startZ = $this->position->getFloorZ() - (int) (self::WATER_SEARCH_HORIZONTAL_LENGTH / 2);
-
-		if($this->waterPositionIndex !== self::WATER_POSITION_INDEX_UNKNOWN){
-			$raw = $this->waterPositionIndex;
-			$x = $raw % self::WATER_SEARCH_HORIZONTAL_LENGTH;
-			$raw = intdiv($raw, self::WATER_SEARCH_HORIZONTAL_LENGTH);
-			$z = $raw % self::WATER_SEARCH_HORIZONTAL_LENGTH;
-			$raw = intdiv($raw, self::WATER_SEARCH_HORIZONTAL_LENGTH);
-			$y = $raw % self::WATER_SEARCH_VERTICAL_LENGTH;
-
-			if($world->getBlockAt($startX + $x, $startY + $y, $startZ + $z) instanceof Water){
-				return true;
-			}
-		}
-
-		//no water found at cached position - search the whole area
-		//y will increment after x/z have been exhausted, as usually water will be at the same Y as the farmland
-		for($y = 0; $y < self::WATER_SEARCH_VERTICAL_LENGTH; $y++){
-			for($x = 0; $x < self::WATER_SEARCH_HORIZONTAL_LENGTH; $x++){
-				for($z = 0; $z < self::WATER_SEARCH_HORIZONTAL_LENGTH; $z++){
-					if($world->getBlockAt($startX + $x, $startY + $y, $startZ + $z) instanceof Water){
-						$this->waterPositionIndex = $x + ($z * self::WATER_SEARCH_HORIZONTAL_LENGTH) + ($y * self::WATER_SEARCH_HORIZONTAL_LENGTH ** 2);
-						return true;
-					}
-				}
-			}
-		}
-
-		$this->waterPositionIndex = self::WATER_POSITION_INDEX_UNKNOWN;
 		return false;
 	}
 
@@ -199,6 +115,6 @@ class Farmland extends Transparent{
 	}
 
 	public function getPickedItem(bool $addUserData = false) : Item{
-		return VanillaBlocks::DIRT()->asItem();
+		return $this->asItem();
 	}
 }

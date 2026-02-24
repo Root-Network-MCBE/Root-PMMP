@@ -212,6 +212,10 @@ final class EntityFactory{
 			return new Human(Helper::parseLocation($nbt, $world), Human::parseSkinNBT($nbt), $nbt);
 		}, ['Human']);
 
+		$this->register(LightningBolt::class, function(World $world, CompoundTag $nbt) : LightningBolt{
+			return new LightningBolt(Helper::parseLocation($nbt, $world), $nbt);
+		}, ['lightning_bolt', 'minecraft:lightning_bolt']);
+
 		$this->register(FishingHook::class, function(World $world, CompoundTag $nbt) : FishingHook{
 			return new FishingHook(Helper::parseLocation($nbt, $world), null, $nbt);
 		}, ['FishingHook', 'minecraft:fishing_hook']);

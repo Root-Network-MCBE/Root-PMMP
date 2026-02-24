@@ -64,6 +64,7 @@ use pocketmine\network\mcpe\protocol\ChunkRadiusUpdatedPacket;
 use pocketmine\network\mcpe\protocol\ClientboundCloseFormPacket;
 use pocketmine\network\mcpe\protocol\ClientboundPacket;
 use pocketmine\network\mcpe\protocol\DisconnectPacket;
+use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\NetworkChunkPublisherUpdatePacket;
@@ -97,6 +98,7 @@ use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\network\mcpe\protocol\types\command\CommandPermissions;
 use pocketmine\network\mcpe\protocol\types\CompressionAlgorithm;
 use pocketmine\network\mcpe\protocol\types\DimensionIds;
+use pocketmine\network\mcpe\protocol\types\LevelEvent;
 use pocketmine\network\mcpe\protocol\types\PlayerListEntry;
 use pocketmine\network\mcpe\protocol\types\PlayerPermissions;
 use pocketmine\network\mcpe\protocol\UpdateAbilitiesPacket;
@@ -1318,7 +1320,7 @@ class NetworkSession{
 			$this->syncWorldTime($world->getTime());
 			$this->syncWorldDifficulty($world->getDifficulty());
 			$this->syncWorldSpawnPoint($world->getSpawnLocation());
-			//TODO: weather needs to be synced here (when implemented)
+			$this->syncWorldWeather($world);
 		}
 	}
 
@@ -1328,6 +1330,25 @@ class NetworkSession{
 
 	public function syncWorldDifficulty(int $worldDifficulty) : void{
 		$this->sendDataPacket(SetDifficultyPacket::create($worldDifficulty));
+	}
+
+	public function syncWorldWeather(World $world) : void{
+		$rainLevel = (int) ($world->getRainLevel() * 65535);
+		$lightningLevel = (int) ($world->getLightningLevel() * 65535);
+
+		$packets = [];
+
+		$packets[] = $rainLevel > 0
+			? LevelEventPacket::create(LevelEvent::START_RAIN, $rainLevel, null)
+			: LevelEventPacket::create(LevelEvent::STOP_RAIN, 0, null);
+
+		$packets[] = $lightningLevel > 0
+			? LevelEventPacket::create(LevelEvent::START_THUNDER, $lightningLevel, null)
+			: LevelEventPacket::create(LevelEvent::STOP_THUNDER, 0, null);
+
+		foreach($packets as $packet){
+			$this->sendDataPacket($packet);
+		}
 	}
 
 	public function getInvManager() : ?InventoryManager{

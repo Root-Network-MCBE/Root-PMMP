@@ -99,6 +99,16 @@ abstract class Entity{
 
 	private static int $entityCount = 1;
 
+	private ?float $cachedDirYaw = null;
+	private ?float $cachedDirPitch = null;
+	private ?Vector3 $cachedDirectionVector = null;
+	private ?Vector2 $cachedDirectionPlane = null;
+
+	private int $cachedFrictionX = PHP_INT_MIN;
+	private int $cachedFrictionY = PHP_INT_MIN;
+	private int $cachedFrictionZ = PHP_INT_MIN;
+	private float $cachedFrictionFactor = 1.0;
+
 	/**
 	 * Returns a new runtime entity ID for a new entity.
 	 */
@@ -268,16 +278,25 @@ abstract class Entity{
 	}
 
 	public function setNameTag(string $name) : void{
+		if($this->nameTag === $name){
+			return;
+		}
 		$this->nameTag = $name;
 		$this->networkPropertiesDirty = true;
 	}
 
 	public function setNameTagVisible(bool $value = true) : void{
+		if($this->nameTagVisible === $value){
+			return;
+		}
 		$this->nameTagVisible = $value;
 		$this->networkPropertiesDirty = true;
 	}
 
 	public function setNameTagAlwaysVisible(bool $value = true) : void{
+		if($this->alwaysShowNameTag === $value){
+			return;
+		}
 		$this->alwaysShowNameTag = $value;
 		$this->networkPropertiesDirty = true;
 	}
@@ -287,6 +306,9 @@ abstract class Entity{
 	}
 
 	public function setScoreTag(string $score) : void{
+		if($this->scoreTag === $score){
+			return;
+		}
 		$this->scoreTag = $score;
 		$this->networkPropertiesDirty = true;
 	}
@@ -356,6 +378,9 @@ abstract class Entity{
 	}
 
 	public function setInvisible(bool $value = true) : void{
+		if ($this->invisible = $value) {
+			return;
+		}
 		$this->invisible = $value;
 		$this->networkPropertiesDirty = true;
 	}
@@ -365,6 +390,9 @@ abstract class Entity{
 	}
 
 	public function setSilent(bool $value = true) : void{
+		if($this->silent === $value){
+			return;
+		}
 		$this->silent = $value;
 		$this->networkPropertiesDirty = true;
 	}
@@ -737,6 +765,11 @@ abstract class Entity{
 			return false;
 		}
 
+		$world = $this->getWorld();
+		if($world->isRaining($this->location)){
+			$this->extinguish(EntityExtinguishEvent::CAUSE_RAIN);
+		}
+
 		$this->fireTicks -= $tickDiff;
 
 		if(($this->fireTicks % 20 === 0) || $tickDiff > 20){
@@ -770,26 +803,35 @@ abstract class Entity{
 
 	protected function updateMovement(bool $teleport = false) : void{
 		$diffPosition = $this->location->distanceSquared($this->lastLocation);
-		$diffRotation = ($this->location->yaw - $this->lastLocation->yaw) ** 2 + ($this->location->pitch - $this->lastLocation->pitch) ** 2;
+		$yawDiff = $this->location->yaw - $this->lastLocation->yaw;
+		$pitchDiff = $this->location->pitch - $this->lastLocation->pitch;
+		$diffRotation = ($yawDiff * $yawDiff) + ($pitchDiff * $pitchDiff);
 
-		$diffMotion = $this->motion->subtractVector($this->lastMotion)->lengthSquared();
+		$motion = $this->motion;
+		$lastMotion = $this->lastMotion;
 
-		$still = $this->motion->lengthSquared() === 0.0;
-		$wasStill = $this->lastMotion->lengthSquared() === 0.0;
+		$motionLenSq = $motion->x * $motion->x + $motion->y * $motion->y + $motion->z * $motion->z;
+		$lastMotionLenSq = $lastMotion->x * $lastMotion->x + $lastMotion->y * $lastMotion->y + $lastMotion->z * $lastMotion->z;
+
+		$still = $motionLenSq === 0.0;
+		$wasStill = $lastMotionLenSq === 0.0;
+
 		if($wasStill !== $still){
-			//TODO: hack for client-side AI interference: prevent client sided movement when motion is 0
 			$this->setNoClientPredictions($still);
 		}
 
 		if($teleport || $diffPosition > 0.0001 || $diffRotation > 1.0 || (!$wasStill && $still)){
 			$this->lastLocation = $this->location->asLocation();
-
 			$this->broadcastMovement($teleport);
 		}
 
-		if($diffMotion > 0.0025 || $wasStill !== $still){ //0.05 ** 2
-			$this->lastMotion = clone $this->motion;
+		$dx = $motion->x - $lastMotion->x;
+		$dy = $motion->y - $lastMotion->y;
+		$dz = $motion->z - $lastMotion->z;
+		$diffMotion = $dx * $dx + $dy * $dy + $dz * $dz;
 
+		if($diffMotion > 0.0025 || $wasStill !== $still){
+			$this->lastMotion = clone $motion;
 			$this->broadcastMotion();
 		}
 	}
@@ -859,7 +901,19 @@ abstract class Entity{
 		}
 
 		if($this->onGround){
-			$friction *= $this->getWorld()->getBlockAt((int) floor($this->location->x), (int) floor($this->location->y - 1), (int) floor($this->location->z))->getFrictionFactor();
+			$world = $this->getWorld();
+			$bx = (int) floor($this->location->x);
+			$by = (int) floor($this->location->y - 1);
+			$bz = (int) floor($this->location->z);
+
+			if($bx !== $this->cachedFrictionX || $by !== $this->cachedFrictionY || $bz !== $this->cachedFrictionZ){
+				$this->cachedFrictionX = $bx;
+				$this->cachedFrictionY = $by;
+				$this->cachedFrictionZ = $bz;
+				$this->cachedFrictionFactor = $world->getBlockAt($bx, $by, $bz)->getFrictionFactor();
+			}
+
+			$friction *= $this->cachedFrictionFactor;
 		}
 
 		$this->motion = new Vector3($this->motion->x * $friction, $mY, $this->motion->z * $friction);
@@ -959,16 +1013,39 @@ abstract class Entity{
 	}
 
 	public function getDirectionVector() : Vector3{
-		$y = -sin(deg2rad($this->location->pitch));
-		$xz = cos(deg2rad($this->location->pitch));
-		$x = -$xz * sin(deg2rad($this->location->yaw));
-		$z = $xz * cos(deg2rad($this->location->yaw));
+		$yaw = $this->location->yaw;
+		$pitch = $this->location->pitch;
 
-		return (new Vector3($x, $y, $z))->normalize();
+		if($this->cachedDirectionVector !== null && $this->cachedDirYaw === $yaw && $this->cachedDirPitch === $pitch){
+			return clone $this->cachedDirectionVector;
+		}
+
+		$y = -sin(deg2rad($pitch));
+		$xz = cos(deg2rad($pitch));
+		$x = -$xz * sin(deg2rad($yaw));
+		$z = $xz * cos(deg2rad($yaw));
+
+		$this->cachedDirYaw = $yaw;
+		$this->cachedDirPitch = $pitch;
+		$this->cachedDirectionVector = (new Vector3($x, $y, $z))->normalize();
+
+		return clone $this->cachedDirectionVector;
 	}
 
 	public function getDirectionPlane() : Vector2{
-		return (new Vector2(-cos(deg2rad($this->location->yaw) - M_PI_2), -sin(deg2rad($this->location->yaw) - M_PI_2)))->normalize();
+		$yaw = $this->location->yaw;
+
+		if($this->cachedDirectionPlane !== null && $this->cachedDirYaw === $yaw){
+			return clone $this->cachedDirectionPlane;
+		}
+
+		$this->cachedDirYaw = $yaw;
+		$this->cachedDirectionPlane = (new Vector2(
+			-cos(deg2rad($yaw) - M_PI_2),
+			-sin(deg2rad($yaw) - M_PI_2)
+		))->normalize();
+
+		return clone $this->cachedDirectionPlane;
 	}
 
 	/**
@@ -1152,6 +1229,7 @@ abstract class Entity{
 
 	protected function move(float $dx, float $dy, float $dz) : void{
 		$this->blocksAround = null;
+		$world = $this->getWorld();
 
 		Timings::$entityMove->startTiming();
 		Timings::$entityMoveCollision->startTiming();
@@ -1169,7 +1247,7 @@ abstract class Entity{
 
 			assert(abs($dx) <= 20 && abs($dy) <= 20 && abs($dz) <= 20, "Movement distance is excessive: dx=$dx, dy=$dy, dz=$dz");
 
-			$list = $this->getWorld()->getBlockCollisionBoxes($moveBB->addCoord($dx, $dy, $dz));
+			$list = $world->getBlockCollisionBoxes($moveBB->addCoord($dx, $dy, $dz));
 
 			foreach($list as $bb){
 				$dy = $bb->calculateYOffset($moveBB, $dy);
@@ -1203,7 +1281,7 @@ abstract class Entity{
 
 				$stepBB = clone $this->boundingBox;
 
-				$list = $this->getWorld()->getBlockCollisionBoxes($stepBB->addCoord($dx, $dy, $dz));
+				$list = $world->getBlockCollisionBoxes($stepBB->addCoord($dx, $dy, $dz));
 				foreach($list as $bb){
 					$dy = $bb->calculateYOffset($stepBB, $dy);
 				}
@@ -1334,19 +1412,27 @@ abstract class Entity{
 
 	protected function checkBlockIntersections() : void{
 		$this->checkBlockIntersectionsNextTick = false;
-		$vectors = [];
+
+		$sumX = 0.0;
+		$sumY = 0.0;
+		$sumZ = 0.0;
+		$count = 0;
 
 		foreach($this->getBlocksAroundWithEntityInsideActions() as $block){
 			if(!$block->onEntityInside($this)){
 				$this->blocksAround = null;
 			}
-			if(($v = $block->addVelocityToEntity($this)) !== null){
-				$vectors[] = $v;
+			$v = $block->addVelocityToEntity($this);
+			if($v !== null){
+				$sumX += $v->x;
+				$sumY += $v->y;
+				$sumZ += $v->z;
+				++$count;
 			}
 		}
 
-		if(count($vectors) > 0){
-			$vector = Vector3::sum(...$vectors);
+		if($count > 0){
+			$vector = new Vector3($sumX, $sumY, $sumZ);
 			if($vector->lengthSquared() > 0){
 				$d = 0.014;
 				$this->motion = $this->motion->addVector($vector->normalize()->multiply($d));
@@ -1401,6 +1487,12 @@ abstract class Entity{
 	public function setRotation(float $yaw, float $pitch) : void{
 		Utils::checkFloatNotInfOrNaN("yaw", $yaw);
 		Utils::checkFloatNotInfOrNaN("pitch", $pitch);
+
+		$this->cachedDirYaw = null;
+		$this->cachedDirPitch = null;
+		$this->cachedDirectionVector = null;
+		$this->cachedDirectionPlane = null;
+
 		$this->location->yaw = $yaw;
 		$this->location->pitch = $pitch;
 		$this->scheduleUpdate();
@@ -1490,6 +1582,11 @@ abstract class Entity{
 			$this->setForceMovementUpdate();
 
 			$this->updateMovement(true);
+
+			$this->cachedDirYaw = null;
+			$this->cachedDirPitch = null;
+			$this->cachedDirectionVector = null;
+			$this->cachedDirectionPlane = null;
 
 			return true;
 		}
