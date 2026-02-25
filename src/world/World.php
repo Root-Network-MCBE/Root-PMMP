@@ -567,6 +567,14 @@ class World implements ChunkManager{
 		$this->timings = new WorldTimings($this);
 	}
 
+	public function setTickedBlocksPerSubchunkPerTick(int $value) : void{
+		$this->tickedBlocksPerSubchunkPerTick = max(0, min($value, 64));
+	}
+
+	public function getTickedBlocksPerSubchunkPerTick() : int{
+		return $this->tickedBlocksPerSubchunkPerTick;
+	}
+
 	private function initRandomTickBlocksFromConfig(ServerConfigGroup $cfg) : void{
 		$dontTickBlocks = [];
 		$parser = StringToItemParser::getInstance();
@@ -617,32 +625,7 @@ class World implements ChunkManager{
 	}
 
 	private function tickWeather() : void{
-		if(!$this->weatherEnabled){
-			return;
-		}
 
-		$this->rainLevel = max(0.0, min(1.0, $this->rainLevel + (mt_rand(-5, 5) / 100)));
-		$this->lightningLevel = max(0.0, min(1.0, $this->lightningLevel + (mt_rand(-3, 3) / 100)));
-
-		$this->weatherTick++;
-
-		if($this->weatherTick >= $this->weatherDuration && $this->weatherDuration > 0){
-			$this->autoChangeWeather();
-		}
-
-		if($this->lightningLevel > 0.8 && mt_rand(0, 200) === 0){
-			$players = $this->getPlayers();
-			if(count($players) > 0){
-				$target = $players[array_rand($players)];
-				$spawn = $target->getPosition();
-				$x = (int) $spawn->x + mt_rand(-30, 30);
-				$z = (int) $spawn->z + mt_rand(-30, 30);
-				$y = $this->getHighestBlockAt($x, $z) ?? max(64, (int) $spawn->y);
-
-				$location = Location::fromObject(new Vector3($x, $y, $z), $this);
-				(new LightningBolt($location))->spawnToAll();
-			}
-		}
 	}
 
 	private function autoChangeWeather() : void{
@@ -1990,24 +1973,24 @@ class World implements ChunkManager{
 	}
 
 	public function updateAllLight(int $x, int $y, int $z) : void{
-		if(($chunk = $this->getChunk($x >> Chunk::COORD_BIT_SIZE, $z >> Chunk::COORD_BIT_SIZE)) === null || $chunk->isLightPopulated() !== true){
-			return;
-		}
-
-		$blockFactory = $this->blockStateRegistry;
-		$this->timings->doBlockSkyLightUpdates->startTiming();
-		if($this->skyLightUpdate === null){
-			$this->skyLightUpdate = new SkyLightUpdate(new SubChunkExplorer($this), $blockFactory->lightFilter, $blockFactory->blocksDirectSkyLight);
-		}
-		$this->skyLightUpdate->recalculateNode($x, $y, $z);
-		$this->timings->doBlockSkyLightUpdates->stopTiming();
-
-		$this->timings->doBlockLightUpdates->startTiming();
-		if($this->blockLightUpdate === null){
-			$this->blockLightUpdate = new BlockLightUpdate(new SubChunkExplorer($this), $blockFactory->lightFilter, $blockFactory->light);
-		}
-		$this->blockLightUpdate->recalculateNode($x, $y, $z);
-		$this->timings->doBlockLightUpdates->stopTiming();
+//		if(($chunk = $this->getChunk($x >> Chunk::COORD_BIT_SIZE, $z >> Chunk::COORD_BIT_SIZE)) === null || $chunk->isLightPopulated() !== true){
+//			return;
+//		}
+//
+//		$blockFactory = $this->blockStateRegistry;
+//		$this->timings->doBlockSkyLightUpdates->startTiming();
+//		if($this->skyLightUpdate === null){
+//			$this->skyLightUpdate = new SkyLightUpdate(new SubChunkExplorer($this), $blockFactory->lightFilter, $blockFactory->blocksDirectSkyLight);
+//		}
+//		$this->skyLightUpdate->recalculateNode($x, $y, $z);
+//		$this->timings->doBlockSkyLightUpdates->stopTiming();
+//
+//		$this->timings->doBlockLightUpdates->startTiming();
+//		if($this->blockLightUpdate === null){
+//			$this->blockLightUpdate = new BlockLightUpdate(new SubChunkExplorer($this), $blockFactory->lightFilter, $blockFactory->light);
+//		}
+//		$this->blockLightUpdate->recalculateNode($x, $y, $z);
+//		$this->timings->doBlockLightUpdates->stopTiming();
 	}
 
 	/**
@@ -2054,19 +2037,19 @@ class World implements ChunkManager{
 	}
 
 	private function executeQueuedLightUpdates() : void{
-		if($this->blockLightUpdate !== null){
-			$this->timings->doBlockLightUpdates->startTiming();
-			$this->blockLightUpdate->execute();
-			$this->blockLightUpdate = null;
-			$this->timings->doBlockLightUpdates->stopTiming();
-		}
-
-		if($this->skyLightUpdate !== null){
-			$this->timings->doBlockSkyLightUpdates->startTiming();
-			$this->skyLightUpdate->execute();
-			$this->skyLightUpdate = null;
-			$this->timings->doBlockSkyLightUpdates->stopTiming();
-		}
+//		if($this->blockLightUpdate !== null){
+//			$this->timings->doBlockLightUpdates->startTiming();
+//			$this->blockLightUpdate->execute();
+//			$this->blockLightUpdate = null;
+//			$this->timings->doBlockLightUpdates->stopTiming();
+//		}
+//
+//		if($this->skyLightUpdate !== null){
+//			$this->timings->doBlockSkyLightUpdates->startTiming();
+//			$this->skyLightUpdate->execute();
+//			$this->skyLightUpdate = null;
+//			$this->timings->doBlockSkyLightUpdates->stopTiming();
+//		}
 	}
 
 	public function isInWorld(int $x, int $y, int $z) : bool{

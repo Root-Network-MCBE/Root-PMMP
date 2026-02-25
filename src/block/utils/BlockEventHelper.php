@@ -49,7 +49,7 @@ final class BlockEventHelper{
 		}
 
 		$position = $oldState->getPosition();
-		$position->getWorld()->setBlock($position, $newState);
+		$position->getWorld()->setBlock($position, $newState, false);
 		return true;
 	}
 

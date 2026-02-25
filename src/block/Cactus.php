@@ -96,26 +96,26 @@ class Cactus extends Transparent implements Ageable{
 			$height++;
 		}
 
-		if($this->age === 9){
-			$canGrowFlower = true;
-			foreach(Facing::HORIZONTAL as $side){
-				if($up->getSide($side)->isSolid()){
-					$canGrowFlower = false;
-					break;
-				}
-			}
-
-			if($canGrowFlower){
-				$chance = $height >= self::MAX_HEIGHT ? 25 : 10;
-				if(mt_rand(1, 100) <= $chance){
-					if(BlockEventHelper::grow($up, VanillaBlocks::CACTUS_FLOWER(), null)){
-						$this->age = 0;
-						$world->setBlock($this->position, $this, update: false);
-					}
-					return;
-				}
-			}
-		}
+//		if($this->age === 9){
+//			$canGrowFlower = true;
+//			foreach(Facing::HORIZONTAL as $side){
+//				if($up->getSide($side)->isSolid()){
+//					$canGrowFlower = false;
+//					break;
+//				}
+//			}
+//
+//			if($canGrowFlower){
+//				$chance = $height >= self::MAX_HEIGHT ? 25 : 10;
+//				if(mt_rand(1, 100) <= $chance){
+//					if(BlockEventHelper::grow($up, VanillaBlocks::CACTUS_FLOWER(), null)){
+//						$this->age = 0;
+//						$world->setBlock($this->position, $this, update: false);
+//					}
+//					return;
+//				}
+//			}
+//		}
 
 		if($this->age === self::MAX_AGE){
 			$this->age = 0;
