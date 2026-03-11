@@ -38,7 +38,12 @@ final class FishingHook extends Projectile {
 
 	private const BUBBLE_COUNT = 5;
 
-	private const LURE_REDUCTION_PER_LEVEL = 20;
+	private const WAIT_TIME_MIN = 100;
+	private const WAIT_TIME_MAX = 420;
+
+	private const LURE_MIN_REDUCTION_PER_LEVEL = 35;
+	private const LURE_MAX_REDUCTION_PER_LEVEL = 110;
+
 	private const MIN_WAITING_TICKS = 20;
 
 	private int $waitingTimer = 1;
@@ -90,13 +95,15 @@ final class FishingHook extends Projectile {
 	}
 
 	private function computeWaitingTime(): int {
-		$min = 100;
-		$max = 600;
+		$min = self::WAIT_TIME_MIN;
+		$max = self::WAIT_TIME_MAX;
 
-		$min -= $this->lureLevel * 20;
-		$max -= $this->lureLevel * 60;
+		if ($this->lureLevel > 0) {
+			$min -= $this->lureLevel * self::LURE_MIN_REDUCTION_PER_LEVEL;
+			$max -= $this->lureLevel * self::LURE_MAX_REDUCTION_PER_LEVEL;
+		}
 
-		$min = max(20, $min);
+		$min = max(self::MIN_WAITING_TICKS, $min);
 		$max = max($min, $max);
 
 		return mt_rand($min, $max);
