@@ -121,7 +121,7 @@ class Cactus extends Transparent implements Ageable{
 			$this->age = 0;
 
 			if($height < self::MAX_HEIGHT){
-				BlockEventHelper::grow($up, VanillaBlocks::CACTUS(), null);
+				BlockEventHelper::grow($up, VanillaBlocks::CACTUS(), null, true);
 			}
 		}else{
 			++$this->age;

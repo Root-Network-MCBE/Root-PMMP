@@ -1960,6 +1960,10 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		}
 	}
 
+	public function getBlockBreakHandler() : ?SurvivalBlockBreakHandler{
+		return $this->blockBreakHandler;
+	}
+
 	/**
 	 * Breaks the block at the given position using the currently-held item.
 	 *

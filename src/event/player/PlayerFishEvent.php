@@ -35,7 +35,7 @@ final class PlayerFishEvent extends PlayerEvent implements Cancellable
 	public function __construct(
 		Player $player,
 		protected Item $fishingRod,
-		protected Item $loot,
+		protected array $loots,
 		protected int $experience
 	) {
 		$this->player = $player;
@@ -49,12 +49,12 @@ final class PlayerFishEvent extends PlayerEvent implements Cancellable
 		$this->fishingRod = $fishingRod;
 	}
 
-	public function getLoot() : Item {
-		return $this->loot;
+	public function getLoots() : array {
+		return $this->loots;
 	}
 
-	public function setLoot(Item $loot) : void {
-		$this->loot = $loot;
+	public function setLoot(array $loots) : void {
+		$this->loots = $loots;
 	}
 
 	public function getExperience(): int {
