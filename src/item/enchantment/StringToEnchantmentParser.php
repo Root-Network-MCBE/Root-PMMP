@@ -63,6 +63,7 @@ final class StringToEnchantmentParser extends StringToTParser{
 		$result->register("thorns", fn() => VanillaEnchantments::THORNS());
 		$result->register("unbreaking", fn() => VanillaEnchantments::UNBREAKING());
 		$result->register("vanishing", fn() => VanillaEnchantments::VANISHING());
+		$result->register("looting", fn() => VanillaEnchantments::LOOTING());
 
 		return $result;
 	}

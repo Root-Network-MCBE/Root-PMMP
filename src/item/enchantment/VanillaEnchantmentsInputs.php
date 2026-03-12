@@ -304,6 +304,14 @@ final class VanillaEnchantmentsInputs extends RegistrySource{
 			0,
 			3
 		));
+
+		self::register("looting", new Enchantment(
+			KnownTranslationFactory::enchantment_lootBonus(),
+			Rarity::UNCOMMON,
+			0,
+			0,
+			3
+		));
 	}
 
 	protected function register(string $name, Enchantment $member) : void{
