@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "79cb96afa7863add93d828efd205fb47",
+    "content-hash": "f360cc27fc5a5cf6b34dabcc0004afef",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -204,16 +204,16 @@
         },
         {
             "name": "pocketmine/bedrock-data",
-            "version": "6.4.0+bedrock-1.26.0",
+            "version": "6.5.0+bedrock-1.26.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pmmp/BedrockData.git",
-                "reference": "7d74ffbdd620dc1e31af0a645d3eea738c820c0b"
+                "reference": "efb7cd308d5d578ca2c6e77e3c43541fa49b7cc3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/BedrockData/zipball/7d74ffbdd620dc1e31af0a645d3eea738c820c0b",
-                "reference": "7d74ffbdd620dc1e31af0a645d3eea738c820c0b",
+                "url": "https://api.github.com/repos/pmmp/BedrockData/zipball/efb7cd308d5d578ca2c6e77e3c43541fa49b7cc3",
+                "reference": "efb7cd308d5d578ca2c6e77e3c43541fa49b7cc3",
                 "shasum": ""
             },
             "type": "library",
@@ -224,9 +224,9 @@
             "description": "Blobs of data generated from Minecraft: Bedrock Edition, used by PocketMine-MP",
             "support": {
                 "issues": "https://github.com/pmmp/BedrockData/issues",
-                "source": "https://github.com/pmmp/BedrockData/tree/bedrock-1.26.0"
+                "source": "https://github.com/pmmp/BedrockData/tree/bedrock-1.26.10"
             },
-            "time": "2026-02-15T19:09:08+00:00"
+            "time": "2026-03-25T16:49:49+00:00"
         },
         {
             "name": "pocketmine/bedrock-item-upgrade-schema",
@@ -256,16 +256,16 @@
         },
         {
             "name": "pocketmine/bedrock-protocol",
-            "version": "55.0.0+bedrock-1.26.0",
+            "version": "56.1.0+bedrock-1.26.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pmmp/BedrockProtocol.git",
-                "reference": "a8b65a7b964aa1cd4a94de61a3bee9f0388cc98b"
+                "reference": "d73a7ddf5bf0a6fda88afed282d7875da757cf26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/BedrockProtocol/zipball/a8b65a7b964aa1cd4a94de61a3bee9f0388cc98b",
-                "reference": "a8b65a7b964aa1cd4a94de61a3bee9f0388cc98b",
+                "url": "https://api.github.com/repos/pmmp/BedrockProtocol/zipball/d73a7ddf5bf0a6fda88afed282d7875da757cf26",
+                "reference": "d73a7ddf5bf0a6fda88afed282d7875da757cf26",
                 "shasum": ""
             },
             "require": {
@@ -297,9 +297,9 @@
             "description": "An implementation of the Minecraft: Bedrock Edition protocol in PHP",
             "support": {
                 "issues": "https://github.com/pmmp/BedrockProtocol/issues",
-                "source": "https://github.com/pmmp/BedrockProtocol/tree/55.0.0+bedrock-1.26.0"
+                "source": "https://github.com/pmmp/BedrockProtocol/tree/56.1.0+bedrock-1.26.10"
             },
-            "time": "2026-02-15T19:07:38+00:00"
+            "time": "2026-04-05T00:22:06+00:00"
         },
         {
             "name": "pocketmine/binaryutils",
@@ -1183,11 +1183,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.39",
+            "version": "2.1.46",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/c6f73a2af4cbcd99c931d0fb8f08548cc0fa8224",
-                "reference": "c6f73a2af4cbcd99c931d0fb8f08548cc0fa8224",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/a193923fc2d6325ef4e741cf3af8c3e8f54dbf25",
+                "reference": "a193923fc2d6325ef4e741cf3af8c3e8f54dbf25",
                 "shasum": ""
             },
             "require": {
@@ -1232,7 +1232,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-11T14:48:56+00:00"
+            "time": "2026-04-01T09:25:14+00:00"
         },
         {
             "name": "phpstan/phpstan-phpunit",
@@ -2776,9 +2776,9 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "stability-flags": {},
-    "prefer-stable": true,
+    "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.1",
@@ -2813,5 +2813,5 @@
     "platform-overrides": {
         "php": "8.1.0"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
