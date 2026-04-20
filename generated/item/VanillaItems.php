@@ -243,18 +243,12 @@ final class VanillaItems{
 	private static MushroomStew $_mMUSHROOM_STEW;
 	private static NameTag $_mNAME_TAG;
 	private static Item $_mNAUTILUS_SHELL;
-	private static Axe $_mNETHERITE_AXE;
 	private static Armor $_mNETHERITE_BOOTS;
 	private static Armor $_mNETHERITE_CHESTPLATE;
 	private static Armor $_mNETHERITE_HELMET;
-	private static Hoe $_mNETHERITE_HOE;
 	private static Item $_mNETHERITE_INGOT;
 	private static Armor $_mNETHERITE_LEGGINGS;
-	private static Pickaxe $_mNETHERITE_PICKAXE;
 	private static Item $_mNETHERITE_SCRAP;
-	private static Shovel $_mNETHERITE_SHOVEL;
-	private static Spear $_mNETHERITE_SPEAR;
-	private static Sword $_mNETHERITE_SWORD;
 	private static Item $_mNETHERITE_UPGRADE_SMITHING_TEMPLATE;
 	private static Item $_mNETHER_BRICK;
 	private static Item $_mNETHER_QUARTZ;
@@ -612,18 +606,12 @@ final class VanillaItems{
 			"mushroom_stew" => fn(MushroomStew $v) => self::$_mMUSHROOM_STEW = $v,
 			"name_tag" => fn(NameTag $v) => self::$_mNAME_TAG = $v,
 			"nautilus_shell" => fn(Item $v) => self::$_mNAUTILUS_SHELL = $v,
-			"netherite_axe" => fn(Axe $v) => self::$_mNETHERITE_AXE = $v,
 			"netherite_boots" => fn(Armor $v) => self::$_mNETHERITE_BOOTS = $v,
 			"netherite_chestplate" => fn(Armor $v) => self::$_mNETHERITE_CHESTPLATE = $v,
 			"netherite_helmet" => fn(Armor $v) => self::$_mNETHERITE_HELMET = $v,
-			"netherite_hoe" => fn(Hoe $v) => self::$_mNETHERITE_HOE = $v,
 			"netherite_ingot" => fn(Item $v) => self::$_mNETHERITE_INGOT = $v,
 			"netherite_leggings" => fn(Armor $v) => self::$_mNETHERITE_LEGGINGS = $v,
-			"netherite_pickaxe" => fn(Pickaxe $v) => self::$_mNETHERITE_PICKAXE = $v,
 			"netherite_scrap" => fn(Item $v) => self::$_mNETHERITE_SCRAP = $v,
-			"netherite_shovel" => fn(Shovel $v) => self::$_mNETHERITE_SHOVEL = $v,
-			"netherite_spear" => fn(Spear $v) => self::$_mNETHERITE_SPEAR = $v,
-			"netherite_sword" => fn(Sword $v) => self::$_mNETHERITE_SWORD = $v,
 			"netherite_upgrade_smithing_template" => fn(Item $v) => self::$_mNETHERITE_UPGRADE_SMITHING_TEMPLATE = $v,
 			"nether_brick" => fn(Item $v) => self::$_mNETHER_BRICK = $v,
 			"nether_quartz" => fn(Item $v) => self::$_mNETHER_QUARTZ = $v,
@@ -1805,11 +1793,6 @@ final class VanillaItems{
 		return clone self::$_mNAUTILUS_SHELL;
 	}
 
-	public static function NETHERITE_AXE() : Axe{
-		if(!isset(self::$_mNETHERITE_AXE)){ self::init(); }
-		return clone self::$_mNETHERITE_AXE;
-	}
-
 	public static function NETHERITE_BOOTS() : Armor{
 		if(!isset(self::$_mNETHERITE_BOOTS)){ self::init(); }
 		return clone self::$_mNETHERITE_BOOTS;
@@ -1825,11 +1808,6 @@ final class VanillaItems{
 		return clone self::$_mNETHERITE_HELMET;
 	}
 
-	public static function NETHERITE_HOE() : Hoe{
-		if(!isset(self::$_mNETHERITE_HOE)){ self::init(); }
-		return clone self::$_mNETHERITE_HOE;
-	}
-
 	public static function NETHERITE_INGOT() : Item{
 		if(!isset(self::$_mNETHERITE_INGOT)){ self::init(); }
 		return clone self::$_mNETHERITE_INGOT;
@@ -1840,29 +1818,9 @@ final class VanillaItems{
 		return clone self::$_mNETHERITE_LEGGINGS;
 	}
 
-	public static function NETHERITE_PICKAXE() : Pickaxe{
-		if(!isset(self::$_mNETHERITE_PICKAXE)){ self::init(); }
-		return clone self::$_mNETHERITE_PICKAXE;
-	}
-
 	public static function NETHERITE_SCRAP() : Item{
 		if(!isset(self::$_mNETHERITE_SCRAP)){ self::init(); }
 		return clone self::$_mNETHERITE_SCRAP;
-	}
-
-	public static function NETHERITE_SHOVEL() : Shovel{
-		if(!isset(self::$_mNETHERITE_SHOVEL)){ self::init(); }
-		return clone self::$_mNETHERITE_SHOVEL;
-	}
-
-	public static function NETHERITE_SPEAR() : Spear{
-		if(!isset(self::$_mNETHERITE_SPEAR)){ self::init(); }
-		return clone self::$_mNETHERITE_SPEAR;
-	}
-
-	public static function NETHERITE_SWORD() : Sword{
-		if(!isset(self::$_mNETHERITE_SWORD)){ self::init(); }
-		return clone self::$_mNETHERITE_SWORD;
 	}
 
 	public static function NETHERITE_UPGRADE_SMITHING_TEMPLATE() : Item{

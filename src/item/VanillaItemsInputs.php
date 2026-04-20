@@ -368,7 +368,6 @@ final class VanillaItemsInputs extends RegistrySource{
 			[ToolTier::DIAMOND, "diamond", "Diamond"],
 			[ToolTier::GOLD, "golden", "Golden"],
 			[ToolTier::IRON, "iron", "Iron"],
-			[ToolTier::NETHERITE, "netherite", "Netherite"],
 			[ToolTier::STONE, "stone", "Stone"],
 			[ToolTier::WOOD, "wooden", "Wooden"],
 		] as [$tier, $idPrefix, $namePrefix]){

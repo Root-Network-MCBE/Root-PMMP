@@ -11,7 +11,7 @@ use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\world\sound\ThrowSound;
 
-final class FishingRod extends Durable {
+class FishingRod extends Durable {
 	private const COOLDOWN_TICKS = 5;
 	private const HOOK_VELOCITY = 0.7;
 
