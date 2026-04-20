@@ -355,18 +355,12 @@ final class ItemSerializerDeserializerRegistrar{
 		$this->map1to1Item(Ids::NAUTILUS_SHELL, Items::NAUTILUS_SHELL());
 		$this->map1to1Item(Ids::NETHER_STAR, Items::NETHER_STAR());
 		$this->map1to1Item(Ids::NETHERBRICK, Items::NETHER_BRICK());
-		$this->map1to1Item(Ids::NETHERITE_AXE, Items::NETHERITE_AXE());
 		$this->map1to1Item(Ids::NETHERITE_BOOTS, Items::NETHERITE_BOOTS());
 		$this->map1to1Item(Ids::NETHERITE_CHESTPLATE, Items::NETHERITE_CHESTPLATE());
 		$this->map1to1Item(Ids::NETHERITE_HELMET, Items::NETHERITE_HELMET());
-		$this->map1to1Item(Ids::NETHERITE_HOE, Items::NETHERITE_HOE());
 		$this->map1to1Item(Ids::NETHERITE_INGOT, Items::NETHERITE_INGOT());
 		$this->map1to1Item(Ids::NETHERITE_LEGGINGS, Items::NETHERITE_LEGGINGS());
-		$this->map1to1Item(Ids::NETHERITE_PICKAXE, Items::NETHERITE_PICKAXE());
 		$this->map1to1Item(Ids::NETHERITE_SCRAP, Items::NETHERITE_SCRAP());
-		$this->map1to1Item(Ids::NETHERITE_SHOVEL, Items::NETHERITE_SHOVEL());
-		$this->map1to1Item(Ids::NETHERITE_SWORD, Items::NETHERITE_SWORD());
-		$this->map1to1Item(Ids::NETHERITE_SPEAR, Items::NETHERITE_SPEAR());
 		$this->map1to1Item(Ids::NETHERITE_UPGRADE_SMITHING_TEMPLATE, Items::NETHERITE_UPGRADE_SMITHING_TEMPLATE());
 		$this->map1to1Item(Ids::OAK_BOAT, Items::OAK_BOAT());
 		$this->map1to1Item(Ids::OAK_HANGING_SIGN, Items::OAK_HANGING_SIGN());
