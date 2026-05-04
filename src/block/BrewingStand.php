@@ -29,6 +29,8 @@ use pocketmine\block\tile\Hopper as TileHopper;
 use pocketmine\block\utils\BrewingStandSlot;
 use pocketmine\block\utils\HopperTransferHelper;
 use pocketmine\block\utils\SupportType;
+use pocketmine\block\utils\Waterloggable;
+use pocketmine\block\utils\WaterloggableTrait;
 use pocketmine\data\runtime\RuntimeDataDescriber;
 use pocketmine\inventory\Inventory;
 use pocketmine\item\Item;
@@ -43,7 +45,8 @@ use pocketmine\player\Player;
 use function array_key_exists;
 use function spl_object_id;
 
-class BrewingStand extends Transparent implements HopperInteractable{
+class BrewingStand extends Transparent implements HopperInteractable, Waterloggable{
+	use WaterloggableTrait;
 
 	/**
 	 * @var BrewingStandSlot[]
