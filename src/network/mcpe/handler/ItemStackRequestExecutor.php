@@ -82,6 +82,8 @@ class ItemStackRequestExecutor{
 	private bool $createdItemFromCreativeInventory = false;
 	private int $createdItemsTakenCount = 0;
 
+	private bool $tradeRequestWithoutOutputTake = false;
+
 	public function __construct(
 		private Player $player,
 		private InventoryManager $inventoryManager,
@@ -142,6 +144,15 @@ class ItemStackRequestExecutor{
 	 * @throws ItemStackRequestProcessException
 	 */
 	protected function transferItems(ItemStackRequestSlotInfo $source, ItemStackRequestSlotInfo $destination, int $count) : void{
+		if($this->player->getCurrentWindow() instanceof TradeInventory){
+			$this->dbg(
+				"Transfer count=$count sourceContainer=" . $source->getContainerName()->getContainerId() .
+				" sourceSlot=" . $source->getSlotId() .
+				" destinationContainer=" . $destination->getContainerName()->getContainerId() .
+				" destinationSlot=" . $destination->getSlotId()
+			);
+		}
+
 		$removed = $this->removeItemFromSlot($source, $count);
 		$this->addItemToSlot($destination, $removed, $count);
 	}
@@ -364,38 +375,36 @@ class ItemStackRequestExecutor{
 					$this->specialTransaction = new SmithingTransaction($this->player, $recipe);
 					$this->setNextCreatedItem($recipe->getResultFor($window->getContents()));
 				}
-			} elseif ($window instanceof TradeInventory) {
+			}elseif($window instanceof TradeInventory){
 				$recipeData = $window->getRecipeData();
 				$rid = $action->getRecipeId();
 				$rep = $action->getRepetitions();
 
-				// Debug
 				$this->dbg("CraftRecipeStackRequestAction recipeId=$rid reps=$rep");
 
-				// Tolérant 0-based / 1-based
-				$recipe = $recipeData->getRecipe($rid) ?? ($rid > 0 ? $recipeData->getRecipe($rid - 1) : null);
+				$recipe = ($rid > 0 ? $recipeData->getRecipe($rid - 1) : null) ?? $recipeData->getRecipe($rid);
 				if($recipe === null){
-					$this->dbg("Recipe not found for rid=$rid (or rid-1)");
-					// Laisse tomber -> le client recevra un rejet propre plutôt qu'un crash
+					$this->dbg("Recipe not found for rid=$rid or rid-1");
+					return;
+				}
+
+				$createdOutputTakeCount = $this->getCreatedOutputTakeCount();
+
+				if($createdOutputTakeCount <= 0){
+					$this->tradeRequestWithoutOutputTake = true;
+					$this->dbg("Trade request has no CREATED_OUTPUT take, ignoring trade consume actions");
 					return;
 				}
 
 				$this->specialTransaction = new TradingTransaction($this->player, $recipeData, $recipe);
 
-				// IMPORTANT: shift-click = reps > 1 parfois
 				$result = clone $recipe->getSell();
-				if($rep > 1){
-					$result->setCount($result->getCount() * $rep);
-				}
+
+				$result->setCount($createdOutputTakeCount);
+
+				$this->dbg("Trade created output take count=$createdOutputTakeCount, result=" . $result->getName() . " x" . $result->getCount());
+
 				$this->setNextCreatedItem($result);
-
-				// IMPORTANT: resync slots trade + output "created"
-				// Selon versions Bedrock, c'est généralement TRADE2.
-				$this->markSlotForSync(ContainerUIIds::TRADE2_INGREDIENT1, 0);
-				$this->markSlotForSync(ContainerUIIds::TRADE2_INGREDIENT2, 1);
-				$this->markSlotForSync(ContainerUIIds::TRADE2_RESULT_PREVIEW, 2);
-				$this->markSlotForSync(ContainerUIIds::CREATED_OUTPUT, UIInventorySlotOffset::CREATED_ITEM_OUTPUT);
-
 				return;
 			} else {
 				$this->beginCrafting($action->getRecipeId(), $action->getRepetitions());
@@ -408,37 +417,54 @@ class ItemStackRequestExecutor{
 				$rid = $action->getRecipeId();
 				$rep = $action->getRepetitions();
 
-				// Debug
 				$this->dbg("CraftRecipeAutoStackRequestAction recipeId=$rid reps=$rep");
 
-				$recipe = $recipeData->getRecipe($rid) ?? ($rid > 0 ? $recipeData->getRecipe($rid - 1) : null);
+				$recipe = ($rid > 0 ? $recipeData->getRecipe($rid - 1) : null) ?? $recipeData->getRecipe($rid);
 				if($recipe === null){
-					$this->dbg("Recipe not found for rid=$rid (or rid-1)");
+					$this->dbg("Recipe not found for rid=$rid or rid-1");
+					return;
+				}
+
+				$createdOutputTakeCount = $this->getCreatedOutputTakeCount();
+
+				if($createdOutputTakeCount <= 0){
+					$this->tradeRequestWithoutOutputTake = true;
+					$this->dbg("Trade auto request has no CREATED_OUTPUT take, ignoring trade consume actions");
 					return;
 				}
 
 				$this->specialTransaction = new TradingTransaction($this->player, $recipeData, $recipe);
 
 				$result = clone $recipe->getSell();
-				if($rep > 1){
-					$result->setCount($result->getCount() * $rep);
-				}
+				$result->setCount($createdOutputTakeCount);
+
+				$this->dbg("Trade auto created output take count=$createdOutputTakeCount, result=" . $result->getName() . " x" . $result->getCount());
+
 				$this->setNextCreatedItem($result);
-
-				// Resync indispensable pour éviter mismatch sur consume
-				$this->markSlotForSync(ContainerUIIds::TRADE2_INGREDIENT1, 0);
-				$this->markSlotForSync(ContainerUIIds::TRADE2_INGREDIENT2, 1);
-				$this->markSlotForSync(ContainerUIIds::TRADE2_RESULT_PREVIEW, 2);
-				$this->markSlotForSync(ContainerUIIds::CREATED_OUTPUT, UIInventorySlotOffset::CREATED_ITEM_OUTPUT);
-
 				return;
 			}
 
 			$this->beginCrafting($action->getRecipeId(), $action->getRepetitions());
 		}elseif($action instanceof CraftingConsumeInputStackRequestAction){
+			if($this->tradeRequestWithoutOutputTake && $this->player->getCurrentWindow() instanceof TradeInventory){
+				$this->dbg("Ignoring CraftingConsumeInputStackRequestAction for trade without output take");
+				return;
+			}
+
+			if($this->player->getCurrentWindow() instanceof TradeInventory){
+				$srcContainer = $action->getSource()->getContainerName()->getContainerId();
+				$srcSlot = $action->getSource()->getSlotId();
+				try{
+					[$inv, $slot] = $this->getBuilderInventoryAndSlot($action->getSource());
+					$item = $inv->getItem($slot);
+					$this->dbg("CraftingConsumeInput container=$srcContainer slot=$srcSlot count=" . $action->getCount() . " item=" . $item->getName() . " x" . $item->getCount());
+				}catch(\Exception $e){
+					$this->dbg("CraftingConsumeInput container=$srcContainer slot=$srcSlot count=" . $action->getCount() . " [slot lookup failed: " . $e->getMessage() . "]");
+				}
+			}
+
 			$this->assertDoingCrafting();
 			$this->removeItemFromSlot($action->getSource(), $action->getCount()); //output discarded - we allow CraftingTransaction to verify the balance
-
 		}elseif($action instanceof CraftingCreateSpecificResultStackRequestAction){
 			$this->assertDoingCrafting();
 
@@ -472,23 +498,28 @@ class ItemStackRequestExecutor{
 		}
 	}
 
-	private function markSlotForSync(int $containerId, int $slotId) : void{
-		try{
-			ItemStackContainerIdTranslator::translate(
-				$containerId,
-				$this->inventoryManager->getCurrentWindowId(),
-				$slotId
-			);
-		}catch(\Throwable $e){
-			$this->dbg("Skip sync for unsupported containerId=$containerId slot=$slotId (" . $e->getMessage() . ")");
-			return;
+	private function isCreatedOutputSlot(ItemStackRequestSlotInfo $slotInfo) : bool{
+		return (
+			$slotInfo->getContainerName()->getContainerId() === ContainerUIIds::CREATED_OUTPUT &&
+			$slotInfo->getSlotId() === UIInventorySlotOffset::CREATED_ITEM_OUTPUT
+		);
+	}
+
+	private function getCreatedOutputTakeCount() : int{
+		$count = 0;
+
+		foreach($this->request->getActions() as $action){
+			// Shift-click sends PlaceStackRequestAction instead of TakeStackRequestAction
+			// when moving the trade output directly to the inventory.
+			if(
+				($action instanceof TakeStackRequestAction || $action instanceof PlaceStackRequestAction) &&
+				$this->isCreatedOutputSlot($action->getSource())
+			){
+				$count += $action->getCount();
+			}
 		}
 
-		$this->requestSlotInfos[] = new ItemStackRequestSlotInfo(
-			new FullContainerName($containerId),
-			$slotId,
-			$this->request->getRequestId()
-		);
+		return $count;
 	}
 
 	/**
@@ -496,13 +527,21 @@ class ItemStackRequestExecutor{
 	 */
 	public function generateInventoryTransaction() : ?InventoryTransaction{
 		foreach(Utils::promoteKeys($this->request->getActions()) as $k => $action){
+			$this->dbg("Action $k = " . (new \ReflectionClass($action))->getShortName());
+
 			try{
 				$this->processItemStackRequestAction($action);
 			}catch(ItemStackRequestProcessException $e){
-				throw new ItemStackRequestProcessException("Error processing action $k (" . (new \ReflectionClass($action))->getShortName() . "): " . $e->getMessage(), 0, $e);
+				throw new ItemStackRequestProcessException(
+					"Error processing action $k (" . (new \ReflectionClass($action))->getShortName() . "): " . $e->getMessage(),
+					0,
+					$e
+				);
 			}
 		}
+
 		$this->setNextCreatedItem(null);
+
 		$inventoryActions = $this->builder->generateActions();
 		if(count($inventoryActions) === 0){
 			return null;

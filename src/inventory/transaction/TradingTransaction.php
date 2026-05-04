@@ -7,16 +7,6 @@
  * |  \ :    ;:    ;  |
  * '   ` `--'  `--'   '
  *       by Valres.
- *
- * FRA:
- * Ce code source est la propriété exclusive de Valres.
- * Toute utilisation, reproduction, modification ou distribution de ce code
- * sans autorisation écrite explicite est strictement interdite.
- *
- * ENG:
- * This source code is the exclusive property of Valres.
- * Any use, reproduction, modification, or distribution of this code
- * without explicit written authorization is strictly prohibited.
  */
 
 declare(strict_types=1);
@@ -54,6 +44,15 @@ final class TradingTransaction extends InventoryTransaction {
 
 		$buyA = $window->getItem(0);
 		$buyB = $window->getItem(1);
+
+		$logger = $this->source->getServer()->getLogger();
+		$logger->debug("[TradingTransaction] Validate — window slot0: " . $buyA->getName() . " x" . $buyA->getCount() . " (null=" . ($buyA->isNull() ? 'yes' : 'no') . ")");
+		$logger->debug("[TradingTransaction] Validate — recipe buyA: " . $this->buyA->getName() . " x" . $this->buyA->getCount());
+		$logger->debug("[TradingTransaction] Validate — equals=" . ($buyA->equals($this->buyA) ? 'yes' : 'no') . " countOK=" . ($buyA->getCount() >= $this->buyA->getCount() ? 'yes' : 'no'));
+		if ($this->buyB !== null) {
+			$logger->debug("[TradingTransaction] Validate — window slot1: " . $buyB->getName() . " x" . $buyB->getCount());
+			$logger->debug("[TradingTransaction] Validate — recipe buyB: " . $this->buyB->getName() . " x" . $this->buyB->getCount());
+		}
 
 		if ($buyA->isNull()) throw new TransactionValidationException("No item inputs");
 		if (!$buyA->equals($this->buyA) || $buyA->getCount() < $this->buyA->getCount()) throw new TransactionValidationException("Invalid buyA item input");
