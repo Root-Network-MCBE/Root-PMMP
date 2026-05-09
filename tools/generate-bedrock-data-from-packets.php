@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace pocketmine\tools\generate_bedrock_data_from_packets;
 
 use pmmp\encoding\ByteBufferReader;
-use pocketmine\crafting\json\FurnaceRecipeData;
 use pocketmine\crafting\json\ItemStackData;
 use pocketmine\crafting\json\PotionContainerChangeRecipeData;
 use pocketmine\crafting\json\PotionTypeRecipeData;
@@ -421,14 +420,6 @@ class ParserPacketHandler extends PacketHandler{
 		);
 	}
 
-	private function furnaceRecipeToJson(FurnaceRecipe $recipe) : FurnaceRecipeData{
-		return new FurnaceRecipeData(
-			$this->recipeIngredientToJson(new RecipeIngredient(new IntIdMetaItemDescriptor($recipe->getInputId(), $recipe->getInputMeta() ?? 32767), 1)),
-			$this->itemStackToJson($recipe->getResult()),
-			$recipe->getBlockName()
-		);
-	}
-
 	private function smithingRecipeToJson(SmithingTransformRecipe $recipe) : SmithingTransformRecipeData{
 		return new SmithingTransformRecipeData(
 			$this->recipeIngredientToJson($recipe->getTemplate()),
@@ -460,8 +451,6 @@ class ParserPacketHandler extends PacketHandler{
 			static $typeMap = [
 				CraftingDataPacket::ENTRY_SHAPELESS => "shapeless_crafting",
 				CraftingDataPacket::ENTRY_SHAPED => "shaped_crafting",
-				CraftingDataPacket::ENTRY_FURNACE => "smelting",
-				CraftingDataPacket::ENTRY_FURNACE_DATA => "smelting",
 				CraftingDataPacket::ENTRY_MULTI => "special_hardcoded",
 				CraftingDataPacket::ENTRY_USER_DATA_SHAPELESS => "shapeless_shulker_box",
 				CraftingDataPacket::ENTRY_SHAPELESS_CHEMISTRY => "shapeless_chemistry",
@@ -486,8 +475,6 @@ class ParserPacketHandler extends PacketHandler{
 				$recipes[$mappedType][] = $this->shapelessRecipeToJson($entry);
 			}elseif($entry instanceof MultiRecipe){
 				$recipes[$mappedType][] = $entry->getRecipeId()->toString();
-			}elseif($entry instanceof FurnaceRecipe){
-				$recipes[$mappedType][] = $this->furnaceRecipeToJson($entry);
 			}elseif($entry instanceof SmithingTransformRecipe){
 				$recipes[$mappedType][] = $this->smithingRecipeToJson($entry);
 			}elseif($entry instanceof SmithingTrimRecipe){
