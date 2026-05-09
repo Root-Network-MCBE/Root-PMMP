@@ -381,11 +381,11 @@ class InventoryManager{
 			$windowType = match(true){
 				$inv instanceof LoomInventory => WindowTypes::LOOM,
 				$inv instanceof FurnaceInventory => match($inv->getFurnaceType()){
-						FurnaceType::FURNACE => WindowTypes::FURNACE,
-						FurnaceType::BLAST_FURNACE => WindowTypes::BLAST_FURNACE,
-						FurnaceType::SMOKER => WindowTypes::SMOKER,
-						FurnaceType::CAMPFIRE, FurnaceType::SOUL_CAMPFIRE => throw new \LogicException("Campfire inventory cannot be displayed to a player")
-					},
+					FurnaceType::FURNACE => WindowTypes::FURNACE,
+					FurnaceType::BLAST_FURNACE => WindowTypes::BLAST_FURNACE,
+					FurnaceType::SMOKER => WindowTypes::SMOKER,
+					FurnaceType::CAMPFIRE, FurnaceType::SOUL_CAMPFIRE => throw new \LogicException("Campfire inventory cannot be displayed to a player")
+				},
 				$inv instanceof EnchantInventory => WindowTypes::ENCHANTMENT,
 				$inv instanceof BrewingStandInventory => WindowTypes::BREWING_STAND,
 				$inv instanceof AnvilInventory => WindowTypes::ANVIL,
@@ -815,7 +815,8 @@ class InventoryManager{
 						"mob.wanderingtrader.haggle",
 						$pos->x, $pos->y, $pos->z,
 						1,
-						(float) round(0.8 + 0.4 * (mt_rand() / mt_getrandmax()), 2)
+						(float) round(0.8 + 0.4 * (mt_rand() / mt_getrandmax()), 2),
+						null
 					));
 					return;
 				}

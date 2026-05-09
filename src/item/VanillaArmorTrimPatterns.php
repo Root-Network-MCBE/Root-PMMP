@@ -31,9 +31,11 @@ use pocketmine\utils\RegistryTrait;
  * @see build/generate-registry-annotations.php
  * @generate-registry-docblock
  *
+ * @method static ArmorTrimPattern BOLT()
  * @method static ArmorTrimPattern COAST()
  * @method static ArmorTrimPattern DUNE()
  * @method static ArmorTrimPattern EYE()
+ * @method static ArmorTrimPattern FLOW()
  * @method static ArmorTrimPattern HOST()
  * @method static ArmorTrimPattern RAISER()
  * @method static ArmorTrimPattern RIB()
@@ -71,9 +73,11 @@ final class VanillaArmorTrimPatterns{
 	}
 
 	protected static function setup() : void{
+		self::register("bolt", new ArmorTrimPattern(VanillaItems::BOLT_ARMOR_TRIM_SMITHING_TEMPLATE()));
 		self::register("coast", new ArmorTrimPattern(VanillaItems::COAST_ARMOR_TRIM_SMITHING_TEMPLATE()));
 		self::register("dune", new ArmorTrimPattern(VanillaItems::DUNE_ARMOR_TRIM_SMITHING_TEMPLATE()));
 		self::register("eye", new ArmorTrimPattern(VanillaItems::EYE_ARMOR_TRIM_SMITHING_TEMPLATE()));
+		self::register("flow", new ArmorTrimPattern(VanillaItems::FLOW_ARMOR_TRIM_SMITHING_TEMPLATE()));
 		self::register("host", new ArmorTrimPattern(VanillaItems::HOST_ARMOR_TRIM_SMITHING_TEMPLATE()));
 		self::register("raiser", new ArmorTrimPattern(VanillaItems::RAISER_ARMOR_TRIM_SMITHING_TEMPLATE()));
 		self::register("rib", new ArmorTrimPattern(VanillaItems::RIB_ARMOR_TRIM_SMITHING_TEMPLATE()));

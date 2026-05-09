@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\handler;
 
+use pocketmine\block\VanillaBlocks;
 use pocketmine\data\bedrock\ArmorTrimMaterialTypeIdMap;
 use pocketmine\data\bedrock\ArmorTrimPatternTypeIdMap;
 use pocketmine\item\ArmorTrimMaterial;
@@ -30,6 +31,7 @@ use pocketmine\item\ArmorTrimPattern;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\cache\CraftingDataCache;
 use pocketmine\network\mcpe\cache\StaticPacketCache;
+use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\InventoryManager;
 use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\protocol\ItemRegistryPacket;
@@ -83,7 +85,7 @@ class PreSpawnPacketHandler extends PacketHandler{
 			$this->session->getLogger()->debug("Preparing StartGamePacket");
 			$levelSettings = new LevelSettings();
 			$levelSettings->seed = -1;
-			$levelSettings->spawnSettings = new SpawnSettings(SpawnSettings::BIOME_TYPE_DEFAULT, "", DimensionIds::OVERWORLD); //TODO: implement this properly
+			$levelSettings->spawnSettings = new SpawnSettings(SpawnSettings::BIOME_TYPE_DEFAULT, "", DimensionIds::OVERWORLD);
 			$levelSettings->worldGamemode = $typeConverter->coreGameModeToProtocol($this->server->getGamemode());
 			$levelSettings->difficulty = $world->getDifficulty();
 			$levelSettings->spawnPosition = BlockPosition::fromVector3($world->getSpawnLocation());
@@ -94,18 +96,15 @@ class PreSpawnPacketHandler extends PacketHandler{
 			$levelSettings->lightningLevel = (int) ($world->getLightningLevel() * 65535);
 			$levelSettings->commandsEnabled = true;
 			$levelSettings->gameRules = [
-				"naturalregeneration" => new BoolGameRule(false, false), //Hack for client side regeneration
-				"locatorbar" => new BoolGameRule(false, false) //Disable client-side tracking of nearby players
+				"naturalregeneration" => new BoolGameRule(false, false),
+				"locatorbar" => new BoolGameRule(false, false)
 			];
 			$levelSettings->experiments = new Experiments([
 				"data_driven_items" => true,
-
 				"custom_projectiles" => true,
 				"experimental_creator_cameras" => true,
-				"experiments_ever_used" => true,
 				"furnace_recipe_book" => true,
 				"gametest" => true,
-				"saved_with_toggled_experiments" => true,
 				"upcoming_creator_features" => true,
 				"y_2026_drop_2" => true
 			], true);
@@ -140,7 +139,9 @@ class PreSpawnPacketHandler extends PacketHandler{
 			));
 
 			$this->session->getLogger()->debug("Sending items");
-			$this->session->sendDataPacket(ItemRegistryPacket::create($typeConverter->getItemTypeDictionary()->getEntries()));
+			$this->session->sendDataPacket(ItemRegistryPacket::create(
+				$typeConverter->getItemTypeDictionary()->getEntries()
+			));
 
 			$this->session->getLogger()->debug("Sending actor identifiers");
 			$this->session->sendDataPacket(StaticPacketCache::getInstance()->getAvailableActorIdentifiers());

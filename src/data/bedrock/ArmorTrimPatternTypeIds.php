@@ -24,9 +24,11 @@ declare(strict_types=1);
 namespace pocketmine\data\bedrock;
 
 final class ArmorTrimPatternTypeIds{
+	public const BOLT = "bolt";
 	public const COAST = "coast";
 	public const DUNE = "dune";
 	public const EYE = "eye";
+	public const FLOW = "flow";
 	public const HOST = "host";
 	public const RAISER = "raiser";
 	public const RIB = "rib";

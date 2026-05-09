@@ -125,6 +125,7 @@ use pocketmine\data\bedrock\block\convert\property\ValueFromStringProperty;
 use pocketmine\data\bedrock\block\convert\property\ValueMappings;
 use pocketmine\data\bedrock\block\convert\property\ValueSetFromIntProperty;
 use pocketmine\math\Facing;
+use pocketmine\network\mcpe\convert\TypeConverter;
 use function array_map;
 use function min;
 use function range;
@@ -159,7 +160,7 @@ final class VanillaBlockMappings{
 	}
 
 	private static function registerSimpleIdOnlyMappings(BlockSerializerDeserializerRegistrar $reg) : void{
-		$reg->mapSimple(Blocks::CINNABAR(), Ids::CINNABAR);
+		$reg->mapSimple(Blocks::HONEY(), Ids::HONEY_BLOCK);
 
 		$reg->mapSimple(Blocks::AIR(), Ids::AIR);
 		$reg->mapSimple(Blocks::AMETHYST(), Ids::AMETHYST_BLOCK);

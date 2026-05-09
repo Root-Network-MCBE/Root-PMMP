@@ -140,7 +140,7 @@ class ResourcePacksPacketHandler extends PacketHandler{
 			hasScripts: false,
 			worldTemplateId: Uuid::fromString(Uuid::NIL),
 			worldTemplateVersion: "",
-			forceDisableVibrantVisuals: true,
+			forceDisableVibrantVisuals: false,
 		));
 		$this->session->getLogger()->debug("Waiting for client to accept resource packs");
 	}
@@ -219,10 +219,21 @@ class ResourcePacksPacketHandler extends PacketHandler{
 					$stack[] = new ResourcePackStackEntry($uuid, $version, "");
 				}
 
-				//we don't force here, because it doesn't have user-facing effects
-				//but it does have an annoying side-effect when true: it makes
-				//the client remove its own non-server-supplied resource packs.
-				$this->session->sendDataPacket(ResourcePackStackPacket::create($stack, false, ProtocolInfo::MINECRAFT_VERSION_NETWORK, new Experiments([], false), false));
+				$this->session->sendDataPacket(ResourcePackStackPacket::create(
+					$stack,
+					false,
+					ProtocolInfo::MINECRAFT_VERSION_NETWORK,
+					new Experiments([
+						"data_driven_items" => true,
+						"custom_projectiles" => true,
+						"experimental_creator_cameras" => true,
+						"furnace_recipe_book" => true,
+						"gametest" => true,
+						"upcoming_creator_features" => true,
+						"y_2026_drop_2" => true
+					], true),
+					false
+				));
 				$this->session->getLogger()->debug("Applying resource pack stack");
 				break;
 			case ResourcePackClientResponsePacket::STATUS_COMPLETED:

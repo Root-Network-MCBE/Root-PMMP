@@ -120,6 +120,8 @@ final class StringToItemParser extends StringToTParser{
 	}
 
 	private static function registerBlocks(self $result) : void{
+		$result->registerBlock("honey", fn() => Blocks::HONEY());
+
 		$result->registerBlock("acacia_button", fn() => Blocks::ACACIA_BUTTON());
 		$result->registerBlock("acacia_door", fn() => Blocks::ACACIA_DOOR());
 		$result->registerBlock("acacia_door_block", fn() => Blocks::ACACIA_DOOR());
@@ -1266,6 +1268,39 @@ final class StringToItemParser extends StringToTParser{
 	}
 
 	private static function registerItems(self $result) : void{
+		$result->register("armadillo_scute", fn() => Items::ARMADILLO_SCUTE());
+		$result->register("breeze_rod", fn() => Items::BREEZE_ROD());
+		$result->register("trial_key", fn() => Items::TRIAL_KEY());
+		$result->register("ominous_trial_key", fn() => Items::OMINOUS_TRIAL_KEY());
+
+		$result->register("angler_pottery_sherd", fn() => Items::ANGLER_POTTERY_SHERD());
+		$result->register("archer_pottery_sherd", fn() => Items::ARCHER_POTTERY_SHERD());
+		$result->register("arms_up_pottery_sherd", fn() => Items::ARMS_UP_POTTERY_SHERD());
+		$result->register("blade_pottery_sherd", fn() => Items::BLADE_POTTERY_SHERD());
+		$result->register("brewer_pottery_sherd", fn() => Items::BREWER_POTTERY_SHERD());
+		$result->register("burn_pottery_sherd", fn() => Items::BURN_POTTERY_SHERD());
+		$result->register("danger_pottery_sherd", fn() => Items::DANGER_POTTERY_SHERD());
+		$result->register("explorer_pottery_sherd", fn() => Items::EXPLORER_POTTERY_SHERD());
+		$result->register("flow_pottery_sherd", fn() => Items::FLOW_POTTERY_SHERD());
+		$result->register("friend_pottery_sherd", fn() => Items::FRIEND_POTTERY_SHERD());
+		$result->register("guster_pottery_sherd", fn() => Items::GUSTER_POTTERY_SHERD());
+		$result->register("heart_pottery_sherd", fn() => Items::HEART_POTTERY_SHERD());
+		$result->register("heartbreak_pottery_sherd", fn() => Items::HEARTBREAK_POTTERY_SHERD());
+		$result->register("howl_pottery_sherd", fn() => Items::HOWL_POTTERY_SHERD());
+		$result->register("miner_pottery_sherd", fn() => Items::MINER_POTTERY_SHERD());
+		$result->register("mourner_pottery_sherd", fn() => Items::MOURNER_POTTERY_SHERD());
+		$result->register("plenty_pottery_sherd", fn() => Items::PLENTY_POTTERY_SHERD());
+		$result->register("prize_pottery_sherd", fn() => Items::PRIZE_POTTERY_SHERD());
+		$result->register("scrape_pottery_sherd", fn() => Items::SCRAPE_POTTERY_SHERD());
+		$result->register("sheaf_pottery_sherd", fn() => Items::SHEAF_POTTERY_SHERD());
+		$result->register("shelter_pottery_sherd", fn() => Items::SHELTER_POTTERY_SHERD());
+		$result->register("skull_pottery_sherd", fn() => Items::SKULL_POTTERY_SHERD());
+		$result->register("snort_pottery_sherd", fn() => Items::SNORT_POTTERY_SHERD());
+
+		$result->register("bolt_armor_trim_smithing_template", fn() => Items::BOLT_ARMOR_TRIM_SMITHING_TEMPLATE());
+		$result->register("flow_armor_trim_smithing_template", fn() => Items::FLOW_ARMOR_TRIM_SMITHING_TEMPLATE());
+
+		$result->register("wind_charge", fn() => Items::WIND_CHARGE());
 
 		$result->register("acacia_boat", fn() => Items::ACACIA_BOAT());
 		$result->register("acacia_hanging_sign", fn() => Items::ACACIA_HANGING_SIGN());

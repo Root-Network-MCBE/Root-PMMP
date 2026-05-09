@@ -523,11 +523,22 @@ class InGamePacketHandler extends PacketHandler{
 					$serverRuntimeId = $blockTranslator->internalIdToNetworkId($block->getStateId());
 					$interactDisplacedBlock = false;
 
-					if(($displaced = $block->getDisplacedBlock()) !== null && $blockTranslator->internalIdToNetworkId($displaced->getStateId()) === $clientRuntimeId){
-						$interactDisplacedBlock = true;
-					}elseif($serverRuntimeId !== $clientRuntimeId){
+					$clientRuntimeIdUnsigned = self::toUnsignedInt32($clientRuntimeId);
+					$serverRuntimeIdUnsigned = self::toUnsignedInt32($serverRuntimeId);
+
+					$displaced = $block->getDisplacedBlock();
+					if($displaced !== null){
+						$displacedRuntimeId = $blockTranslator->internalIdToNetworkId($displaced->getStateId());
+						$displacedRuntimeIdUnsigned = self::toUnsignedInt32($displacedRuntimeId);
+
+						if($displacedRuntimeIdUnsigned === $clientRuntimeIdUnsigned){
+							$interactDisplacedBlock = true;
+						}
+					}
+
+					if(!$interactDisplacedBlock && $serverRuntimeIdUnsigned !== $clientRuntimeIdUnsigned){
 						$this->session->getLogger()->debug(
-							"Block runtime mismatch at $vBlockPos: server=$serverRuntimeId client=$clientRuntimeId block=" . $block->getName()
+							"Block runtime mismatch at $vBlockPos: server=$serverRuntimeId/$serverRuntimeIdUnsigned client=$clientRuntimeId/$clientRuntimeIdUnsigned block=" . $block->getName()
 						);
 
 						$this->syncBlocksNearby($vBlockPos, $data->getFace());
@@ -553,6 +564,10 @@ class InGamePacketHandler extends PacketHandler{
 		}
 
 		return false;
+	}
+
+	private static function toUnsignedInt32(int $value) : int{
+		return $value < 0 ? $value + 0x100000000 : $value;
 	}
 
 	/**
@@ -717,7 +732,6 @@ class InGamePacketHandler extends PacketHandler{
 	private function handlePlayerActionFromData(int $action, BlockPosition $blockPosition, int $face) : bool{
 		$pos = new Vector3($blockPosition->getX(), $blockPosition->getY(), $blockPosition->getZ());
 
-		$this->session->getLogger()->debug("PlayerAction $action on $pos (face: $face)");
 		switch($action){
 			case PlayerAction::START_BREAK:
 			case PlayerAction::CONTINUE_DESTROY_BLOCK: //destroy the next block while holding down left click
@@ -727,7 +741,6 @@ class InGamePacketHandler extends PacketHandler{
 					//sends PREDICT_DESTROY_BLOCK, but also when it starts to break the block
 					//this seems like a bug in the client and would cause spurious left-click events if we allowed it to
 					//be delivered to the player
-					$this->session->getLogger()->debug("Ignoring PlayerAction $action on $pos because we were already destroying this block");
 					$this->syncBlocksNearby($pos, $face);
 					break;
 				}
@@ -757,7 +770,6 @@ class InGamePacketHandler extends PacketHandler{
 				break;
 			case PlayerAction::CREATIVE_PLAYER_DESTROY_BLOCK:
 				if(!$this->player->isCreative()) {
-					$this->player->getNetworkSession()->getLogger()->debug("Ignoring PlayerAction $action on $pos because player isn't in creative");
 					$this->syncBlocksNearby($pos, $face);
 					break;
 				}
@@ -775,20 +787,17 @@ class InGamePacketHandler extends PacketHandler{
 			case PlayerAction::PREDICT_DESTROY_BLOCK:
 				self::validateFacing($face);
 				if($this->player->isCreative()) {
-					$this->session->getLogger()->debug("Ignoring PlayerAction $action on $pos because player is in creative mode");
 					break;
 				}
 
 				if($this->lastBlockAttacked === null){
 					//the client will send this when it starts to break a block, but also when it continues to break the
 					//currently targeted block, so we need to ignore it if we don't have a block that we're currently
-					$this->session->getLogger()->debug("Ignoring PlayerAction $action on $pos because we have no block being broken");
 					$this->syncBlocksNearby($pos, $face);
 					break;
 				}
 
 				if($pos->distanceSquared($this->player->getLocation()) > 10000){
-					$this->session->getLogger()->debug("Ignoring PlayerAction $action on $pos because it is too far away from the player");
 					break;
 				}
 
@@ -799,18 +808,15 @@ class InGamePacketHandler extends PacketHandler{
 					//currently targeted block, so we need to ignore it if the player has no BlockBreakHandler
 					//this is a hack to prevent the client from spamming this packet when it starts to break a block
 					//this is also sent when the player is not in creative mode, so we need to check that too
-					$this->session->getLogger()->debug("Ignoring PlayerAction $action on $pos because player has no BlockBreakHandler");
 					$this->syncBlocksNearby($pos, $face);
 					break;
 				} elseif($breakHandler !== null && !$target->getBreakInfo()->breaksInstantly()) {
 					$breakHandler->update(); // 1 tick compensation for the client sending this packet before the block break progress is updated
 
-					$this->session->getLogger()->debug("PlayerAction $action on $pos with break progress " . $breakHandler->getBreakProgress() . " (face: $face)");
 					if($breakHandler->getBreakProgress() < 1) {
 						//the client will send this when it starts to break a block, but also when it continues to break the
 						//currently targeted block, so we need to ignore it if the break progress is less than 1
 						//this is a hack to prevent the client from spamming this packet when it starts to break a block
-						$this->session->getLogger()->debug("Ignoring PlayerAction $action on $pos because break progress is less than 1");
 						$this->syncBlocksNearby($pos, $face);
 						break;
 					}

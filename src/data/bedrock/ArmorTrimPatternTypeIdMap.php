@@ -55,9 +55,11 @@ final class ArmorTrimPatternTypeIdMap{
 	public function __construct(){
 		foreach(Patterns::getAll() as $pattern){
 			$this->register(match($pattern){
+				Patterns::BOLT() => Ids::BOLT,
 				Patterns::COAST() => Ids::COAST,
 				Patterns::DUNE() => Ids::DUNE,
 				Patterns::EYE() => Ids::EYE,
+				Patterns::FLOW() => Ids::FLOW,
 				Patterns::HOST() => Ids::HOST,
 				Patterns::RAISER() => Ids::RAISER,
 				Patterns::RIB() => Ids::RIB,

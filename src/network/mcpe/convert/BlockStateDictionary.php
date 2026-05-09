@@ -116,12 +116,16 @@ final class BlockStateDictionary{
 	public function lookupStateIdFromData(BlockStateData $data) : ?int{
 		$name = $data->getName();
 
+
 		$lookup = $this->stateDataToStateIdLookup[$name] ?? null;
-		return match(true){
+
+		$test = match(true){
 			$lookup === null => null,
 			is_int($lookup) => $lookup,
 			is_array($lookup) => $lookup[BlockStateDictionaryEntry::encodeStateProperties($data->getStates())] ?? null
 		};
+
+		return $test;
 	}
 
 	/**

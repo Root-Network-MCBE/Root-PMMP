@@ -87,6 +87,60 @@ final class VanillaItemsInputs extends RegistrySource{
 	}
 
 	protected function setup() : void{
+		foreach([
+			"armadillo_scute" => "Armadillo Scute",
+			"breeze_rod" => "Breeze Rod",
+			//"ominous_bottle" => "Ominous Bottle",
+			"trial_key" => "Trial Key",
+			"ominous_trial_key" => "Ominous Trial Key",
+			//"brush" => "Brush",
+			//"bundle" => "Bundle",
+			//"black_bundle" => "Black Bundle",
+			//"blue_bundle" => "Blue Bundle",
+			//"brown_bundle" => "Brown Bundle",
+			//"cyan_bundle" => "Cyan Bundle",
+			//"gray_bundle" => "Gray Bundle",
+			//"green_bundle" => "Green Bundle",
+			//"light_blue_bundle" => "Light Blue Bundle",
+			//"light_gray_bundle" => "Light Gray Bundle",
+			//"lime_bundle" => "Lime Bundle",
+			//"magenta_bundle" => "Magenta Bundle",
+			//"orange_bundle" => "Orange Bundle",
+			//"pink_bundle" => "Pink Bundle",
+			//"purple_bundle" => "Purple Bundle",
+			//"red_bundle" => "Red Bundle",
+			//"white_bundle" => "White Bundle",
+			//"yellow_bundle" => "Yellow Bundle",
+
+			"angler_pottery_sherd" => "Angler Pottery Sherd",
+			"archer_pottery_sherd" => "Archer Pottery Sherd",
+			"arms_up_pottery_sherd" => "Arms Up Pottery Sherd",
+			"blade_pottery_sherd" => "Blade Pottery Sherd",
+			"brewer_pottery_sherd" => "Brewer Pottery Sherd",
+			"burn_pottery_sherd" => "Burn Pottery Sherd",
+			"danger_pottery_sherd" => "Danger Pottery Sherd",
+			"explorer_pottery_sherd" => "Explorer Pottery Sherd",
+			"flow_pottery_sherd" => "Flow Pottery Sherd",
+			"friend_pottery_sherd" => "Friend Pottery Sherd",
+			"guster_pottery_sherd" => "Guster Pottery Sherd",
+			"heart_pottery_sherd" => "Heart Pottery Sherd",
+			"heartbreak_pottery_sherd" => "Heartbreak Pottery Sherd",
+			"howl_pottery_sherd" => "Howl Pottery Sherd",
+			"miner_pottery_sherd" => "Miner Pottery Sherd",
+			"mourner_pottery_sherd" => "Mourner Pottery Sherd",
+			"plenty_pottery_sherd" => "Plenty Pottery Sherd",
+			"prize_pottery_sherd" => "Prize Pottery Sherd",
+			"scrape_pottery_sherd" => "Scrape Pottery Sherd",
+			"sheaf_pottery_sherd" => "Sheaf Pottery Sherd",
+			"shelter_pottery_sherd" => "Shelter Pottery Sherd",
+			"skull_pottery_sherd" => "Skull Pottery Sherd",
+			"snort_pottery_sherd" => "Snort Pottery Sherd"
+		] as $name => $displayName){
+			self::register($name, fn(IID $id) => new Item($id, $displayName));
+		}
+
+		self::register("wind_charge", fn(IID $id) => new WindCharge($id, "Wind Charge"));
+
 		self::registerArmorItems();
 		self::registerSpawnEggs();
 		self::registerTierToolItems();
@@ -433,6 +487,7 @@ final class VanillaItemsInputs extends RegistrySource{
 		self::register("ward_armor_trim_smithing_template", fn(IID $id) => new Item($id, "Ward Armor Trim Smithing Template"));
 		self::register("wayfinder_armor_trim_smithing_template", fn(IID $id) => new Item($id, "Wayfinder Armor Trim Smithing Template"));
 		self::register("wild_armor_trim_smithing_template", fn(IID $id) => new Item($id, "Wild Armor Trim Smithing Template"));
+		self::register("bolt_armor_trim_smithing_template", fn(IID $id) => new Item($id, "Bolt Armor Trim Smithing Template"));
+		self::register("flow_armor_trim_smithing_template", fn(IID $id) => new Item($id, "Flow Armor Trim Smithing Template"));
 	}
-
 }

@@ -168,6 +168,62 @@ final class ItemSerializerDeserializerRegistrar{
 	 * Registers mappings for item IDs which directly correspond to PocketMine-MP items.
 	 */
 	private function register1to1ItemMappings() : void{
+		$this->map1to1Item(Ids::ARMADILLO_SCUTE, Items::ARMADILLO_SCUTE());
+		$this->map1to1Item(Ids::BREEZE_ROD, Items::BREEZE_ROD());
+		//$this->map1to1Item(Ids::WIND_CHARGE, Items::WIND_CHARGE());
+		//$this->map1to1Item(Ids::OMINOUS_BOTTLE, Items::OMINOUS_BOTTLE());
+		$this->map1to1Item(Ids::TRIAL_KEY, Items::TRIAL_KEY());
+		$this->map1to1Item(Ids::OMINOUS_TRIAL_KEY, Items::OMINOUS_TRIAL_KEY());
+		//$this->map1to1Item(Ids::BRUSH, Items::BRUSH());
+
+		//$this->map1to1Item(Ids::BUNDLE, Items::BUNDLE());
+		//$this->map1to1Item(Ids::BLACK_BUNDLE, Items::BLACK_BUNDLE());
+		//$this->map1to1Item(Ids::BLUE_BUNDLE, Items::BLUE_BUNDLE());
+		//$this->map1to1Item(Ids::BROWN_BUNDLE, Items::BROWN_BUNDLE());
+		//$this->map1to1Item(Ids::CYAN_BUNDLE, Items::CYAN_BUNDLE());
+		//$this->map1to1Item(Ids::GRAY_BUNDLE, Items::GRAY_BUNDLE());
+		//$this->map1to1Item(Ids::GREEN_BUNDLE, Items::GREEN_BUNDLE());
+		//$this->map1to1Item(Ids::LIGHT_BLUE_BUNDLE, Items::LIGHT_BLUE_BUNDLE());
+		//$this->map1to1Item(Ids::LIGHT_GRAY_BUNDLE, Items::LIGHT_GRAY_BUNDLE());
+		//$this->map1to1Item(Ids::LIME_BUNDLE, Items::LIME_BUNDLE());
+		//$this->map1to1Item(Ids::MAGENTA_BUNDLE, Items::MAGENTA_BUNDLE());
+		//$this->map1to1Item(Ids::ORANGE_BUNDLE, Items::ORANGE_BUNDLE());
+		//$this->map1to1Item(Ids::PINK_BUNDLE, Items::PINK_BUNDLE());
+		//$this->map1to1Item(Ids::PURPLE_BUNDLE, Items::PURPLE_BUNDLE());
+		//$this->map1to1Item(Ids::RED_BUNDLE, Items::RED_BUNDLE());
+		//$this->map1to1Item(Ids::WHITE_BUNDLE, Items::WHITE_BUNDLE());
+		//$this->map1to1Item(Ids::YELLOW_BUNDLE, Items::YELLOW_BUNDLE());
+
+		$this->map1to1Item(Ids::ANGLER_POTTERY_SHERD, Items::ANGLER_POTTERY_SHERD());
+		$this->map1to1Item(Ids::ARCHER_POTTERY_SHERD, Items::ARCHER_POTTERY_SHERD());
+		$this->map1to1Item(Ids::ARMS_UP_POTTERY_SHERD, Items::ARMS_UP_POTTERY_SHERD());
+		$this->map1to1Item(Ids::BLADE_POTTERY_SHERD, Items::BLADE_POTTERY_SHERD());
+		$this->map1to1Item(Ids::BREWER_POTTERY_SHERD, Items::BREWER_POTTERY_SHERD());
+		$this->map1to1Item(Ids::BURN_POTTERY_SHERD, Items::BURN_POTTERY_SHERD());
+		$this->map1to1Item(Ids::DANGER_POTTERY_SHERD, Items::DANGER_POTTERY_SHERD());
+		$this->map1to1Item(Ids::EXPLORER_POTTERY_SHERD, Items::EXPLORER_POTTERY_SHERD());
+		$this->map1to1Item(Ids::FLOW_POTTERY_SHERD, Items::FLOW_POTTERY_SHERD());
+		$this->map1to1Item(Ids::FRIEND_POTTERY_SHERD, Items::FRIEND_POTTERY_SHERD());
+		$this->map1to1Item(Ids::GUSTER_POTTERY_SHERD, Items::GUSTER_POTTERY_SHERD());
+		$this->map1to1Item(Ids::HEART_POTTERY_SHERD, Items::HEART_POTTERY_SHERD());
+		$this->map1to1Item(Ids::HEARTBREAK_POTTERY_SHERD, Items::HEARTBREAK_POTTERY_SHERD());
+		$this->map1to1Item(Ids::HOWL_POTTERY_SHERD, Items::HOWL_POTTERY_SHERD());
+		$this->map1to1Item(Ids::MINER_POTTERY_SHERD, Items::MINER_POTTERY_SHERD());
+		$this->map1to1Item(Ids::MOURNER_POTTERY_SHERD, Items::MOURNER_POTTERY_SHERD());
+		$this->map1to1Item(Ids::PLENTY_POTTERY_SHERD, Items::PLENTY_POTTERY_SHERD());
+		$this->map1to1Item(Ids::PRIZE_POTTERY_SHERD, Items::PRIZE_POTTERY_SHERD());
+		$this->map1to1Item(Ids::SCRAPE_POTTERY_SHERD, Items::SCRAPE_POTTERY_SHERD());
+		$this->map1to1Item(Ids::SHEAF_POTTERY_SHERD, Items::SHEAF_POTTERY_SHERD());
+		$this->map1to1Item(Ids::SHELTER_POTTERY_SHERD, Items::SHELTER_POTTERY_SHERD());
+		$this->map1to1Item(Ids::SKULL_POTTERY_SHERD, Items::SKULL_POTTERY_SHERD());
+		$this->map1to1Item(Ids::SNORT_POTTERY_SHERD, Items::SNORT_POTTERY_SHERD());
+
+		$this->map1to1Item(Ids::BOLT_ARMOR_TRIM_SMITHING_TEMPLATE, Items::BOLT_ARMOR_TRIM_SMITHING_TEMPLATE());
+		$this->map1to1Item(Ids::FLOW_ARMOR_TRIM_SMITHING_TEMPLATE, Items::FLOW_ARMOR_TRIM_SMITHING_TEMPLATE());
+
+		$this->map1to1Item(Ids::WIND_CHARGE, Items::WIND_CHARGE());
+
+
 		$this->map1to1Item(Ids::COD, Items::RAW_COD());
 		$this->map1to1Item(Ids::COOKED_COD, Items::COOKED_COD());
 		$this->map1to1Item(Ids::TROPICAL_FISH, Items::TROPICAL_FISH());

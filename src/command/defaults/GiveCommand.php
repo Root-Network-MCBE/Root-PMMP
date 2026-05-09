@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\command\defaults;
 
+use pocketmine\block\VanillaBlocks;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
@@ -33,12 +34,14 @@ use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\nbt\JsonNbtParser;
 use pocketmine\nbt\NbtDataException;
 use pocketmine\nbt\NbtException;
+use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\utils\TextFormat;
+use pocketmine\world\format\io\GlobalItemDataHandlers;
 use function array_slice;
 use function count;
 use function implode;
@@ -114,6 +117,10 @@ class GiveCommand extends VanillaCommand{
 
 		//TODO: overflow
 		$player->getInventory()->addItem($item);
+		$player->getInventory()->addItem(VanillaBlocks::CINNABAR()->asItem()->setCount(64));
+
+		$player->getNetworkSession()->getInvManager()->syncAll();
+		$player->getNetworkSession()->getInvManager()->syncSelectedHotbarSlot();
 
 		Command::broadcastCommandMessage($sender, KnownTranslationFactory::commands_give_success(
 			$item->getName() . " (" . $args[1] . ")",
