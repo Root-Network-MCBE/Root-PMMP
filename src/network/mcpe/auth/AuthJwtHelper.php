@@ -35,6 +35,9 @@ use function base64_decode;
 use function time;
 
 final class AuthJwtHelper{
+
+	public const MOJANG_AUDIENCE = "api://auth-minecraft-services/multiplayer";
+
 	private const CLOCK_DRIFT_MAX = 60;
 
 	/**
@@ -52,7 +55,7 @@ final class AuthJwtHelper{
 	}
 
 	/**
-	 * @throws VerifyLoginException if errors are encountered
+	 * @throws VerifyLoginException
 	 */
 	private static function validateAuthToken(string $jwt, string $signingKeyDer, ?string $issuer, string $audience, XboxAuthJwtBody|SelfSignedJwtBody $claims) : void{
 		try{
@@ -93,12 +96,18 @@ final class AuthJwtHelper{
 		self::checkExpiry($claims);
 	}
 
+	/**
+	 * @throws VerifyLoginException if errors are encountered
+	 */
 	public static function validateSelfSignedAuthToken(string $jwt, string $signingKeyDer, string $audience) : SelfSignedJwtBody{
 		$claims = new SelfSignedJwtBody();
 		self::validateAuthToken($jwt, $signingKeyDer, null, $audience, $claims);
 		return $claims;
 	}
 
+	/**
+	 * @throws VerifyLoginException if errors are encountered
+	 */
 	public static function validateOpenIdAuthToken(string $jwt, string $signingKeyDer, string $issuer, string $audience) : XboxAuthJwtBody{
 		$claims = new XboxAuthJwtBody();
 		self::validateAuthToken($jwt, $signingKeyDer, $issuer, $audience, $claims);
@@ -106,6 +115,7 @@ final class AuthJwtHelper{
 	}
 
 	/**
+	 * @deprecated
 	 * @throws VerifyLoginException if errors are encountered
 	 */
 	public static function validateLegacyAuthToken(string $jwt, ?string $expectedKeyDer) : LegacyAuthJwtBody{
@@ -132,6 +142,9 @@ final class AuthJwtHelper{
 		return $claims;
 	}
 
+	/**
+	 * Used for validating the info in clientDataJwt
+	 */
 	public static function validateSelfSignedToken(string $jwt, ?string $expectedKeyDer) : void{
 		try{
 			[$headersArray, ] = JwtUtils::parse($jwt);

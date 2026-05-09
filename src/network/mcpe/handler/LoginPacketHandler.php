@@ -130,6 +130,7 @@ class LoginPacketHandler extends PacketHandler{
 
 			$authRequired = $this->processLoginCommon($packet, $username, $legacyUuid, $xuid);
 			if($authRequired === null){
+				//plugin cancelled
 				return true;
 			}
 			$this->processSelfSignedLogin($authInfo->Token, $selfSignedKey, $packet->clientDataJwt, $authRequired);
@@ -138,16 +139,6 @@ class LoginPacketHandler extends PacketHandler{
 		}
 
 		return true;
-	}
-
-	protected function mapSelfSignedTokenBody(array $bodyArray) : SelfSignedJwtBody{
-		$mapper = $this->defaultJsonMapper("OpenID JWT body");
-		try{
-			$header = $mapper->map($bodyArray, new SelfSignedJwtBody());
-		}catch(\JsonMapper_Exception $e){
-			throw PacketHandlingException::wrap($e);
-		}
-		return $header;
 	}
 
 	private function processLoginCommon(LoginPacket $packet, string $username, UuidInterface $legacyUuid, string $xuid) : ?bool{
@@ -275,6 +266,20 @@ class LoginPacketHandler extends PacketHandler{
 	}
 
 	/**
+	 * @param array<string, mixed> $bodyArray
+	 * @throws PacketHandlingException
+	 */
+	protected function mapSelfSignedTokenBody(array $bodyArray) : SelfSignedJwtBody{
+		$mapper = $this->defaultJsonMapper("OpenID JWT body");
+		try{
+			$header = $mapper->map($bodyArray, new SelfSignedJwtBody());
+		}catch(\JsonMapper_Exception $e){
+			throw PacketHandlingException::wrap($e);
+		}
+		return $header;
+	}
+
+	/**
 	 * @throws PacketHandlingException
 	 */
 	protected function parseClientData(string $clientDataJwt) : ClientData{
@@ -313,9 +318,6 @@ class LoginPacketHandler extends PacketHandler{
 		);
 	}
 
-	/**
-	 * @param string[] $legacyCertificate
-	 */
 	protected function processSelfSignedLogin(string $token, string $clientPublicKey, string $clientData, bool $authRequired) : void{
 		$this->session->setHandler(null); //drop packets received during login verification
 
