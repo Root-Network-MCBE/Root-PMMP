@@ -28,7 +28,6 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
-use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
@@ -36,7 +35,15 @@ use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\ServerProperties;
 use pocketmine\world\World;
 use ReflectionClass;
+use function array_filter;
+use function array_keys;
+use function array_map;
+use function array_merge;
 use function count;
+use function mb_strtolower;
+use function str_starts_with;
+use function strlen;
+use function substr;
 
 class DifficultyCommand extends VanillaCommand{
 

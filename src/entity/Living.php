@@ -496,7 +496,6 @@ abstract class Living extends Entity{
 			$source->setModifier(-$damage * $reduction, EntityDamageEvent::MODIFIER_ARMOR);
 		}
 
-
 		$cause = $source->getCause();
 		if(($resistance = $this->effectManager->get(VanillaEffects::RESISTANCE())) !== null && $cause !== EntityDamageEvent::CAUSE_VOID && $cause !== EntityDamageEvent::CAUSE_SUICIDE){
 			$source->setModifier(-$source->getFinalDamage() * min(1, 0.2 * $resistance->getEffectLevel()), EntityDamageEvent::MODIFIER_RESISTANCE);

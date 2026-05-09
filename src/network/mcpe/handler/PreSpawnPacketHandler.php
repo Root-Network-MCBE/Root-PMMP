@@ -56,6 +56,7 @@ use pocketmine\timings\Timings;
 use pocketmine\VersionInfo;
 use pocketmine\world\format\io\GlobalItemDataHandlers;
 use Ramsey\Uuid\Uuid;
+use function array_map;
 use function sprintf;
 
 /**
@@ -97,7 +98,6 @@ class PreSpawnPacketHandler extends PacketHandler{
 				"locatorbar" => new BoolGameRule(false, false) //Disable client-side tracking of nearby players
 			];
 			$levelSettings->experiments = new Experiments([
-				"y_2025_drop_3" => true,
 				"data_driven_items" => true,
 
 				"custom_projectiles" => true,

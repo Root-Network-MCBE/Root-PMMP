@@ -42,7 +42,6 @@ use pocketmine\data\bedrock\block\BlockStateDeserializeException;
 use pocketmine\data\SavedDataLoadingException;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntityFactory;
-use pocketmine\entity\LightningBolt;
 use pocketmine\entity\Location;
 use pocketmine\entity\NeverSavedWithChunkEntity;
 use pocketmine\entity\object\ExperienceOrb;
@@ -541,8 +540,6 @@ class World implements ChunkManager{
 		$this->chunkPopulationRequestQueue = new \SplQueue();
 		$this->addOnUnloadCallback(function() : void{
 			$this->logger->debug("Cancelling unfulfilled generation requests");
-
-
 
 			foreach($this->chunkPopulationRequestMap as $chunkHash => $promise){
 				$promise->reject();

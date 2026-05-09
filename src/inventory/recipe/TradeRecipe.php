@@ -1,22 +1,22 @@
 <?php
 
-/**
- * .--.  .--.  .--. .---.
- * |   ):    ::    :  |
- * |--' |    ||    |  |
- * |  \ :    ;:    ;  |
- * '   ` `--'  `--'   '
- *       by Valres.
+/*
  *
- * FRA:
- * Ce code source est la propriété exclusive de Valres.
- * Toute utilisation, reproduction, modification ou distribution de ce code
- * sans autorisation écrite explicite est strictement interdite.
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
- * ENG:
- * This source code is the exclusive property of Valres.
- * Any use, reproduction, modification, or distribution of this code
- * without explicit written authorization is strictly prohibited.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
+ *
+ *
  */
 
 declare(strict_types=1);
@@ -67,59 +67,59 @@ final class TradeRecipe
 		}
 	}
 
-	public function getBuyA(): Item {
+	public function getBuyA() : Item {
 		return $this->buyA;
 	}
 
-	public function getBuyB(): ?Item {
+	public function getBuyB() : ?Item {
 		return $this->buyB;
 	}
 
-	public function getSell(): Item {
+	public function getSell() : Item {
 		return $this->sell;
 	}
 
-	public function getMaxUses(): int {
+	public function getMaxUses() : int {
 		return $this->maxUses;
 	}
 
-	public function getPriceMultiplier(): float {
+	public function getPriceMultiplier() : float {
 		return $this->priceMultiplier;
 	}
 
-	public function getRewardExp(): int {
+	public function getRewardExp() : int {
 		return $this->rewardExp;
 	}
 
-	public function getTier(): int {
+	public function getTier() : int {
 		return $this->tier;
 	}
 
-	public function getTraderExp(): int {
+	public function getTraderExp() : int {
 		return $this->traderExp;
 	}
 
-	public function getUses(): int {
+	public function getUses() : int {
 		return $this->uses;
 	}
 
-	public function setUses(int $uses): void {
+	public function setUses(int $uses) : void {
 		$this->uses = $uses;
 	}
 
-	public function setTier(int $tier): void {
+	public function setTier(int $tier) : void {
 		$this->tier = $tier;
 	}
 
-	public function setTraderExp(int $traderExp): void {
+	public function setTraderExp(int $traderExp) : void {
 		$this->traderExp = $traderExp;
 	}
 
-	public function isDisabled(): bool {
+	public function isDisabled() : bool {
 		return $this->uses >= $this->maxUses;
 	}
 
-	public function serialize(): CompoundTag {
+	public function serialize() : CompoundTag {
 		$nbt = CompoundTag::create()
 			->setTag(self::TAG_BUY_A, $this->buyA->nbtSerialize())
 			->setTag(self::TAG_SELL, $this->sell->nbtSerialize())
@@ -136,7 +136,7 @@ final class TradeRecipe
 		return $nbt;
 	}
 
-	public static function deserialize(CompoundTag $nbt): self {
+	public static function deserialize(CompoundTag $nbt) : self {
 		$buyATag = $nbt->getCompoundTag(self::TAG_BUY_A);
 		$sellTag = $nbt->getCompoundTag(self::TAG_SELL);
 		if ($buyATag === null || $sellTag === null) {

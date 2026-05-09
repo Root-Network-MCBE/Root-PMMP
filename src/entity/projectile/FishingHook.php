@@ -1,5 +1,24 @@
 <?php
 
+/*
+ *
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
+ *
+ *
+ */
+
 declare(strict_types=1);
 
 namespace pocketmine\entity\projectile;
@@ -24,6 +43,14 @@ use pocketmine\player\Player;
 use pocketmine\utils\Random;
 use pocketmine\world\particle\BubbleParticle;
 use pocketmine\world\particle\WaterParticle;
+use function atan2;
+use function cos;
+use function max;
+use function min;
+use function mt_rand;
+use function sin;
+use function sqrt;
+use const M_PI;
 
 final class FishingHook extends Projectile {
 	private const HOOK_SIZE = 0.15;
@@ -59,42 +86,42 @@ final class FishingHook extends Projectile {
 	private ?Random $random = null;
 	private int $lureLevel = 0;
 
-	public static function getNetworkTypeId(): string {
+	public static function getNetworkTypeId() : string {
 		return EntityIds::FISHING_HOOK;
 	}
 
-	protected function getInitialSizeInfo(): EntitySizeInfo {
+	protected function getInitialSizeInfo() : EntitySizeInfo {
 		return new EntitySizeInfo(self::HOOK_SIZE, self::HOOK_SIZE);
 	}
 
-	protected function initEntity(CompoundTag $nbt): void {
+	protected function initEntity(CompoundTag $nbt) : void {
 		parent::initEntity($nbt);
 		$this->setCanSaveWithChunk(false);
 		$this->waitingTimer = 1;
 		$this->hasCalculatedWaitTime = false;
 	}
 
-	protected function getInitialDragMultiplier(): float {
+	protected function getInitialDragMultiplier() : float {
 		return 0.02;
 	}
 
-	protected function getInitialGravity(): float {
+	protected function getInitialGravity() : float {
 		return 0.05;
 	}
 
-	public function setWaitingTimer(int $waitingTimer): void {
+	public function setWaitingTimer(int $waitingTimer) : void {
 		$this->waitingTimer = max(1, $waitingTimer);
 	}
 
-	public function setLureLevel(int $lureLevel): void {
+	public function setLureLevel(int $lureLevel) : void {
 		$this->lureLevel = max(0, $lureLevel);
 	}
 
-	public function getLureLevel(): int {
+	public function getLureLevel() : int {
 		return $this->lureLevel;
 	}
 
-	private function computeWaitingTime(): int {
+	private function computeWaitingTime() : int {
 		$min = self::WAIT_TIME_MIN;
 		$max = self::WAIT_TIME_MAX;
 
@@ -109,15 +136,15 @@ final class FishingHook extends Projectile {
 		return mt_rand($min, $max);
 	}
 
-	public function didCatchSomething(): bool {
+	public function didCatchSomething() : bool {
 		return $this->caught;
 	}
 
-	public function canCollideWith(Entity $entity): bool {
+	public function canCollideWith(Entity $entity) : bool {
 		return $this->getTargetEntity() === null && parent::canCollideWith($entity);
 	}
 
-	protected function onHitEntity(Entity $entityHit, RayTraceResult $hitResult): void {
+	protected function onHitEntity(Entity $entityHit, RayTraceResult $hitResult) : void {
 		if ($this->getTargetEntity() !== null) {
 			return;
 		}
@@ -147,7 +174,7 @@ final class FishingHook extends Projectile {
 		}
 	}
 
-	public function onUpdate(int $currentTick): bool {
+	public function onUpdate(int $currentTick) : bool {
 		if ($this->closed) {
 			return false;
 		}
@@ -191,7 +218,7 @@ final class FishingHook extends Projectile {
 		return true;
 	}
 
-	private function handleMotion(): void {
+	private function handleMotion() : void {
 		if ($this->isUnderwater()) {
 			$this->motion = $this->motion->withComponents(0, self::UNDERWATER_MOTION_Y, 0);
 		} elseif ($this->isCollided && $this->keepMovement) {
@@ -200,7 +227,7 @@ final class FishingHook extends Projectile {
 		}
 	}
 
-	public function reelLine(): void {
+	public function reelLine() : void {
 		$player = $this->getOwningEntity();
 		if (!($player instanceof Player)) {
 			$this->flagForDespawn();
@@ -249,7 +276,7 @@ final class FishingHook extends Projectile {
 		$this->flagForDespawn();
 	}
 
-	private function handleFishingLogic(): void {
+	private function handleFishingLogic() : void {
 		if (!$this->isInOrOnWater()) {
 			$this->attracted = false;
 			$this->caught = false;
@@ -298,7 +325,7 @@ final class FishingHook extends Projectile {
 		$this->waitingTimer = $this->computeWaitingTime();
 	}
 
-	private function spawnFish(): void {
+	private function spawnFish() : void {
 		$r = $this->getRandom();
 		$p = $this->getPosition();
 
@@ -313,7 +340,7 @@ final class FishingHook extends Projectile {
 		$this->fishYaw = atan2($dz, $dx);
 	}
 
-	private function attractFish(): bool {
+	private function attractFish() : bool {
 		if ($this->fish === null) {
 			return false;
 		}
@@ -362,7 +389,7 @@ final class FishingHook extends Projectile {
 		return sqrt($ndx * $ndx + $ndz * $ndz) < self::FISH_PROXIMITY_THRESHOLD;
 	}
 
-	private function fishBites(): void {
+	private function fishBites() : void {
 		$this->sendFishBitePackets();
 		$this->spawnBubbleParticles();
 		$this->motion->y -= 0.2;
@@ -370,7 +397,7 @@ final class FishingHook extends Projectile {
 		$this->scheduleUpdate();
 	}
 
-	private function sendFishBitePackets(): void {
+	private function sendFishBitePackets() : void {
 		$packets = [
 			$this->createActorEventPacket(ActorEvent::FISH_HOOK_HOOK),
 			$this->createActorEventPacket(ActorEvent::FISH_HOOK_BUBBLE),
@@ -384,14 +411,14 @@ final class FishingHook extends Projectile {
 		}
 	}
 
-	private function createActorEventPacket(int $eventId): ActorEventPacket {
+	private function createActorEventPacket(int $eventId) : ActorEventPacket {
 		$packet = new ActorEventPacket();
 		$packet->actorRuntimeId = $this->getId();
 		$packet->eventId = $eventId;
 		return $packet;
 	}
 
-	private function spawnBubbleParticles(): void {
+	private function spawnBubbleParticles() : void {
 		$r = $this->getRandom();
 		$p = $this->getPosition();
 		$y = (float) $this->getWaterHeight();
@@ -406,7 +433,7 @@ final class FishingHook extends Projectile {
 		}
 	}
 
-	private function getWaterHeight(): int {
+	private function getWaterHeight() : int {
 		$pos = $this->getPosition();
 		$maxY = min(256, $pos->getFloorY() + 64);
 
@@ -419,7 +446,7 @@ final class FishingHook extends Projectile {
 		return $pos->getFloorY();
 	}
 
-	private function isInOrOnWater(): bool {
+	private function isInOrOnWater() : bool {
 		$p = $this->getPosition();
 		$world = $this->getWorld();
 
@@ -429,7 +456,7 @@ final class FishingHook extends Projectile {
 		return ($b0 instanceof Water) || ($b1 instanceof Water);
 	}
 
-	private function getRandom(): Random {
+	private function getRandom() : Random {
 		return $this->random ??= new Random();
 	}
 

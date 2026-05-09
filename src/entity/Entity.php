@@ -83,6 +83,7 @@ use function min;
 use function sin;
 use function spl_object_id;
 use const M_PI_2;
+use const PHP_INT_MIN;
 
 abstract class Entity{
 

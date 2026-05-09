@@ -34,6 +34,8 @@ use pocketmine\player\Player;
 use pocketmine\world\sound\SpearAttackHitSound;
 use pocketmine\world\sound\SpearAttackMissSound;
 use pocketmine\world\sound\SpearLungeSound;
+use function abs;
+use function max;
 
 class Spear extends TieredTool implements Releasable {
 
@@ -59,11 +61,11 @@ class Spear extends TieredTool implements Releasable {
 		parent::__construct($identifier, $name, $tier, $enchantmentTags);
 	}
 
-	public function getBlockToolType(): int {
+	public function getBlockToolType() : int {
 		return BlockToolType::SPEAR;
 	}
 
-	public function onUsingTick(Player $player, int $ticksUsed): void {
+	public function onUsingTick(Player $player, int $ticksUsed) : void {
 		$secondsUsed = ($ticksUsed / 20);
 		$activationDelay = self::getTierActivationDelay();
 
@@ -85,7 +87,7 @@ class Spear extends TieredTool implements Releasable {
 		}
 	}
 
-	private function handleChargeAttack(Player $player): void {
+	private function handleChargeAttack(Player $player) : void {
 		$direction = $player->getDirectionVector()->normalize()->multiply(1.5);
 		$boundingBox = $player->getBoundingBox()->expandedCopy(1.5, 1.0, 1.5)->offset($direction->x, $direction->y, $direction->z);
 
@@ -105,7 +107,7 @@ class Spear extends TieredTool implements Releasable {
 		}
 	}
 
-	public function handleJabAttack(Player $player): void {
+	public function handleJabAttack(Player $player) : void {
 		$hasItemCooldown = $player->hasItemCooldown($this);
 		if (!$hasItemCooldown) {
 			$this->handleLunge($player);
@@ -146,7 +148,7 @@ class Spear extends TieredTool implements Releasable {
 		}
 	}
 
-	private function handleDamage(Player $player, Living $target, float $damage): void {
+	private function handleDamage(Player $player, Living $target, float $damage) : void {
 		$noKnockback = $this->stage === self::STAGE_DISENGAGED || ($player->isUsingItem() && $player->getCurrentVelocity() < self::MINIMUM_VELOCITY_KNOCKBACK);
 		$damageEvent = new EntityDamageByEntityEvent($player, $target, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $damage + $this->getAttackPoints());
 		if($noKnockback) {
@@ -160,7 +162,7 @@ class Spear extends TieredTool implements Releasable {
 		}
 	}
 
-	public function handleLunge(Player $player): void {
+	public function handleLunge(Player $player) : void {
 		if ($this->canLunge($player)) {
 			$lungeLevel = $this->getEnchantmentLevel(VanillaEnchantments::LUNGE());
 			$directionVector = $player->getDirectionVector()->multiply(0.8 + ($lungeLevel * 0.4));
@@ -176,7 +178,7 @@ class Spear extends TieredTool implements Releasable {
 		}
 	}
 
-	public function canLunge(Player $player): bool {
+	public function canLunge(Player $player) : bool {
 		$playerPos = $player->getPosition();
 		$blockAtPos = $player->getWorld()->getBlockAt($playerPos->getFloorX(), $playerPos->getFloorY(), $playerPos->getFloorZ());
 
@@ -196,7 +198,7 @@ class Spear extends TieredTool implements Releasable {
 		return true;
 	}
 
-	public function getChargeDamage(Player $player, Entity $entity): float {
+	public function getChargeDamage(Player $player, Entity $entity) : float {
 		$tierMultiplier = match ($this->getTier()) {
 			ToolTier::WOOD, ToolTier::GOLD => 0.7,
 			ToolTier::STONE, ToolTier::COPPER => 0.82,
@@ -216,32 +218,32 @@ class Spear extends TieredTool implements Releasable {
 		return ($relativeSpeed * $tierMultiplier) + $sharpnessBonus;
 	}
 
-	public function getJabDamage(): float {
+	public function getJabDamage() : float {
 		$lungeLevel = $this->getEnchantmentLevel(VanillaEnchantments::LUNGE());
-		return (float)$this->getAttackPoints() + $lungeLevel * 1.5;
+		return (float) $this->getAttackPoints() + $lungeLevel * 1.5;
 	}
 
-	public function getAttackPoints(): int {
+	public function getAttackPoints() : int {
 		return max(2, $this->getTier()->getHarvestLevel());
 	}
 
-	public function getTierCooldown(): int {
+	public function getTierCooldown() : int {
 		return 11 + ($this->getTier()->getHarvestLevel() * 2);
 	}
 
-	public function getTierActivationDelay(): float {
+	public function getTierActivationDelay() : float {
 		$level = $this->getTier()->getHarvestLevel();
 		return $level <= 4 ? 0.80 - ($level * 0.05) : 0.60 - (($level - 4) * 0.10);
 	}
 
-	public function canStartUsingItem(Player $player): bool {
+	public function canStartUsingItem(Player $player) : bool {
 		if ($player->hasItemCooldown($this)) {
 			return false;
 		}
 		return true;
 	}
 
-	public function getCooldownTag(): ?string {
+	public function getCooldownTag() : ?string {
 		return ItemCooldownTags::SPEAR;
 	}
 }

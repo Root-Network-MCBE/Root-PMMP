@@ -156,7 +156,7 @@ final class SurvivalBlockBreakHandler{
 		}
 	}
 
-	public function addTick(float $tick = 1.0): float {
+	public function addTick(float $tick = 1.0) : float {
 		return $this->progress += $tick;
 	}
 }

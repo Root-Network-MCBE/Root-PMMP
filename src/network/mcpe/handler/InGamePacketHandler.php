@@ -27,7 +27,6 @@ use pocketmine\block\BaseSign;
 use pocketmine\block\Lectern;
 use pocketmine\block\tile\Sign;
 use pocketmine\block\utils\SignText;
-use pocketmine\entity\animation\ConsumingItemAnimation;
 use pocketmine\entity\Attribute;
 use pocketmine\entity\InvalidSkinException;
 use pocketmine\event\player\PlayerEditBookEvent;
@@ -46,10 +45,8 @@ use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\network\FilterNoisyPacketException;
-use pocketmine\network\mcpe\convert\ItemTranslator;
 use pocketmine\network\mcpe\InventoryManager;
 use pocketmine\network\mcpe\NetworkSession;
-use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\network\mcpe\protocol\ActorPickRequestPacket;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\network\mcpe\protocol\BlockActorDataPacket;
@@ -86,7 +83,6 @@ use pocketmine\network\mcpe\protocol\ShowCreditsPacket;
 use pocketmine\network\mcpe\protocol\SpawnExperienceOrbPacket;
 use pocketmine\network\mcpe\protocol\SubClientLoginPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
-use pocketmine\network\mcpe\protocol\types\ActorEvent;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
 use pocketmine\network\mcpe\protocol\types\inventory\ContainerIds;
 use pocketmine\network\mcpe\protocol\types\inventory\MismatchTransactionData;
@@ -122,6 +118,7 @@ use function json_decode;
 use function max;
 use function mb_strlen;
 use function microtime;
+use function round;
 use function sprintf;
 use function str_starts_with;
 use function strlen;
@@ -311,8 +308,6 @@ class InGamePacketHandler extends PacketHandler{
 	/**
 	 * @param Position $position
 	 * @param bool     $fixHeadOffset $
-	 *
-	 * @return void
 	 */
 	private function processMovements(Vector3 $position, bool $fixHeadOffset) : void{
 		$hasMoved = $this->lastPlayerAuthInputPosition === null || !$this->lastPlayerAuthInputPosition->equals($position);
@@ -807,7 +802,7 @@ class InGamePacketHandler extends PacketHandler{
 					$this->session->getLogger()->debug("Ignoring PlayerAction $action on $pos because player has no BlockBreakHandler");
 					$this->syncBlocksNearby($pos, $face);
 					break;
-				} else if($breakHandler !== null && !$target->getBreakInfo()->breaksInstantly()) {
+				} elseif($breakHandler !== null && !$target->getBreakInfo()->breaksInstantly()) {
 					$breakHandler->update(); // 1 tick compensation for the client sending this packet before the block break progress is updated
 
 					$this->session->getLogger()->debug("PlayerAction $action on $pos with break progress " . $breakHandler->getBreakProgress() . " (face: $face)");

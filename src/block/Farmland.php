@@ -24,15 +24,9 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\data\runtime\RuntimeDataDescriber;
-use pocketmine\entity\Entity;
-use pocketmine\entity\Living;
-use pocketmine\event\block\FarmlandHydrationChangeEvent;
-use pocketmine\event\entity\EntityTrampleFarmlandEvent;
 use pocketmine\item\Item;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
-use pocketmine\utils\Utils;
-use function intdiv;
 
 class Farmland extends Transparent{
 	public const MAX_WETNESS = 7;

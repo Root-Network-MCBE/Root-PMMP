@@ -30,8 +30,6 @@ use function gc_status;
 use function hrtime;
 use function max;
 use function min;
-use function number_format;
-use function sprintf;
 
 /**
  * Allows threads to manually trigger the cyclic garbage collector using a threshold like PHP's own garbage collector,

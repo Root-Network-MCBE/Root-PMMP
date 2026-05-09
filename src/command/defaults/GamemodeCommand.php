@@ -33,7 +33,11 @@ use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\player\GameMode;
+use function array_keys;
+use function array_map;
+use function array_merge;
 use function count;
+use function mb_strtolower;
 
 class GamemodeCommand extends VanillaCommand{
 

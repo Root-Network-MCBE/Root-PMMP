@@ -39,6 +39,7 @@ use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\utils\TextFormat;
 use function count;
+use function mb_strtolower;
 use function min;
 
 class ClearCommand extends VanillaCommand{
