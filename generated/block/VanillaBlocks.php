@@ -187,6 +187,7 @@ final class VanillaBlocks{
 	private static Opaque $_mCHISELED_TUFF_BRICKS;
 	private static ChorusFlower $_mCHORUS_FLOWER;
 	private static ChorusPlant $_mCHORUS_PLANT;
+	private static Opaque $_mCINNABAR;
 	private static Clay $_mCLAY;
 	private static Coal $_mCOAL;
 	private static CoalOre $_mCOAL_ORE;
@@ -1023,6 +1024,7 @@ final class VanillaBlocks{
 			"chiseled_tuff_bricks" => fn(Opaque $v) => self::$_mCHISELED_TUFF_BRICKS = $v,
 			"chorus_flower" => fn(ChorusFlower $v) => self::$_mCHORUS_FLOWER = $v,
 			"chorus_plant" => fn(ChorusPlant $v) => self::$_mCHORUS_PLANT = $v,
+			"cinnabar" => fn(Opaque $v) => self::$_mCINNABAR = $v,
 			"clay" => fn(Clay $v) => self::$_mCLAY = $v,
 			"coal" => fn(Coal $v) => self::$_mCOAL = $v,
 			"coal_ore" => fn(CoalOre $v) => self::$_mCOAL_ORE = $v,
@@ -2457,6 +2459,11 @@ final class VanillaBlocks{
 	public static function CHORUS_PLANT() : ChorusPlant{
 		if(!isset(self::$_mCHORUS_PLANT)){ self::init(); }
 		return clone self::$_mCHORUS_PLANT;
+	}
+
+	public static function CINNABAR() : Opaque{
+		if(!isset(self::$_mCINNABAR)){ self::init(); }
+		return clone self::$_mCINNABAR;
 	}
 
 	public static function CLAY() : Clay{

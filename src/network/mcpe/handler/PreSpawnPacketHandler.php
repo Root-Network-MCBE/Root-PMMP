@@ -99,13 +99,15 @@ class PreSpawnPacketHandler extends PacketHandler{
 			$levelSettings->experiments = new Experiments([
 				"y_2025_drop_3" => true,
 				"data_driven_items" => true,
-				"wild_update" => true,
-				"vanilla_experiments" => true,
-				"upcoming_creator_features" => true,
-				"spectator_mode" => true,
+
+				"custom_projectiles" => true,
+				"experimental_creator_cameras" => true,
+				"experiments_ever_used" => true,
+				"furnace_recipe_book" => true,
 				"gametest" => true,
-				"experimental_molang_features" => true,
-				"data_driven_biomes" => true
+				"saved_with_toggled_experiments" => true,
+				"upcoming_creator_features" => true,
+				"y_2026_drop_2" => true
 			], true);
 
 			$this->session->sendDataPacket(StartGamePacket::create(
