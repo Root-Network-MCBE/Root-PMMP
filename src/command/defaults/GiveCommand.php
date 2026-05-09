@@ -117,10 +117,6 @@ class GiveCommand extends VanillaCommand{
 
 		//TODO: overflow
 		$player->getInventory()->addItem($item);
-		$player->getInventory()->addItem(VanillaBlocks::CINNABAR()->asItem()->setCount(64));
-
-		$player->getNetworkSession()->getInvManager()->syncAll();
-		$player->getNetworkSession()->getInvManager()->syncSelectedHotbarSlot();
 
 		Command::broadcastCommandMessage($sender, KnownTranslationFactory::commands_give_success(
 			$item->getName() . " (" . $args[1] . ")",
