@@ -23,16 +23,14 @@ declare(strict_types=1);
 
 namespace pocketmine\block\utils;
 
-use pocketmine\block\Block;
-use pocketmine\block\Farmland;
 use function mt_rand;
 
 final class CropGrowthHelper
 {
 	private const MULTIPLIER = 2.5;
 
-	public static function canGrow(): bool {
-		$threshold = (int)(25 / self::MULTIPLIER);
+	public static function canGrow() : bool {
+		$threshold = (int) (25 / self::MULTIPLIER);
 		return $threshold === 0 || mt_rand(0, $threshold) === 0;
 	}
 }

@@ -26,7 +26,6 @@ namespace pocketmine\data\bedrock\block\convert;
 use pocketmine\block\ActivatorRail;
 use pocketmine\block\AmethystCluster;
 use pocketmine\block\Anvil;
-use pocketmine\block\Azalea;
 use pocketmine\block\Bamboo;
 use pocketmine\block\BambooSapling;
 use pocketmine\block\Barrel;

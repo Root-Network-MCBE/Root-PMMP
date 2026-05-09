@@ -25,7 +25,6 @@ namespace pocketmine\world\generator\object;
 
 use pocketmine\block\Azalea;
 use pocketmine\block\Block;
-use pocketmine\block\FloweringAzalea;
 use pocketmine\block\Leaves;
 use pocketmine\block\MangrovePropagule;
 use pocketmine\block\Sapling;

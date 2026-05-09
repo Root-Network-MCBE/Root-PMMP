@@ -1,22 +1,22 @@
 <?php
 
-/**
- * .--.  .--.  .--. .---.
- * |   ):    ::    :  |
- * |--' |    ||    |  |
- * |  \ :    ;:    ;  |
- * '   ` `--'  `--'   '
- *       by Valres.
+/*
  *
- * FRA:
- * Ce code source est la propriété exclusive de Valres.
- * Toute utilisation, reproduction, modification ou distribution de ce code
- * sans autorisation écrite explicite est strictement interdite.
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
- * ENG:
- * This source code is the exclusive property of Valres.
- * Any use, reproduction, modification, or distribution of this code
- * without explicit written authorization is strictly prohibited.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
+ *
+ *
  */
 
 declare(strict_types=1);
@@ -26,6 +26,7 @@ namespace pocketmine\inventory\recipe;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\tag\Tag;
+use function array_map;
 
 final class TradeRecipeData
 {
@@ -51,43 +52,43 @@ final class TradeRecipeData
 	) {
 	}
 
-	public function addRecipe(TradeRecipe ...$recipe): void {
+	public function addRecipe(TradeRecipe ...$recipe) : void {
 		$this->recipes = $recipe;
 	}
 
-	public function setTierExpRequirement(int $tier, int $expRequirement): void {
+	public function setTierExpRequirement(int $tier, int $expRequirement) : void {
 		$this->tierExpRequirements[$tier] = $expRequirement;
 	}
 
-	public function setTier(int $tier): void {
+	public function setTier(int $tier) : void {
 		$this->tier = $tier;
 	}
 
-	public function setTradeExperience(int $tradeExperience): void {
+	public function setTradeExperience(int $tradeExperience) : void {
 		$this->tradeExperience = $tradeExperience;
 	}
 
-	public function getRecipes(): array {
+	public function getRecipes() : array {
 		return $this->recipes;
 	}
 
-	public function getTierExpRequirements(): array {
+	public function getTierExpRequirements() : array {
 		return $this->tierExpRequirements;
 	}
 
-	public function getRecipe(int $index): ?TradeRecipe {
+	public function getRecipe(int $index) : ?TradeRecipe {
 		return $this->recipes[$index] ?? null;
 	}
 
-	public function getTier(): int {
+	public function getTier() : int {
 		return $this->tier;
 	}
 
-	public function getTradeExperience(): int {
+	public function getTradeExperience() : int {
 		return $this->tradeExperience;
 	}
 
-	public function getItems(): array {
+	public function getItems() : array {
 		$items = [];
 
 		/** @var TradeRecipe $recipe */
@@ -102,14 +103,14 @@ final class TradeRecipeData
 		return $items;
 	}
 
-	public function serialize(CompoundTag $nbt): CompoundTag {
+	public function serialize(CompoundTag $nbt) : CompoundTag {
 		$nbt->setInt(self::TAG_TRADE_EXPERIENCE, $this->tradeExperience);
 		$nbt->setInt(self::TAG_TRADE_TIER, $this->tier);
 
 		$offers = CompoundTag::create();
 
 		$recipes = $this->recipes;
-		$recipesTag = array_map(static function (TradeRecipe $recipe): Tag {
+		$recipesTag = array_map(static function (TradeRecipe $recipe) : Tag {
 			return $recipe->serialize();
 		}, $recipes);
 		$offers->setTag(self::TAG_RECIPES, new ListTag($recipesTag));

@@ -77,6 +77,9 @@ use function get_class;
 use function implode;
 use function is_int;
 use function max;
+use function mt_getrandmax;
+use function mt_rand;
+use function round;
 use function spl_object_id;
 
 /**
@@ -775,7 +778,7 @@ class InventoryManager{
 		return $entry->itemStackInfos[$slotId] = $info;
 	}
 
-	public function openTrade(\pocketmine\inventory\TradeInventory $inventory) : void{
+	public function openTrade(TradeInventory $inventory) : void{
 		$this->onCurrentWindowRemove();
 
 		$this->openWindowDeferred(function() use ($inventory) : void{
