@@ -47,6 +47,7 @@ final class VanillaItems{
 	private static Apple $_mAPPLE;
 	private static Item $_mARCHER_POTTERY_SHERD;
 	private static Item $_mARMADILLO_SCUTE;
+	private static ArmorStand $_mARMOR_STAND;
 	private static Item $_mARMS_UP_POTTERY_SHERD;
 	private static Arrow $_mARROW;
 	private static BakedPotato $_mBAKED_POTATO;
@@ -440,6 +441,7 @@ final class VanillaItems{
 			"apple" => fn(Apple $v) => self::$_mAPPLE = $v,
 			"archer_pottery_sherd" => fn(Item $v) => self::$_mARCHER_POTTERY_SHERD = $v,
 			"armadillo_scute" => fn(Item $v) => self::$_mARMADILLO_SCUTE = $v,
+			"armor_stand" => fn(ArmorStand $v) => self::$_mARMOR_STAND = $v,
 			"arms_up_pottery_sherd" => fn(Item $v) => self::$_mARMS_UP_POTTERY_SHERD = $v,
 			"arrow" => fn(Arrow $v) => self::$_mARROW = $v,
 			"baked_potato" => fn(BakedPotato $v) => self::$_mBAKED_POTATO = $v,
@@ -871,6 +873,11 @@ final class VanillaItems{
 	public static function ARMADILLO_SCUTE() : Item{
 		if(!isset(self::$_mARMADILLO_SCUTE)){ self::init(); }
 		return clone self::$_mARMADILLO_SCUTE;
+	}
+
+	public static function ARMOR_STAND() : ArmorStand{
+		if(!isset(self::$_mARMOR_STAND)){ self::init(); }
+		return clone self::$_mARMOR_STAND;
 	}
 
 	public static function ARMS_UP_POTTERY_SHERD() : Item{

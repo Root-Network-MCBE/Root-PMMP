@@ -1301,6 +1301,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("flow_armor_trim_smithing_template", fn() => Items::FLOW_ARMOR_TRIM_SMITHING_TEMPLATE());
 
 		$result->register("wind_charge", fn() => Items::WIND_CHARGE());
+		$result->register("armor_stand", fn() => Items::ARMOR_STAND());
 
 		$result->register("acacia_boat", fn() => Items::ACACIA_BOAT());
 		$result->register("acacia_hanging_sign", fn() => Items::ACACIA_HANGING_SIGN());

@@ -409,8 +409,9 @@ final class ItemTypeIds{
 	public const FLOW_ARMOR_TRIM_SMITHING_TEMPLATE = 20365;
 
 	public const WIND_CHARGE = 20366;
+	public const ARMOR_STAND = 20367;
 
-	public const FIRST_UNUSED_ITEM_ID = 20367;
+	public const FIRST_UNUSED_ITEM_ID = 20368;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_ITEM_ID;
 

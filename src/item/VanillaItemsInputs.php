@@ -140,6 +140,7 @@ final class VanillaItemsInputs extends RegistrySource{
 		}
 
 		self::register("wind_charge", fn(IID $id) => new WindCharge($id, "Wind Charge"));
+		self::register("armor_stand", fn(IID $id) => new ArmorStand($id, "Armor Stand"));
 
 		self::registerArmorItems();
 		self::registerSpawnEggs();

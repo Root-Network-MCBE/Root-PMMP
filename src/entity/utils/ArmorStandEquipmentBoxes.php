@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * .--.  .--.  .--. .---.
+ * |   ):    ::    :  |
+ * |--' |    ||    |  |
+ * |  \ :    ;:    ;  |
+ * '   ` `--'  `--'   '
+ *       by Valres.
+ *
+ * FRA:
+ * Ce code source est la propriété exclusive de Valres.
+ * Toute utilisation, reproduction, modification ou distribution de ce code
+ * sans autorisation écrite explicite est strictement interdite.
+ *
+ * ENG:
+ * This source code is the exclusive property of Valres.
+ * Any use, reproduction, modification, or distribution of this code
+ * without explicit written authorization is strictly prohibited.
+ */
+
+declare(strict_types=1);
+
+namespace pocketmine\entity\utils;
+
+use pocketmine\math\AxisAlignedBB;
+
+final class ArmorStandEquipmentBoxes{
+	public static function HELMET() : AxisAlignedBB{
+		return new AxisAlignedBB(-0.2, 1.6, -0.2, 0.2, 1.975, 0.2);
+	}
+
+	public static function CHESTPLATE() : AxisAlignedBB{
+		return new AxisAlignedBB(-0.2, 0.9, -0.2, 0.2, 1.6, 0.2);
+	}
+
+	public static function LEGGINGS() : AxisAlignedBB{
+		return new AxisAlignedBB(-0.2, 0.4, -0.2, 0.2, 0.9, 0.2);
+	}
+
+	public static function BOOTS() : AxisAlignedBB{
+		return new AxisAlignedBB(-0.2, 0.1, -0.2, 0.2, 0.4, 0.2);
+	}
+
+	public static function RIGHT_ARM() : AxisAlignedBB{
+		return new AxisAlignedBB(0.3, 0.8, -0.3, 0.45, 1.6, 0.3);
+	}
+}
