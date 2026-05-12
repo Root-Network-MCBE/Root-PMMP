@@ -130,6 +130,8 @@ final class VanillaBlocksInputs extends RegistrySource{
 
 	protected function setup() : void{
 		self::register("honey", fn(BID $id) => new Transparent($id, "Honey", new Info(BreakInfo::pickaxe(1.5, ToolTier::WOOD))));
+		self::register("moss", fn(BID $id) => new Opaque($id, "Moss", new Info(new BlockBreakInfo(0.1, ToolType::HOE))));
+		self::register("scaffolding", fn(BID $id) => new Scaffolding($id, "Scaffolding", new Info(BlockBreakInfo::instant())));
 
 		self::register("air", fn(BID $id) => new Air($id, "Air", new Info(BreakInfo::indestructible(-1.0))));
 

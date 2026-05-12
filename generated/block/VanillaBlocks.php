@@ -552,6 +552,7 @@ final class VanillaBlocks{
 	private static MelonStem $_mMELON_STEM;
 	private static MobHead $_mMOB_HEAD;
 	private static MonsterSpawner $_mMONSTER_SPAWNER;
+	private static Opaque $_mMOSS;
 	private static Opaque $_mMOSSY_COBBLESTONE;
 	private static Slab $_mMOSSY_COBBLESTONE_SLAB;
 	private static Stair $_mMOSSY_COBBLESTONE_STAIRS;
@@ -722,6 +723,7 @@ final class VanillaBlocks{
 	private static Slab $_mSANDSTONE_SLAB;
 	private static Stair $_mSANDSTONE_STAIRS;
 	private static Wall $_mSANDSTONE_WALL;
+	private static Scaffolding $_mSCAFFOLDING;
 	private static Sculk $_mSCULK;
 	private static SeaLantern $_mSEA_LANTERN;
 	private static SeaPickle $_mSEA_PICKLE;
@@ -1389,6 +1391,7 @@ final class VanillaBlocks{
 			"melon_stem" => fn(MelonStem $v) => self::$_mMELON_STEM = $v,
 			"mob_head" => fn(MobHead $v) => self::$_mMOB_HEAD = $v,
 			"monster_spawner" => fn(MonsterSpawner $v) => self::$_mMONSTER_SPAWNER = $v,
+			"moss" => fn(Opaque $v) => self::$_mMOSS = $v,
 			"mossy_cobblestone" => fn(Opaque $v) => self::$_mMOSSY_COBBLESTONE = $v,
 			"mossy_cobblestone_slab" => fn(Slab $v) => self::$_mMOSSY_COBBLESTONE_SLAB = $v,
 			"mossy_cobblestone_stairs" => fn(Stair $v) => self::$_mMOSSY_COBBLESTONE_STAIRS = $v,
@@ -1559,6 +1562,7 @@ final class VanillaBlocks{
 			"sandstone_slab" => fn(Slab $v) => self::$_mSANDSTONE_SLAB = $v,
 			"sandstone_stairs" => fn(Stair $v) => self::$_mSANDSTONE_STAIRS = $v,
 			"sandstone_wall" => fn(Wall $v) => self::$_mSANDSTONE_WALL = $v,
+			"scaffolding" => fn(Scaffolding $v) => self::$_mSCAFFOLDING = $v,
 			"sculk" => fn(Sculk $v) => self::$_mSCULK = $v,
 			"sea_lantern" => fn(SeaLantern $v) => self::$_mSEA_LANTERN = $v,
 			"sea_pickle" => fn(SeaPickle $v) => self::$_mSEA_PICKLE = $v,
@@ -4286,6 +4290,11 @@ final class VanillaBlocks{
 		return clone self::$_mMONSTER_SPAWNER;
 	}
 
+	public static function MOSS() : Opaque{
+		if(!isset(self::$_mMOSS)){ self::init(); }
+		return clone self::$_mMOSS;
+	}
+
 	public static function MOSSY_COBBLESTONE() : Opaque{
 		if(!isset(self::$_mMOSSY_COBBLESTONE)){ self::init(); }
 		return clone self::$_mMOSSY_COBBLESTONE;
@@ -5134,6 +5143,11 @@ final class VanillaBlocks{
 	public static function SANDSTONE_WALL() : Wall{
 		if(!isset(self::$_mSANDSTONE_WALL)){ self::init(); }
 		return clone self::$_mSANDSTONE_WALL;
+	}
+
+	public static function SCAFFOLDING() : Scaffolding{
+		if(!isset(self::$_mSCAFFOLDING)){ self::init(); }
+		return clone self::$_mSCAFFOLDING;
 	}
 
 	public static function SCULK() : Sculk{

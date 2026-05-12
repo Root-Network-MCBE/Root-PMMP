@@ -1303,6 +1303,9 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("wind_charge", fn() => Items::WIND_CHARGE());
 		$result->register("armor_stand", fn() => Items::ARMOR_STAND());
 
+		$result->registerBlock("moss", fn() => Blocks::MOSS());
+		$result->registerBlock("scaffolding", fn() => Blocks::SCAFFOLDING());
+
 		$result->register("acacia_boat", fn() => Items::ACACIA_BOAT());
 		$result->register("acacia_hanging_sign", fn() => Items::ACACIA_HANGING_SIGN());
 		$result->register("amethyst_shard", fn() => Items::AMETHYST_SHARD());

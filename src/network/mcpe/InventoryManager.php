@@ -526,28 +526,20 @@ class InventoryManager{
 	}
 
 	private function sendInventorySlotPackets(int $windowId, int $netSlot, ItemStackWrapper $itemStackWrapper) : void{
-		/*
-		 * TODO: HACK!
-		 * As of 1.20.12, the client ignores change of itemstackID in some cases when the old item == the new item.
-		 * Notably, this happens with armor, offhand and enchanting tables, but not with main inventory.
-		 * While we could track the items previously sent to the client, that's a waste of memory and would
-		 * cost performance. Instead, clear the slot(s) first, then send the new item(s).
-		 * The network cost of doing this is fortunately minimal, as an air itemstack is only 1 byte.
-		 */
 		if($itemStackWrapper->getStackId() !== 0){
 			$this->session->sendDataPacket(InventorySlotPacket::create(
 				$windowId,
 				$netSlot,
-				new FullContainerName($this->lastInventoryNetworkId),
+				null,
 				null,
 				new ItemStackWrapper(0, ItemStack::null())
 			));
 		}
-		//now send the real contents
+
 		$this->session->sendDataPacket(InventorySlotPacket::create(
 			$windowId,
 			$netSlot,
-			new FullContainerName($this->lastInventoryNetworkId),
+			null,
 			null,
 			$itemStackWrapper
 		));
