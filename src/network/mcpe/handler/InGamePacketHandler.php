@@ -29,6 +29,7 @@ use pocketmine\block\tile\Sign;
 use pocketmine\block\utils\SignText;
 use pocketmine\entity\Attribute;
 use pocketmine\entity\InvalidSkinException;
+use pocketmine\entity\object\Boat;
 use pocketmine\event\player\PlayerEditBookEvent;
 use pocketmine\inventory\transaction\action\DropItemAction;
 use pocketmine\inventory\transaction\InventoryTransaction;
@@ -252,7 +253,12 @@ class InGamePacketHandler extends PacketHandler{
 		$delta = round($packet->getDelta()->getY(), 4);
 		$this->player->onGround = $delta == -0.0784;
 
-		$this->processMovements($packet->getPosition(), fixHeadOffset: true);
+		$vehicleInfo = $packet->getVehicleInfo();
+		if($vehicleInfo !== null && ($vehicle = $this->player->getWorld()->getEntity($vehicleInfo->getPredictedVehicleActorUniqueId())) instanceof Boat && $vehicle->handleVehicleInput($this->player, $packet)){
+			$this->lastPlayerAuthInputPosition = $packet->getPosition();
+		}else{
+			$this->processMovements($packet->getPosition(), fixHeadOffset: true);
+		}
 		$packetHandled = true;
 
 		$useItemTransaction = $packet->getItemInteractionData();
@@ -712,6 +718,17 @@ class InGamePacketHandler extends PacketHandler{
 		}
 		if($packet->action === InteractPacket::ACTION_OPEN_INVENTORY && $target === $this->player){
 			$this->inventoryManager->onClientOpenMainInventory();
+			return true;
+		}
+		if($packet->action === InteractPacket::ACTION_LEAVE_VEHICLE && $target instanceof Boat){
+			if($target->getRider() === $this->player){
+				$target->dismountRider();
+				return true;
+			}
+			if($target->getPassenger() === $this->player){
+				$target->dismountPassenger();
+				return true;
+			}
 			return true;
 		}
 		return false; //TODO

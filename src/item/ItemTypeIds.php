@@ -412,7 +412,21 @@ final class ItemTypeIds{
 	public const ARMOR_STAND = 20367;
 	public const BRUSH = 20368;
 
-	public const FIRST_UNUSED_ITEM_ID = 20369;
+	public const ACACIA_CHEST_BOAT = 20369;
+	public const BAMBOO_CHEST_RAFT = 20370;
+	public const BAMBOO_RAFT = 20371;
+	public const BIRCH_CHEST_BOAT = 20372;
+	public const CHERRY_BOAT = 20373;
+	public const CHERRY_CHEST_BOAT = 20374;
+	public const DARK_OAK_CHEST_BOAT = 20375;
+	public const JUNGLE_CHEST_BOAT = 20376;
+	public const MANGROVE_CHEST_BOAT = 20377;
+	public const OAK_CHEST_BOAT = 20378;
+	public const PALE_OAK_BOAT = 20379;
+	public const PALE_OAK_CHEST_BOAT = 20380;
+	public const SPRUCE_CHEST_BOAT = 20381;
+
+	public const FIRST_UNUSED_ITEM_ID = 20382;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_ITEM_ID;
 

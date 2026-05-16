@@ -32,11 +32,14 @@ use pocketmine\utils\LegacyEnumShimTrait;
  *
  * @method static BoatType ACACIA()
  * @method static BoatType BIRCH()
+ * @method static BoatType CHERRY()
  * @method static BoatType DARK_OAK()
  * @method static BoatType JUNGLE()
  * @method static BoatType MANGROVE()
  * @method static BoatType OAK()
+ * @method static BoatType PALE_OAK()
  * @method static BoatType SPRUCE()
+ * @method static BoatType BAMBOO()
  */
 enum BoatType{
 	use LegacyEnumShimTrait;
@@ -48,6 +51,9 @@ enum BoatType{
 	case ACACIA;
 	case DARK_OAK;
 	case MANGROVE;
+	case CHERRY;
+	case PALE_OAK;
+	case BAMBOO;
 
 	public function getWoodType() : WoodType{
 		return match($this){
@@ -58,10 +64,56 @@ enum BoatType{
 			self::ACACIA => WoodType::ACACIA,
 			self::DARK_OAK => WoodType::DARK_OAK,
 			self::MANGROVE => WoodType::MANGROVE,
+			self::CHERRY => WoodType::CHERRY,
+			self::PALE_OAK => WoodType::PALE_OAK,
+			self::BAMBOO => WoodType::BAMBOO,
+		};
+	}
+
+	public function getItemNameStem() : string{
+		return match($this){
+			self::BAMBOO => "bamboo_raft",
+			default => strtolower($this->name) . "_boat",
 		};
 	}
 
 	public function getDisplayName() : string{
 		return $this->getWoodType()->getDisplayName();
+	}
+
+	public function getVehicleDisplayName(bool $withChest) : string{
+		$vehicleName = $this === self::BAMBOO ? "Raft" : "Boat";
+		return $this->getDisplayName() . ($withChest ? " " . $vehicleName . " with Chest" : " " . $vehicleName);
+	}
+
+	public function getNetworkVariant() : int{
+		return match($this){
+			self::OAK => 0,
+			self::SPRUCE => 1,
+			self::BIRCH => 2,
+			self::JUNGLE => 3,
+			self::ACACIA => 4,
+			self::DARK_OAK => 5,
+			self::MANGROVE => 6,
+			self::BAMBOO => 7,
+			self::CHERRY => 8,
+			self::PALE_OAK => 9,
+		};
+	}
+
+	public static function fromNetworkVariant(int $variant) : ?self{
+		return match($variant){
+			0 => self::OAK,
+			1 => self::SPRUCE,
+			2 => self::BIRCH,
+			3 => self::JUNGLE,
+			4 => self::ACACIA,
+			5 => self::DARK_OAK,
+			6 => self::MANGROVE,
+			7 => self::BAMBOO,
+			8 => self::CHERRY,
+			9 => self::PALE_OAK,
+			default => null,
+		};
 	}
 }
