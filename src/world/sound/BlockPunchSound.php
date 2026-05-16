@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace pocketmine\world\sound;
 
 use pocketmine\block\Block;
+use pocketmine\block\SuspiciousGravel;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
@@ -36,6 +37,9 @@ class BlockPunchSound implements Sound{
 	public function __construct(private Block $block){}
 
 	public function encode(Vector3 $pos) : array{
+		if($this->block instanceof SuspiciousGravel){
+			return SuspiciousBlockSound::hit($this->block)->encode($pos);
+		}
 		return [LevelSoundEventPacket::nonActorSound(
 			LevelSoundEvent::HIT,
 			$pos,

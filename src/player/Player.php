@@ -27,6 +27,7 @@ use pocketmine\block\BaseSign;
 use pocketmine\block\Bed;
 use pocketmine\block\BlockTypeTags;
 use pocketmine\block\RespawnAnchor;
+use pocketmine\block\SuspiciousGravel;
 use pocketmine\block\UnknownBlock;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\command\CommandSender;
@@ -103,6 +104,7 @@ use pocketmine\item\Durable;
 use pocketmine\item\enchantment\EnchantmentInstance;
 use pocketmine\item\enchantment\MeleeWeaponEnchantment;
 use pocketmine\item\Item;
+use pocketmine\item\ItemUseOnBlockHandler;
 use pocketmine\item\ItemUseResult;
 use pocketmine\item\Releasable;
 use pocketmine\item\Spear;
@@ -144,6 +146,7 @@ use pocketmine\world\sound\FireExtinguishSound;
 use pocketmine\world\sound\ItemBreakSound;
 use pocketmine\world\sound\RespawnAnchorDepleteSound;
 use pocketmine\world\sound\Sound;
+use pocketmine\world\sound\SuspiciousBlockSound;
 use pocketmine\world\World;
 use pocketmine\YmlServerProperties;
 use Ramsey\Uuid\UuidInterface;
@@ -277,6 +280,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 
 	protected float $moveRateLimit = 10 * self::MOVES_PER_TICK;
 	protected ?float $lastMovementProcess = null;
+	private float $lastSuspiciousBlockStepSound = 0.0;
 
 	protected int $inAirTicks = 0;
 
@@ -305,6 +309,10 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 	protected string $locale = "en_US";
 
 	protected int $startAction = -1;
+	protected ?Vector3 $itemUseBlockPosition = null;
+	protected int $itemUseBlockFace = -1;
+	protected ?Vector3 $itemUseBlockClickOffset = null;
+	protected bool $itemUseInteractsDisplacedBlock = false;
 
 	/**
 	 * @phpstan-var array<int|string, int>
@@ -750,7 +758,55 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 
 	public function setUsingItem(bool $value) : void{
 		$this->startAction = $value ? $this->server->getTick() : -1;
+		if(!$value){
+			$this->itemUseBlockPosition = null;
+			$this->itemUseBlockFace = -1;
+			$this->itemUseBlockClickOffset = null;
+			$this->itemUseInteractsDisplacedBlock = false;
+		}
 		$this->networkPropertiesDirty = true;
+	}
+
+	private function setUsingItemOnBlock(Vector3 $pos, int $face, Vector3 $clickOffset, bool $interactDisplacedBlock) : void{
+		$blockPos = $pos->floor();
+		if(
+			!$this->isUsingItem() ||
+			$this->itemUseBlockPosition === null ||
+			!$this->itemUseBlockPosition->equals($blockPos) ||
+			$this->itemUseBlockFace !== $face ||
+			$this->itemUseInteractsDisplacedBlock !== $interactDisplacedBlock
+		){
+			$this->startAction = $this->server->getTick();
+		}
+		$this->itemUseBlockPosition = $blockPos;
+		$this->itemUseBlockFace = $face;
+		$this->itemUseBlockClickOffset = clone $clickOffset;
+		$this->itemUseInteractsDisplacedBlock = $interactDisplacedBlock;
+		$this->networkPropertiesDirty = true;
+	}
+
+	public function startUsingHeldItemOnBlock(Vector3 $pos, int $face, ?Vector3 $clickOffset = null, bool $interactDisplacedBlock = false) : bool{
+		if(!$this->canInteract($pos->add(0.5, 0.5, 0.5), $this->isCreative() ? self::MAX_REACH_DISTANCE_CREATIVE : self::MAX_REACH_DISTANCE_SURVIVAL)){
+			return false;
+		}
+
+		$item = $this->inventory->getItemInHand();
+		if(!$item instanceof ItemUseOnBlockHandler){
+			return false;
+		}
+
+		$block = $this->getWorld()->getBlock($pos);
+		if($interactDisplacedBlock){
+			$block = $block->getDisplacedBlock() ?? $block;
+		}
+
+		$clickOffset ??= new Vector3(0.5, 0.5, 0.5);
+		if(!$item->canStartUsingItemOnBlock($this, $block, $face, $clickOffset)){
+			return false;
+		}
+
+		$this->setUsingItemOnBlock($pos, $face, $clickOffset, $interactDisplacedBlock);
+		return true;
 	}
 
 	/**
@@ -1481,6 +1537,13 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 
 			$horizontalDistanceTravelled = sqrt((($from->x - $to->x) ** 2) + (($from->z - $to->z) ** 2));
 			if($horizontalDistanceTravelled > 0){
+				if($this->onGround && $now - $this->lastSuspiciousBlockStepSound >= 0.3){
+					$block = $this->getWorld()->getBlock($this->location->floor()->down());
+					if($block instanceof SuspiciousGravel){
+						$this->broadcastSound(SuspiciousBlockSound::step($block, 0.2));
+						$this->lastSuspiciousBlockStepSound = $now;
+					}
+				}
 				//TODO: check for swimming
 				if($this->isSprinting()){
 					$this->hungerManager->exhaust(0.01 * $horizontalDistanceTravelled, PlayerExhaustEvent::CAUSE_SPRINTING);
@@ -1511,6 +1574,12 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 
 	public function jump() : void{
 		(new PlayerJumpEvent($this))->call();
+		if($this->onGround){
+			$block = $this->getWorld()->getBlock($this->location->floor()->down());
+			if($block instanceof SuspiciousGravel){
+				$this->broadcastSound(SuspiciousBlockSound::step($block, 0.12));
+			}
+		}
 		parent::jump();
 	}
 
@@ -1582,6 +1651,10 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			$item = $this->getInventory()->getItemInHand();
 			if ($this->isUsingItem() && $item instanceof Spear) {
 				$item->onUsingTick($this, $this->getItemUseDuration());
+			}
+
+			if($this->isUsingItem() && $item instanceof ItemUseOnBlockHandler && $this->itemUseBlockPosition !== null && $this->itemUseBlockClickOffset !== null){
+				$this->tickItemUseOnBlock($item);
 			}
 
 			if ($this->blockBreakHandler !== null) {
@@ -1839,6 +1912,35 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		}
 	}
 
+	private function tickItemUseOnBlock(ItemUseOnBlockHandler $item) : void{
+		$pos = $this->itemUseBlockPosition;
+		$clickOffset = $this->itemUseBlockClickOffset;
+		if($pos === null || $clickOffset === null || !$this->canInteract($pos->add(0.5, 0.5, 0.5), $this->isCreative() ? self::MAX_REACH_DISTANCE_CREATIVE : self::MAX_REACH_DISTANCE_SURVIVAL)){
+			$this->setUsingItem(false);
+			return;
+		}
+
+		$block = $this->getWorld()->getBlock($pos);
+		if($this->itemUseInteractsDisplacedBlock){
+			$block = $block->getDisplacedBlock() ?? $block;
+		}
+		if(!$item->canStartUsingItemOnBlock($this, $block, $this->itemUseBlockFace, $clickOffset)){
+			$this->setUsingItem(false);
+			return;
+		}
+
+		$oldItem = clone $item;
+		$returnedItems = [];
+		$result = $item->onUsingItemOnBlockTick($this, $block, $this->itemUseBlockFace, $clickOffset, $this->getItemUseDuration(), $returnedItems);
+		if($result === ItemUseResult::FAIL){
+			$this->setUsingItem(false);
+			return;
+		}
+		if($result === ItemUseResult::SUCCESS){
+			$this->returnItemsFromAction($oldItem, $item, $returnedItems);
+		}
+	}
+
 	public function pickBlock(Vector3 $pos, bool $addTileNBT) : bool{
 		$block = $this->getWorld()->getBlock($pos);
 		if($block instanceof UnknownBlock){
@@ -1996,7 +2098,17 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 	 * @return bool if it did something
 	 */
 	public function interactBlock(Vector3 $pos, int $face, Vector3 $clickOffset, bool $interactDisplacedBlock = false) : bool{
-		$this->setUsingItem(false);
+		$heldItem = $this->inventory->getItemInHand();
+		if(
+			!$this->isUsingItem() ||
+			!$heldItem instanceof ItemUseOnBlockHandler ||
+			$this->itemUseBlockPosition === null ||
+			!$this->itemUseBlockPosition->equals($pos->floor()) ||
+			$this->itemUseBlockFace !== $face ||
+			$this->itemUseInteractsDisplacedBlock !== $interactDisplacedBlock
+		){
+			$this->setUsingItem(false);
+		}
 
 		if($this->canInteract($pos->add(0.5, 0.5, 0.5), $this->isCreative() ? self::MAX_REACH_DISTANCE_CREATIVE : self::MAX_REACH_DISTANCE_SURVIVAL)){
 			$this->broadcastAnimation(new ArmSwingAnimation($this), $this->getViewers());
@@ -2005,6 +2117,15 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			$returnedItems = [];
 			if($this->getWorld()->useItemOn($pos, $item, $face, $clickOffset, $this, true, $returnedItems, $interactDisplacedBlock)){
 				$this->returnItemsFromAction($oldItem, $item, $returnedItems);
+				if($item instanceof ItemUseOnBlockHandler){
+					$block = $this->getWorld()->getBlock($pos);
+					if($interactDisplacedBlock){
+						$block = $block->getDisplacedBlock() ?? $block;
+					}
+					if($item->canStartUsingItemOnBlock($this, $block, $face, $clickOffset)){
+						$this->setUsingItemOnBlock($pos, $face, $clickOffset, $interactDisplacedBlock);
+					}
+				}
 				return true;
 			}
 		}else{

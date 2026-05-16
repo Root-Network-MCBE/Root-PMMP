@@ -57,6 +57,7 @@ use pocketmine\network\mcpe\protocol\types\BlockPosition;
 use pocketmine\network\mcpe\protocol\types\Enchant;
 use pocketmine\network\mcpe\protocol\types\EnchantOption as ProtocolEnchantOption;
 use pocketmine\network\mcpe\protocol\types\inventory\ContainerIds;
+use pocketmine\network\mcpe\protocol\types\inventory\ContainerUIIds;
 use pocketmine\network\mcpe\protocol\types\inventory\FullContainerName;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
@@ -526,6 +527,14 @@ class InventoryManager{
 	}
 
 	private function sendInventorySlotPackets(int $windowId, int $netSlot, ItemStackWrapper $itemStackWrapper) : void{
+		/*
+		 * TODO: HACK!
+		 * As of 1.20.12, the client ignores change of itemstackID in some cases when the old item == the new item.
+		 * Notably, this happens with armor, offhand and enchanting tables, but not with main inventory.
+		 * While we could track the items previously sent to the client, that's a waste of memory and would
+		 * cost performance. Instead, clear the slot(s) first, then send the new item(s).
+		 * The network cost of doing this is fortunately minimal, as an air itemstack is only 1 byte.
+		 */
 		if($itemStackWrapper->getStackId() !== 0){
 			$this->session->sendDataPacket(InventorySlotPacket::create(
 				$windowId,
@@ -535,7 +544,7 @@ class InventoryManager{
 				new ItemStackWrapper(0, ItemStack::null())
 			));
 		}
-
+		//now send the real contents
 		$this->session->sendDataPacket(InventorySlotPacket::create(
 			$windowId,
 			$netSlot,
@@ -545,9 +554,16 @@ class InventoryManager{
 		));
 	}
 
-	/**
-	 * @param ItemStackWrapper[] $itemStackWrappers
-	 */
+	private function getFullContainerNameForWindow(int $windowId) : FullContainerName{
+		return match($windowId){
+			ContainerIds::INVENTORY => new FullContainerName(ContainerUIIds::INVENTORY),
+			ContainerIds::OFFHAND => new FullContainerName(ContainerUIIds::OFFHAND),
+			ContainerIds::ARMOR => new FullContainerName(ContainerUIIds::ARMOR),
+			ContainerIds::UI => new FullContainerName(ContainerUIIds::CURSOR),
+			default => new FullContainerName(ContainerUIIds::DYNAMIC, $windowId),
+		};
+	}
+
 	private function sendInventoryContentPackets(int $windowId, array $itemStackWrappers) : void{
 		/*
 		 * TODO: HACK!
@@ -557,14 +573,15 @@ class InventoryManager{
 		 * cost performance. Instead, clear the slot(s) first, then send the new item(s).
 		 * The network cost of doing this is fortunately minimal, as an air itemstack is only 1 byte.
 		 */
+		$containerName = $this->getFullContainerNameForWindow($windowId);
 		$this->session->sendDataPacket(InventoryContentPacket::create(
 			$windowId,
 			array_fill_keys(array_keys($itemStackWrappers), new ItemStackWrapper(0, ItemStack::null())),
-			new FullContainerName($this->lastInventoryNetworkId),
+			$containerName,
 			new ItemStackWrapper(0, ItemStack::null())
 		));
 		//now send the real contents
-		$this->session->sendDataPacket(InventoryContentPacket::create($windowId, $itemStackWrappers, new FullContainerName($this->lastInventoryNetworkId), new ItemStackWrapper(0, ItemStack::null())));
+		$this->session->sendDataPacket(InventoryContentPacket::create($windowId, $itemStackWrappers, $containerName, new ItemStackWrapper(0, ItemStack::null())));
 	}
 
 	public function syncSlot(Inventory $inventory, int $slot, ItemStack $itemStack) : void{

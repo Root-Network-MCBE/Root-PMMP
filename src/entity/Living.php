@@ -25,6 +25,7 @@ namespace pocketmine\entity;
 
 use pocketmine\block\Block;
 use pocketmine\block\BlockTypeIds;
+use pocketmine\block\SuspiciousGravel;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\block\Water;
 use pocketmine\data\bedrock\EffectIdMap;
@@ -68,6 +69,7 @@ use pocketmine\world\sound\BurpSound;
 use pocketmine\world\sound\EntityLandSound;
 use pocketmine\world\sound\EntityLongFallSound;
 use pocketmine\world\sound\EntityShortFallSound;
+use pocketmine\world\sound\SuspiciousBlockSound;
 use pocketmine\world\sound\ItemBreakSound;
 use function abs;
 use function array_shift;
@@ -411,9 +413,12 @@ abstract class Living extends Entity{
 			$ev = new EntityDamageEvent($this, EntityDamageEvent::CAUSE_FALL, $damage);
 			$this->attack($ev);
 
-			$this->broadcastSound($damage > 4 ?
-				new EntityLongFallSound($this) :
-				new EntityShortFallSound($this)
+			$this->broadcastSound($fallBlock instanceof SuspiciousGravel ?
+				SuspiciousBlockSound::step($fallBlock, 0.4) :
+				($damage > 4 ?
+					new EntityLongFallSound($this) :
+					new EntityShortFallSound($this)
+				)
 			);
 		}elseif($fallBlock->getTypeId() !== BlockTypeIds::AIR){
 			$this->broadcastSound(new EntityLandSound($this, $fallBlock));

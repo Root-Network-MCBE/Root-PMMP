@@ -21,22 +21,21 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\world\sound;
+namespace pocketmine\item;
 
 use pocketmine\block\Block;
-use pocketmine\block\SuspiciousGravel;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\convert\TypeConverter;
-use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
-use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
+use pocketmine\player\Player;
 
-class BlockPlaceSound implements Sound{
-	public function __construct(private Block $block){}
+/**
+ * Implemented by items which continue doing work while the player holds the use button on a block.
+ */
+interface ItemUseOnBlockHandler{
 
-	public function encode(Vector3 $pos) : array{
-		if($this->block instanceof SuspiciousGravel){
-			return SuspiciousBlockSound::place($this->block)->encode($pos);
-		}
-		return [LevelSoundEventPacket::nonActorSound(LevelSoundEvent::PLACE, $pos, false, TypeConverter::getInstance()->getBlockTranslator()->internalIdToNetworkId($this->block->getStateId()))];
-	}
+	public function canStartUsingItemOnBlock(Player $player, Block $block, int $face, Vector3 $clickVector) : bool;
+
+	/**
+	 * @param Item[] &$returnedItems
+	 */
+	public function onUsingItemOnBlockTick(Player $player, Block $block, int $face, Vector3 $clickVector, int $useDuration, array &$returnedItems) : ItemUseResult;
 }

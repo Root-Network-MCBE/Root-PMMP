@@ -93,7 +93,6 @@ final class VanillaItemsInputs extends RegistrySource{
 			//"ominous_bottle" => "Ominous Bottle",
 			"trial_key" => "Trial Key",
 			"ominous_trial_key" => "Ominous Trial Key",
-			//"brush" => "Brush",
 			//"bundle" => "Bundle",
 			//"black_bundle" => "Black Bundle",
 			//"blue_bundle" => "Blue Bundle",
@@ -141,6 +140,7 @@ final class VanillaItemsInputs extends RegistrySource{
 
 		self::register("wind_charge", fn(IID $id) => new WindCharge($id, "Wind Charge"));
 		self::register("armor_stand", fn(IID $id) => new ArmorStand($id, "Armor Stand"));
+		self::register("brush", fn(IID $id) => new Brush($id, "Brush", [EnchantmentTags::BRUSH]));
 
 		self::registerArmorItems();
 		self::registerSpawnEggs();

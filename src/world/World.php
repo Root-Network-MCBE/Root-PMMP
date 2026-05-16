@@ -109,6 +109,7 @@ use pocketmine\world\light\SkyLightUpdate;
 use pocketmine\world\particle\BlockBreakParticle;
 use pocketmine\world\particle\Particle;
 use pocketmine\world\sound\BlockPlaceSound;
+use pocketmine\world\sound\BlockBreakSound;
 use pocketmine\world\sound\Sound;
 use pocketmine\world\utils\SubChunkExplorer;
 use pocketmine\YmlServerProperties;
@@ -2388,6 +2389,7 @@ class World implements ChunkManager{
 	private function destroyBlockInternal(Block $target, Item $item, ?Player $player, bool $createParticles, array &$returnedItems) : void{
 		if($createParticles){
 			$this->addParticle($target->getPosition()->add(0.5, 0.5, 0.5), new BlockBreakParticle($target));
+			$this->addSound($target->getPosition()->add(0.5, 0.5, 0.5), new BlockBreakSound($target));
 		}
 
 		$target->onBreak($item, $player, $returnedItems);

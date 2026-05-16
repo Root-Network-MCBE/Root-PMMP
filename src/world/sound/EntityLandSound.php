@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace pocketmine\world\sound;
 
 use pocketmine\block\Block;
+use pocketmine\block\SuspiciousGravel;
 use pocketmine\entity\Entity;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\convert\TypeConverter;
@@ -40,6 +41,9 @@ class EntityLandSound implements Sound{
 	){}
 
 	public function encode(Vector3 $pos) : array{
+		if($this->blockLandedOn instanceof SuspiciousGravel){
+			return SuspiciousBlockSound::step($this->blockLandedOn, 0.18)->encode($pos);
+		}
 		return [LevelSoundEventPacket::create(
 			LevelSoundEvent::LAND,
 			$pos,

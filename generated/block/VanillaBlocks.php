@@ -791,6 +791,8 @@ final class VanillaBlocks{
 	private static StructureVoid $_mSTRUCTURE_VOID;
 	private static Sugarcane $_mSUGARCANE;
 	private static DoublePlant $_mSUNFLOWER;
+	private static SuspiciousGravel $_mSUSPICIOUS_GRAVEL;
+	private static SuspiciousSand $_mSUSPICIOUS_SAND;
 	private static SweetBerryBush $_mSWEET_BERRY_BUSH;
 	private static TallGrass $_mTALL_GRASS;
 	private static TintedGlass $_mTINTED_GLASS;
@@ -1630,6 +1632,8 @@ final class VanillaBlocks{
 			"structure_void" => fn(StructureVoid $v) => self::$_mSTRUCTURE_VOID = $v,
 			"sugarcane" => fn(Sugarcane $v) => self::$_mSUGARCANE = $v,
 			"sunflower" => fn(DoublePlant $v) => self::$_mSUNFLOWER = $v,
+			"suspicious_gravel" => fn(SuspiciousGravel $v) => self::$_mSUSPICIOUS_GRAVEL = $v,
+			"suspicious_sand" => fn(SuspiciousSand $v) => self::$_mSUSPICIOUS_SAND = $v,
 			"sweet_berry_bush" => fn(SweetBerryBush $v) => self::$_mSWEET_BERRY_BUSH = $v,
 			"tall_grass" => fn(TallGrass $v) => self::$_mTALL_GRASS = $v,
 			"tinted_glass" => fn(TintedGlass $v) => self::$_mTINTED_GLASS = $v,
@@ -5483,6 +5487,16 @@ final class VanillaBlocks{
 	public static function SUNFLOWER() : DoublePlant{
 		if(!isset(self::$_mSUNFLOWER)){ self::init(); }
 		return clone self::$_mSUNFLOWER;
+	}
+
+	public static function SUSPICIOUS_GRAVEL() : SuspiciousGravel{
+		if(!isset(self::$_mSUSPICIOUS_GRAVEL)){ self::init(); }
+		return clone self::$_mSUSPICIOUS_GRAVEL;
+	}
+
+	public static function SUSPICIOUS_SAND() : SuspiciousSand{
+		if(!isset(self::$_mSUSPICIOUS_SAND)){ self::init(); }
+		return clone self::$_mSUSPICIOUS_SAND;
 	}
 
 	public static function SWEET_BERRY_BUSH() : SweetBerryBush{

@@ -860,8 +860,10 @@ final class BlockTypeIds{
 	public const HONEY = 10829;
 	public const MOSS = 10830;
 	public const SCAFFOLDING = 10831;
+	public const SUSPICIOUS_GRAVEL = 10832;
+	public const SUSPICIOUS_SAND = 10833;
 
-	public const FIRST_UNUSED_BLOCK_ID = 10832;
+	public const FIRST_UNUSED_BLOCK_ID = 10834;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_BLOCK_ID;
 

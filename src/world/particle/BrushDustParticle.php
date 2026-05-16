@@ -21,22 +21,22 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\world\sound;
+namespace pocketmine\world\particle;
 
 use pocketmine\block\Block;
-use pocketmine\block\SuspiciousGravel;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\convert\TypeConverter;
-use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
-use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
+use pocketmine\network\mcpe\protocol\LevelEventPacket;
+use pocketmine\network\mcpe\protocol\types\ParticleIds;
 
-class BlockPlaceSound implements Sound{
+final class BrushDustParticle implements Particle{
 	public function __construct(private Block $block){}
 
 	public function encode(Vector3 $pos) : array{
-		if($this->block instanceof SuspiciousGravel){
-			return SuspiciousBlockSound::place($this->block)->encode($pos);
-		}
-		return [LevelSoundEventPacket::nonActorSound(LevelSoundEvent::PLACE, $pos, false, TypeConverter::getInstance()->getBlockTranslator()->internalIdToNetworkId($this->block->getStateId()))];
+		return [LevelEventPacket::standardParticle(
+			ParticleIds::BRUSH_DUST,
+			TypeConverter::getInstance()->getBlockTranslator()->internalIdToNetworkId($this->block->getStateId()),
+			$pos
+		)];
 	}
 }

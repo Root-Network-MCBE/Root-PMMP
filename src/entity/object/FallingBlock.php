@@ -153,6 +153,7 @@ class FallingBlock extends Entity{
 					if(!$ev->isCancelled()){
 						$b = $ev->getTo();
 						$world->setBlock($pos, $b);
+						$b->onPostPlace();
 						if($this->onGround && $b instanceof Fallable && ($sound = $b->getLandSound()) !== null){
 							$world->addSound($pos->add(0.5, 0.5, 0.5), $sound);
 						}

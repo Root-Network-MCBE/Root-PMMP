@@ -86,6 +86,8 @@ use pocketmine\block\SnowLayer;
 use pocketmine\block\Sponge;
 use pocketmine\block\StraightOnlyRail;
 use pocketmine\block\Sugarcane;
+use pocketmine\block\SuspiciousGravel;
+use pocketmine\block\SuspiciousSand;
 use pocketmine\block\SweetBerryBush;
 use pocketmine\block\TNT;
 use pocketmine\block\TorchflowerCrop;
@@ -163,6 +165,14 @@ final class VanillaBlockMappings{
 	private static function registerSimpleIdOnlyMappings(BlockSerializerDeserializerRegistrar $reg) : void{
 		$reg->mapSimple(Blocks::HONEY(), Ids::HONEY_BLOCK);
 		$reg->mapSimple(Blocks::MOSS(), Ids::MOSS_BLOCK);
+		$reg->mapModel(Model::create(Blocks::SUSPICIOUS_GRAVEL(), Ids::SUSPICIOUS_GRAVEL)->properties([
+			new IntProperty(StateNames::BRUSHED_PROGRESS, 0, 3, fn(SuspiciousGravel $block) => $block->getBrushedProgress(), fn(SuspiciousGravel $block, int $value) => $block->setBrushedProgress($value)),
+			new BoolProperty(StateNames::HANGING, fn(SuspiciousGravel $block) => $block->isHanging(), fn(SuspiciousGravel $block, bool $value) => $block->setHanging($value))
+		]));
+		$reg->mapModel(Model::create(Blocks::SUSPICIOUS_SAND(), Ids::SUSPICIOUS_SAND)->properties([
+			new IntProperty(StateNames::BRUSHED_PROGRESS, 0, 3, fn(SuspiciousSand $block) => $block->getBrushedProgress(), fn(SuspiciousSand $block, int $value) => $block->setBrushedProgress($value)),
+			new BoolProperty(StateNames::HANGING, fn(SuspiciousSand $block) => $block->isHanging(), fn(SuspiciousSand $block, bool $value) => $block->setHanging($value))
+		]));
 
 		$reg->mapSimple(Blocks::AIR(), Ids::AIR);
 		$reg->mapSimple(Blocks::AMETHYST(), Ids::AMETHYST_BLOCK);

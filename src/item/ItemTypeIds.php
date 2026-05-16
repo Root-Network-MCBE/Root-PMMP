@@ -410,8 +410,9 @@ final class ItemTypeIds{
 
 	public const WIND_CHARGE = 20366;
 	public const ARMOR_STAND = 20367;
+	public const BRUSH = 20368;
 
-	public const FIRST_UNUSED_ITEM_ID = 20368;
+	public const FIRST_UNUSED_ITEM_ID = 20369;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_ITEM_ID;
 

@@ -75,6 +75,7 @@ final class VanillaItems{
 	private static Item $_mBREEZE_ROD;
 	private static Item $_mBREWER_POTTERY_SHERD;
 	private static Item $_mBRICK;
+	private static Brush $_mBRUSH;
 	private static Bucket $_mBUCKET;
 	private static Item $_mBURN_POTTERY_SHERD;
 	private static Carrot $_mCARROT;
@@ -469,6 +470,7 @@ final class VanillaItems{
 			"breeze_rod" => fn(Item $v) => self::$_mBREEZE_ROD = $v,
 			"brewer_pottery_sherd" => fn(Item $v) => self::$_mBREWER_POTTERY_SHERD = $v,
 			"brick" => fn(Item $v) => self::$_mBRICK = $v,
+			"brush" => fn(Brush $v) => self::$_mBRUSH = $v,
 			"bucket" => fn(Bucket $v) => self::$_mBUCKET = $v,
 			"burn_pottery_sherd" => fn(Item $v) => self::$_mBURN_POTTERY_SHERD = $v,
 			"carrot" => fn(Carrot $v) => self::$_mCARROT = $v,
@@ -1013,6 +1015,11 @@ final class VanillaItems{
 	public static function BRICK() : Item{
 		if(!isset(self::$_mBRICK)){ self::init(); }
 		return clone self::$_mBRICK;
+	}
+
+	public static function BRUSH() : Brush{
+		if(!isset(self::$_mBRUSH)){ self::init(); }
+		return clone self::$_mBRUSH;
 	}
 
 	public static function BUCKET() : Bucket{

@@ -174,7 +174,7 @@ final class ItemSerializerDeserializerRegistrar{
 		//$this->map1to1Item(Ids::OMINOUS_BOTTLE, Items::OMINOUS_BOTTLE());
 		$this->map1to1Item(Ids::TRIAL_KEY, Items::TRIAL_KEY());
 		$this->map1to1Item(Ids::OMINOUS_TRIAL_KEY, Items::OMINOUS_TRIAL_KEY());
-		//$this->map1to1Item(Ids::BRUSH, Items::BRUSH());
+		$this->map1to1Item(Ids::BRUSH, Items::BRUSH());
 
 		//$this->map1to1Item(Ids::BUNDLE, Items::BUNDLE());
 		//$this->map1to1Item(Ids::BLACK_BUNDLE, Items::BLACK_BUNDLE());
