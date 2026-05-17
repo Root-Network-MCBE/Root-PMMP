@@ -27,9 +27,9 @@ use pocketmine\block\Water;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\data\bedrock\item\SavedItemStackData;
 use pocketmine\entity\Attribute;
-use pocketmine\entity\Entity;
 use pocketmine\entity\EntitySizeInfo;
 use pocketmine\entity\Location;
+use pocketmine\entity\Rideable;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\inventory\Inventory;
@@ -42,10 +42,8 @@ use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\UnexpectedTagTypeException;
-use pocketmine\network\mcpe\NetworkBroadcastUtils;
 use pocketmine\network\mcpe\protocol\AddActorPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
-use pocketmine\network\mcpe\protocol\SetActorLinkPacket;
 use pocketmine\network\mcpe\protocol\types\entity\Attribute as NetworkAttribute;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
 use pocketmine\network\mcpe\protocol\types\entity\EntityLink;
@@ -65,11 +63,12 @@ use function floor;
 use function max;
 use function mb_strtoupper;
 use function min;
+use function sqrt;
 use function sin;
 use function spl_object_id;
 use function strtolower;
 
-class Boat extends Entity implements InventoryHolder{
+class Boat extends Rideable implements InventoryHolder{
 	protected const BASE_OFFSET = 0.375;
 
 	private const SINKING_DEPTH = 0.07;
@@ -83,11 +82,12 @@ class Boat extends Entity implements InventoryHolder{
 	private BoatType $boatType;
 	private bool $withChest;
 	private ?BoatInventory $inventory = null;
-	private ?Player $rider = null;
-	private ?Player $passenger = null;
+	protected bool $sinking = false;
 
 	protected int $rollingAmplitude = 0;
 	protected bool $rollingDirection = false;
+	protected float $paddleTimeLeft = 0.0;
+	protected float $paddleTimeRight = 0.0;
 
 	public function __construct(Location $location, BoatType $boatType = BoatType::OAK, bool $withChest = false, ?CompoundTag $nbt = null){
 		$this->boatType = $boatType;
@@ -166,6 +166,18 @@ class Boat extends Entity implements InventoryHolder{
 		return 0.04;
 	}
 
+	protected function getRiderSeatPosition() : Vector3{
+		return new Vector3(0.2, 1.02, 0.0);
+	}
+
+	protected function canHavePassenger() : bool{
+		return !$this->withChest;
+	}
+
+	protected function getPassengerSeatPosition() : Vector3{
+		return new Vector3(-0.6, 1.02, 0.0);
+	}
+
 	protected function initEntity(CompoundTag $nbt) : void{
 		$this->setMaxHealth(4);
 		$this->setHealth(4);
@@ -192,11 +204,16 @@ class Boat extends Entity implements InventoryHolder{
 		$properties->setInt(EntityMetadataProperties::HEALTH, (int) ($this->getMaxHealth() - $this->getHealth()));
 		$properties->setInt(EntityMetadataProperties::HURT_TIME, $this->rollingAmplitude);
 		$properties->setInt(EntityMetadataProperties::HURT_DIRECTION, $this->rollingDirection ? 1 : -1);
-		$properties->setFloat(EntityMetadataProperties::PADDLE_TIME_LEFT, 0.0);
-		$properties->setFloat(EntityMetadataProperties::PADDLE_TIME_RIGHT, 0.0);
+		$properties->setFloat(EntityMetadataProperties::PADDLE_TIME_LEFT, $this->paddleTimeLeft);
+		$properties->setFloat(EntityMetadataProperties::PADDLE_TIME_RIGHT, $this->paddleTimeRight);
 		$properties->setByte(EntityMetadataProperties::CONTROLLING_RIDER_SEAT_NUMBER, 0);
 		$properties->setByte(EntityMetadataProperties::IS_BUOYANT, 1);
 		$properties->setString(EntityMetadataProperties::BUOYANCY_DATA, "{\"apply_gravity\":true,\"base_buoyancy\":1.0,\"big_wave_probability\":0.03,\"big_wave_speed\":10.0,\"drag_down_on_buoyancy_removed\":0.0,\"liquid_blocks\":[\"minecraft:water\",\"minecraft:flowing_water\"],\"simulate_waves\":true}");
+		if($this->inventory !== null){
+			$properties->setByte(EntityMetadataProperties::CONTAINER_TYPE, 10);
+			$properties->setInt(EntityMetadataProperties::CONTAINER_BASE_SIZE, $this->inventory->getSize());
+			$properties->setInt(EntityMetadataProperties::CONTAINER_EXTRA_SLOTS_PER_STRENGTH, 0);
+		}
 	}
 
 	public function saveNBT() : CompoundTag{
@@ -245,7 +262,7 @@ class Boat extends Entity implements InventoryHolder{
 			return true;
 		}
 		if($this->rider === null){
-			$this->dismountFromAnyBoat($player);
+			Rideable::dismountFrom($player, false);
 			$this->setRider($player);
 			return true;
 		}
@@ -257,133 +274,11 @@ class Boat extends Entity implements InventoryHolder{
 			return true;
 		}
 		if($this->passenger === null){
-			$this->dismountFromAnyBoat($player);
+			Rideable::dismountFrom($player, false);
 			$this->setPassenger($player);
 			return true;
 		}
 		return false;
-	}
-
-	public function setRider(?Player $player) : void{
-		if($this->rider === $player){
-			return;
-		}
-		$this->dismountRider();
-		$this->rider = $player;
-		if($player !== null){
-			$this->applySeatProperties($player, new Vector3(0.2, 1.02, 0.0));
-			$this->setMotion(Vector3::zero());
-			$this->keepMovement = true;
-			NetworkBroadcastUtils::broadcastPackets($this->getViewers(), [SetActorLinkPacket::create(new EntityLink(
-				$this->getId(),
-				$player->getId(),
-				EntityLink::TYPE_RIDER,
-				true,
-				true,
-				0.0
-			))]);
-		}
-	}
-
-	public function getRider() : ?Player{
-		return $this->rider;
-	}
-
-	public function dismountRider(bool $promotePassenger = true) : void{
-		if($this->rider === null){
-			return;
-		}
-		$rider = $this->rider;
-		$this->resetSeatProperties($rider);
-		NetworkBroadcastUtils::broadcastPackets($this->getViewers(), [SetActorLinkPacket::create(new EntityLink(
-			$this->getId(),
-			$rider->getId(),
-			EntityLink::TYPE_REMOVE,
-			true,
-			true,
-			0.0
-		))]);
-
-		if($promotePassenger && $this->passenger !== null){
-			$passenger = $this->passenger;
-			$this->dismountPassenger();
-			$this->rider = null;
-			$this->setRider($passenger);
-		}else{
-			$this->rider = null;
-			$this->keepMovement = false;
-		}
-	}
-
-	public function setPassenger(?Player $player) : void{
-		if($this->passenger === $player){
-			return;
-		}
-		$this->dismountPassenger();
-		$this->passenger = $player;
-		if($player !== null){
-			$this->applySeatProperties($player, new Vector3(-0.6, 1.02, 0.0));
-			NetworkBroadcastUtils::broadcastPackets($this->getViewers(), [SetActorLinkPacket::create(new EntityLink(
-				$this->getId(),
-				$player->getId(),
-				EntityLink::TYPE_PASSENGER,
-				true,
-				false,
-				0.0
-			))]);
-		}
-	}
-
-	public function getPassenger() : ?Player{
-		return $this->passenger;
-	}
-
-	public function dismountPassenger() : void{
-		if($this->passenger === null){
-			return;
-		}
-		$passenger = $this->passenger;
-		$this->passenger = null;
-		$this->resetSeatProperties($passenger);
-		NetworkBroadcastUtils::broadcastPackets($this->getViewers(), [SetActorLinkPacket::create(new EntityLink(
-			$this->getId(),
-			$passenger->getId(),
-			EntityLink::TYPE_REMOVE,
-			true,
-			false,
-			0.0
-		))]);
-	}
-
-	private function applySeatProperties(Player $player, Vector3 $seatPosition) : void{
-		$playerProps = $player->getNetworkProperties();
-		$playerProps->setGenericFlag(EntityMetadataFlags::RIDING, true);
-		$playerProps->setVector3(EntityMetadataProperties::RIDER_SEAT_POSITION, $seatPosition);
-		$playerProps->setByte(EntityMetadataProperties::RIDER_ROTATION_LOCKED, 1);
-		$playerProps->setFloat(EntityMetadataProperties::RIDER_MIN_ROTATION, 0.0);
-		$playerProps->setFloat(EntityMetadataProperties::RIDER_MAX_ROTATION, 90.0);
-		$playerProps->setFloat(EntityMetadataProperties::RIDER_SEAT_ROTATION_OFFSET, -90.0);
-		$player->sendData(null);
-	}
-
-	private function resetSeatProperties(Player $player) : void{
-		$playerProps = $player->getNetworkProperties();
-		$playerProps->setGenericFlag(EntityMetadataFlags::RIDING, false);
-		$playerProps->setVector3(EntityMetadataProperties::RIDER_SEAT_POSITION, Vector3::zero());
-		$playerProps->setByte(EntityMetadataProperties::RIDER_ROTATION_LOCKED, 0);
-		$player->sendData(null);
-	}
-
-	private function dismountFromAnyBoat(Player $player) : void{
-		foreach($player->getWorld()->getEntities() as $entity){
-			if($entity instanceof self){
-				if($entity->getRider() === $player){
-					$entity->dismountRider();
-				}elseif($entity->getPassenger() === $player){
-					$entity->dismountPassenger();
-				}
-			}
-		}
 	}
 
 	public function handleVehicleInput(Player $player, PlayerAuthInputPacket $packet) : bool{
@@ -406,6 +301,8 @@ class Boat extends Entity implements InventoryHolder{
 			$dx = (-sin($rad) * $forward + cos($rad) * $strafe) * $speed;
 			$dz = (cos($rad) * $forward + sin($rad) * $strafe) * $speed;
 			$this->motion = new Vector3($dx, 0.0, $dz);
+			$this->setPaddleTimeLeft($this->paddleTimeLeft + 0.1);
+			$this->setPaddleTimeRight($this->paddleTimeRight + 0.1);
 		}else{
 			$this->motion = new Vector3($this->motion->x * 0.4, 0.0, $this->motion->z * 0.4);
 		}
@@ -417,30 +314,37 @@ class Boat extends Entity implements InventoryHolder{
 		if($this->rider !== null){
 			return;
 		}
-
 		$mY = $this->motion->y;
-		$waterDiff = $this->getWaterLevel();
 
-		if($waterDiff !== INF){
-			if($waterDiff > self::SINKING_DEPTH){
-				$mY = $waterDiff > 0.5 ? $mY - $this->gravity : ($mY - self::SINKING_SPEED < -self::SINKING_MAX_SPEED ? $mY : $mY - self::SINKING_SPEED);
-			}elseif($waterDiff < -self::SINKING_DEPTH){
+		$waterDiff = $this->getWaterLevel();
+		if($this->rider === null){
+			if($waterDiff > self::SINKING_DEPTH && !$this->sinking){
+				$this->sinking = true;
+			}elseif($waterDiff < -self::SINKING_DEPTH && $this->sinking){
+				$this->sinking = false;
+			}
+
+			if($waterDiff < -self::SINKING_DEPTH){
 				$mY = min(0.05, $mY + 0.005);
-			}elseif($waterDiff < 0){
-				$mY = min(0.02, $mY + self::SINKING_SPEED);
-			}else{
+			}elseif($waterDiff < 0 || !$this->sinking){
 				$mY = $mY > self::SINKING_MAX_SPEED ? max($mY - 0.02, self::SINKING_MAX_SPEED) : $mY + self::SINKING_SPEED;
 			}
-
-			$this->checkObstruction($this->location->x, $this->location->y, $this->location->z);
-			$friction = 1 - $this->drag;
-			if($this->onGround){
-				$friction *= $this->getWorld()->getBlockAt((int) floor($this->location->x), (int) floor($this->location->y - 1), (int) floor($this->location->z))->getFrictionFactor();
-			}
-			$this->motion = new Vector3($this->motion->x * $friction, $mY, $this->motion->z * $friction);
-			return;
 		}
-		parent::tryChangeMovement();
+
+		$this->checkObstruction($this->location->x, $this->location->y, $this->location->z);
+
+		if($this->rider === null){
+			if($waterDiff > self::SINKING_DEPTH || $this->sinking){
+				$mY = $waterDiff > 0.5 ? $mY - $this->gravity : ($mY - self::SINKING_SPEED < -self::SINKING_MAX_SPEED ? $mY : $mY - self::SINKING_SPEED);
+			}
+		}
+
+		$friction = 1 - $this->drag;
+		if($this->onGround){
+			$friction *= $this->getWorld()->getBlockAt((int) floor($this->location->x), (int) floor($this->location->y - 1), (int) floor($this->location->z))->getFrictionFactor();
+		}
+
+		$this->motion = new Vector3($this->motion->x * $friction, $mY, $this->motion->z * $friction);
 	}
 
 	protected function getWaterLevel() : float{
@@ -459,6 +363,55 @@ class Boat extends Entity implements InventoryHolder{
 
 	public function getOffsetPosition(Vector3 $vector3) : Vector3{
 		return $vector3->add(0.0, self::BASE_OFFSET, 0.0);
+	}
+
+	public function onCollideWithPlayer(Player $player) : void{
+		if($this->rider !== null || $player === $this->passenger){
+			return;
+		}
+
+		if($player->isSpectator() || !$player->boundingBox->intersectsWith($this->boundingBox->expandedCopy(0.2, -0.1, 0.2))){
+			return;
+		}
+
+		$diffX = $player->location->x - $this->location->x;
+		$diffZ = $player->location->z - $this->location->z;
+
+		$forceSquared = max(abs($diffX), abs($diffZ));
+		if($forceSquared >= 0.01){
+			$force = sqrt($forceSquared);
+			$diffX /= $force;
+			$diffZ /= $force;
+
+			$multiplier = min(1 / $force, 1) * 0.05;
+			$diffX *= $multiplier;
+			$diffZ *= $multiplier;
+
+			$this->setMotion(new Vector3($this->motion->x - $diffX, $this->motion->y, $this->motion->z - $diffZ));
+		}
+	}
+
+	public function riderMove(Vector3 $position, ?float $yaw = null, ?float $pitch = null) : void{
+		if($position->distanceSquared($this->getOffsetPosition($this->location->asVector3())) > 4.0){
+			return;
+		}
+
+		$this->setPositionAndRotation(
+			$position->subtract(0.0, self::BASE_OFFSET, 0.0),
+			$yaw ?? $this->location->yaw,
+			$pitch ?? $this->location->pitch
+		);
+		$this->updateMovement();
+	}
+
+	public function setPaddleTimeLeft(float $value) : void{
+		$this->paddleTimeLeft = $value;
+		$this->networkPropertiesDirty = true;
+	}
+
+	public function setPaddleTimeRight(float $value) : void{
+		$this->paddleTimeRight = $value;
+		$this->networkPropertiesDirty = true;
 	}
 
 	public function setNoClientPredictions(bool $value = true) : void{

@@ -48,6 +48,7 @@ use pocketmine\entity\NeverSavedWithChunkEntity;
 use pocketmine\entity\object\ItemEntity;
 use pocketmine\entity\projectile\Arrow;
 use pocketmine\entity\projectile\FishingHook;
+use pocketmine\entity\Rideable;
 use pocketmine\entity\Skin;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
@@ -2567,6 +2568,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		$this->server->unsubscribeFromAllBroadcastChannels($this);
 
 		$this->removeCurrentWindow();
+		Rideable::dismountFrom($this, false);
 
 		$ev = new PlayerQuitEvent($this, $quitMessage ?? $this->getLeaveMessage(), $reason);
 		$ev->call();
@@ -2881,6 +2883,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 	}
 
 	public function teleport(Vector3 $pos, ?float $yaw = null, ?float $pitch = null) : bool{
+		Rideable::dismountFrom($this, false);
 		if(parent::teleport($pos, $yaw, $pitch)){
 
 			$this->removeCurrentWindow();

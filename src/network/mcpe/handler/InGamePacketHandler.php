@@ -69,6 +69,7 @@ use pocketmine\network\mcpe\protocol\MapInfoRequestPacket;
 use pocketmine\network\mcpe\protocol\MobArmorEquipmentPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
+use pocketmine\network\mcpe\protocol\MoveActorAbsolutePacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
@@ -126,6 +127,9 @@ use function strlen;
 use const JSON_THROW_ON_ERROR;
 
 class InGamePacketHandler extends PacketHandler{
+	private const ANIMATE_ACTION_ROW_RIGHT = 128;
+	private const ANIMATE_ACTION_ROW_LEFT = 129;
+
 	private const MAX_FORM_RESPONSE_DEPTH = 2; //modal/simple will be 1, custom forms 2 - they will never contain anything other than string|int|float|bool|null
 
 	//TODO: The client-side per-page character limit is inconsistent for non-ASCII text,
@@ -865,7 +869,29 @@ class InGamePacketHandler extends PacketHandler{
 		return true; //Not used: This packet is (erroneously) sent to the server when the client is riding a vehicle.
 	}
 
+	public function handleMoveActorAbsolute(MoveActorAbsolutePacket $packet) : bool{
+		$entity = $this->player->getWorld()->getEntity($packet->actorRuntimeId);
+		if($entity instanceof Boat && $entity->getRider() === $this->player){
+			$entity->riderMove($packet->position, $packet->yaw, $packet->pitch);
+			return true;
+		}
+		throw new FilterNoisyPacketException();
+	}
+
 	public function handleAnimate(AnimatePacket $packet) : bool{
+		if($packet->action === self::ANIMATE_ACTION_ROW_LEFT || $packet->action === self::ANIMATE_ACTION_ROW_RIGHT){
+			foreach($this->player->getWorld()->getNearbyEntities($this->player->getBoundingBox()->expandedCopy(2.0, 2.0, 2.0)) as $entity){
+				if($entity instanceof Boat && $entity->getRider() === $this->player){
+					if($packet->action === self::ANIMATE_ACTION_ROW_LEFT){
+						$entity->setPaddleTimeLeft($packet->data);
+					}else{
+						$entity->setPaddleTimeRight($packet->data);
+					}
+					return true;
+				}
+			}
+		}
+
 		//this spams harder than a firehose on left click if "Improved Input Response" is enabled, and we don't even
 		//use it anyway :<
 		throw new FilterNoisyPacketException();
