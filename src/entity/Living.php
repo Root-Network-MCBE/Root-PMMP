@@ -48,6 +48,7 @@ use pocketmine\item\Durable;
 use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\enchantment\VanillaEnchantments;
 use pocketmine\item\Item;
+use pocketmine\item\Mace;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
 use pocketmine\math\VoxelRayTrace;
@@ -483,6 +484,12 @@ abstract class Living extends Entity{
 		if($source->canBeReducedByArmor()){
 			$armor = $this->getArmorPoints();
 			$toughness = $this->getToughnessPoints();
+			if($source instanceof EntityDamageByEntityEvent && ($damager = $source->getDamager()) instanceof Player){
+				$heldItem = $damager->getInventory()->getItemInHand();
+				if($heldItem instanceof Mace){
+					$armor *= 1.0 - $heldItem->getBreachArmorReduction();
+				}
+			}
 
 			$damage = $source->getFinalDamage();
 

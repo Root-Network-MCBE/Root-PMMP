@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\player;
 
+use pocketmine\block\Air;
 use pocketmine\block\BaseSign;
 use pocketmine\block\Bed;
 use pocketmine\block\BlockTypeTags;
@@ -107,8 +108,10 @@ use pocketmine\item\enchantment\MeleeWeaponEnchantment;
 use pocketmine\item\Item;
 use pocketmine\item\ItemUseOnBlockHandler;
 use pocketmine\item\ItemUseResult;
+use pocketmine\item\Mace;
 use pocketmine\item\Releasable;
 use pocketmine\item\Spear;
+use pocketmine\math\AxisAlignedBB;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\lang\Language;
 use pocketmine\lang\Translatable;
@@ -118,6 +121,7 @@ use pocketmine\nbt\tag\IntTag;
 use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
+use pocketmine\network\mcpe\protocol\PlaySoundPacket;
 use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
 use pocketmine\network\mcpe\protocol\types\DimensionIds;
@@ -149,6 +153,7 @@ use pocketmine\world\sound\RespawnAnchorDepleteSound;
 use pocketmine\world\sound\Sound;
 use pocketmine\world\sound\SuspiciousBlockSound;
 use pocketmine\world\World;
+use pocketmine\world\particle\BlockBreakParticle;
 use pocketmine\YmlServerProperties;
 use Ramsey\Uuid\UuidInterface;
 use function abs;
@@ -2155,6 +2160,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		$oldItem = clone $heldItem;
 
 		$ev = new EntityDamageByEntityEvent($this, $entity, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $heldItem->getAttackPoints());
+		$isMaceSmashAttack = $heldItem instanceof Mace && $heldItem->canSmashAttack($this->fallDistance) && !$this->isFlying() && !$this->isUnderwater();
 		if(!$this->canInteract($entity->getLocation(), self::MAX_REACH_DISTANCE_ENTITY_INTERACTION)){
 			$this->logger->debug("Cancelled attack of entity " . $entity->getId() . " due to not currently being interactable");
 			$ev->cancel();
@@ -2174,7 +2180,9 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		}
 		$ev->setModifier($meleeEnchantmentDamage, EntityDamageEvent::MODIFIER_WEAPON_ENCHANTMENTS);
 
-		if(!$this->isSprinting() && !$this->isFlying() && $this->fallDistance > 0 && !$this->effectManager->has(VanillaEffects::BLINDNESS()) && !$this->isUnderwater()){
+		if($isMaceSmashAttack){
+			$ev->setModifier($heldItem->getSmashAttackDamage($this->fallDistance), EntityDamageEvent::MODIFIER_CRITICAL);
+		}elseif(!$this->isSprinting() && !$this->isFlying() && $this->fallDistance > 0 && !$this->effectManager->has(VanillaEffects::BLINDNESS()) && !$this->isUnderwater()){
 			$ev->setModifier($ev->getFinalDamage() / 2, EntityDamageEvent::MODIFIER_CRITICAL);
 		}
 
@@ -2201,6 +2209,13 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			$type->onPostAttack($this, $entity, $enchantment->getLevel());
 		}
 
+		if($isMaceSmashAttack && $heldItem instanceof Mace){
+			if($this->fallDistance >= 3.0){
+				$this->playMaceHeavySmashEffects($heldItem, $entity);
+			}
+			$this->fallDistance = 0.0;
+		}
+
 		if($this->isAlive()){
 			//reactive damage like thorns might cause us to be killed by attacking another mob, which
 			//would mean we'd already have dropped the inventory by the time we reached here
@@ -2212,6 +2227,49 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		}
 
 		return true;
+	}
+
+	private function playMaceHeavySmashEffects(Mace $mace, Entity $target) : void{
+		$targetPos = $target->getPosition();
+		$world = $targetPos->getWorld();
+		$blockUnder = $world->getBlock($targetPos->subtract(0, 1, 0));
+		$particleBlock = $blockUnder instanceof Air ? VanillaBlocks::GRASS() : $blockUnder;
+
+		$x = $targetPos->getX();
+		$y = $targetPos->getY();
+		$z = $targetPos->getZ();
+		$offset = 1.5;
+
+		for($height = 0.0; $height <= 4.0; $height += 0.5){
+			$currentY = $y + $height;
+			foreach([
+				new Vector3($x + $offset, $currentY, $z),
+				new Vector3($x - $offset, $currentY, $z),
+				new Vector3($x, $currentY, $z + $offset),
+				new Vector3($x, $currentY, $z - $offset),
+			] as $particlePos){
+				$world->addParticle($particlePos, new BlockBreakParticle($particleBlock));
+			}
+		}
+
+		$motion = $this->getMotion();
+		$this->setMotion($motion->withComponents(
+			$motion->x / 2.0,
+			($motion->y / 2.0) + match($mace->getWindBurstLevel()){
+				1 => 1.2,
+				2 => 2.0,
+				3 => 3.1,
+				default => 0.7,
+			},
+			$motion->z / 2.0
+		));
+
+		$packet = PlaySoundPacket::create("mace.heavy_smash_ground", $x, $y, $z, 1.0, 1.0, null);
+		foreach($world->getNearbyEntities(new AxisAlignedBB($x - 20, $y - 20, $z - 20, $x + 20, $y + 20, $z + 20)) as $entity){
+			if($entity instanceof Player){
+				$entity->getNetworkSession()->sendDataPacket(clone $packet);
+			}
+		}
 	}
 
 	/**

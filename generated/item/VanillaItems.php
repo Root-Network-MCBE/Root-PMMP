@@ -260,6 +260,7 @@ final class VanillaItems{
 	private static Armor $_mLEATHER_TUNIC;
 	private static SplashPotion $_mLINGERING_POTION;
 	private static Item $_mMAGMA_CREAM;
+	private static Mace $_mMACE;
 	private static Boat $_mMANGROVE_BOAT;
 	private static Boat $_mMANGROVE_CHEST_BOAT;
 	private static HangingSign $_mMANGROVE_HANGING_SIGN;
@@ -668,6 +669,7 @@ final class VanillaItems{
 			"leather_tunic" => fn(Armor $v) => self::$_mLEATHER_TUNIC = $v,
 			"lingering_potion" => fn(SplashPotion $v) => self::$_mLINGERING_POTION = $v,
 			"magma_cream" => fn(Item $v) => self::$_mMAGMA_CREAM = $v,
+			"mace" => fn(Mace $v) => self::$_mMACE = $v,
 			"mangrove_boat" => fn(Boat $v) => self::$_mMANGROVE_BOAT = $v,
 			"mangrove_chest_boat" => fn(Boat $v) => self::$_mMANGROVE_CHEST_BOAT = $v,
 			"mangrove_hanging_sign" => fn(HangingSign $v) => self::$_mMANGROVE_HANGING_SIGN = $v,
@@ -1966,6 +1968,11 @@ final class VanillaItems{
 	public static function MAGMA_CREAM() : Item{
 		if(!isset(self::$_mMAGMA_CREAM)){ self::init(); }
 		return clone self::$_mMAGMA_CREAM;
+	}
+
+	public static function MACE() : Mace{
+		if(!isset(self::$_mMACE)){ self::init(); }
+		return clone self::$_mMACE;
 	}
 
 	public static function MANGROVE_BOAT() : Boat{

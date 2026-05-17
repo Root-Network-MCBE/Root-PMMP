@@ -222,6 +222,7 @@ final class ItemSerializerDeserializerRegistrar{
 		$this->map1to1Item(Ids::FLOW_ARMOR_TRIM_SMITHING_TEMPLATE, Items::FLOW_ARMOR_TRIM_SMITHING_TEMPLATE());
 
 		$this->map1to1Item(Ids::WIND_CHARGE, Items::WIND_CHARGE());
+		$this->map1to1Item(Ids::MACE, Items::MACE());
 		$this->map1to1Item(Ids::ARMOR_STAND, Items::ARMOR_STAND());
 
 		$this->map1to1Item(Ids::COD, Items::RAW_COD());

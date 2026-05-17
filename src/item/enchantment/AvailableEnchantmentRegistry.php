@@ -83,6 +83,9 @@ final class AvailableEnchantmentRegistry{
 		$this->register(Enchantments::VANISHING(), [], [Tags::ALL]);
 		$this->register(Enchantments::SWIFT_SNEAK(), [], [Tags::LEGGINGS]);
 		$this->register(Enchantments::LUNGE(), [], [Tags::SPEAR]);
+		$this->register(Enchantments::DENSITY(), [Tags::MACE], []);
+		$this->register(Enchantments::BREACH(), [Tags::MACE], []);
+		$this->register(Enchantments::WIND_BURST(), [], [Tags::MACE]);
 
 		$this->register(Enchantments::LURE(), [], [Tags::FISHING_ROD]);
 		$this->register(Enchantments::LUCK_OF_THE_SEA(), [], [Tags::FISHING_ROD]);
