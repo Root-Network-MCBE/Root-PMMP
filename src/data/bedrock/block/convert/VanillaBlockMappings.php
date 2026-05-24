@@ -164,6 +164,7 @@ final class VanillaBlockMappings{
 
 	private static function registerSimpleIdOnlyMappings(BlockSerializerDeserializerRegistrar $reg) : void{
 		$reg->mapSimple(Blocks::HONEY(), Ids::HONEY_BLOCK);
+		$reg->mapSimple(Blocks::END_PORTAL(), Ids::END_PORTAL);
 		$reg->mapSimple(Blocks::MOSS(), Ids::MOSS_BLOCK);
 		$reg->mapModel(Model::create(Blocks::SUSPICIOUS_GRAVEL(), Ids::SUSPICIOUS_GRAVEL)->properties([
 			new IntProperty(StateNames::BRUSHED_PROGRESS, 0, 3, fn(SuspiciousGravel $block) => $block->getBrushedProgress(), fn(SuspiciousGravel $block, int $value) => $block->setBrushedProgress($value)),

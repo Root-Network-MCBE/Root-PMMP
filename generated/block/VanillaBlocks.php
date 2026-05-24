@@ -429,6 +429,7 @@ final class VanillaBlocks{
 	private static EmeraldOre $_mEMERALD_ORE;
 	private static EnchantingTable $_mENCHANTING_TABLE;
 	private static EnderChest $_mENDER_CHEST;
+	private static Transparent $_mEND_PORTAL;
 	private static EndPortalFrame $_mEND_PORTAL_FRAME;
 	private static EndRod $_mEND_ROD;
 	private static Opaque $_mEND_STONE;
@@ -1270,6 +1271,7 @@ final class VanillaBlocks{
 			"emerald_ore" => fn(EmeraldOre $v) => self::$_mEMERALD_ORE = $v,
 			"enchanting_table" => fn(EnchantingTable $v) => self::$_mENCHANTING_TABLE = $v,
 			"ender_chest" => fn(EnderChest $v) => self::$_mENDER_CHEST = $v,
+			"end_portal" => fn(Transparent $v) => self::$_mEND_PORTAL = $v,
 			"end_portal_frame" => fn(EndPortalFrame $v) => self::$_mEND_PORTAL_FRAME = $v,
 			"end_rod" => fn(EndRod $v) => self::$_mEND_ROD = $v,
 			"end_stone" => fn(Opaque $v) => self::$_mEND_STONE = $v,
@@ -3677,6 +3679,11 @@ final class VanillaBlocks{
 	public static function ENDER_CHEST() : EnderChest{
 		if(!isset(self::$_mENDER_CHEST)){ self::init(); }
 		return clone self::$_mENDER_CHEST;
+	}
+
+	public static function END_PORTAL() : Transparent{
+		if(!isset(self::$_mEND_PORTAL)){ self::init(); }
+		return clone self::$_mEND_PORTAL;
 	}
 
 	public static function END_PORTAL_FRAME() : EndPortalFrame{

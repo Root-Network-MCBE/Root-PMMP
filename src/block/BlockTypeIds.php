@@ -862,8 +862,9 @@ final class BlockTypeIds{
 	public const SCAFFOLDING = 10831;
 	public const SUSPICIOUS_GRAVEL = 10832;
 	public const SUSPICIOUS_SAND = 10833;
+	public const END_PORTAL = 10834;
 
-	public const FIRST_UNUSED_BLOCK_ID = 10834;
+	public const FIRST_UNUSED_BLOCK_ID = 10835;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_BLOCK_ID;
 

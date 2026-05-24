@@ -1302,6 +1302,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("bolt_armor_trim_smithing_template", fn() => Items::BOLT_ARMOR_TRIM_SMITHING_TEMPLATE());
 		$result->register("flow_armor_trim_smithing_template", fn() => Items::FLOW_ARMOR_TRIM_SMITHING_TEMPLATE());
 
+		$result->registerBlock("end_portal", fn() => Blocks::END_PORTAL());
 		$result->register("wind_charge", fn() => Items::WIND_CHARGE());
 		$result->register("armor_stand", fn() => Items::ARMOR_STAND());
 
