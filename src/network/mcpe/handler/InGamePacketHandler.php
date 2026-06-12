@@ -521,6 +521,7 @@ class InGamePacketHandler extends PacketHandler
 				$clickPos = $data->getClickPosition();
 				$spamBug = ($this->lastRightClickData !== null &&
 					microtime(true) - $this->lastRightClickTime < 0.1 && //100ms
+					$this->lastRightClickData->getFace() === $data->getFace() &&
 					$this->lastRightClickData->getPlayerPosition()->distanceSquared($data->getPlayerPosition()) < 0.00001 &&
 					$this->lastRightClickData->getBlockPosition()->equals($data->getBlockPosition()) &&
 					$this->lastRightClickData->getClickPosition()->distanceSquared($clickPos) < 0.00001 //signature spam bug has 0 distance, but allow some error
@@ -818,59 +819,8 @@ class InGamePacketHandler extends PacketHandler
 			case PlayerAction::INTERACT_BLOCK: //TODO: ignored (for now)
 				break;
 			case PlayerAction::CREATIVE_PLAYER_DESTROY_BLOCK:
-				if (!$this->player->isCreative()) {
-					$this->syncBlocksNearby($pos, $face);
-					break;
-				}
-
-				$item = $this->player->getInventory()->getItemInHand();
-				if ($item instanceof Sword) {
-					$this->syncBlocksNearby($pos, $face);
-					break;
-				}
-
-				if (!$this->player->breakBlock($pos)) {
-					$this->syncBlocksNearby($pos, $face);
-				}
-				break;
 			case PlayerAction::PREDICT_DESTROY_BLOCK:
 				self::validateFacing($face);
-				if ($this->player->isCreative()) {
-					break;
-				}
-
-				if ($this->lastBlockAttacked === null) {
-					//the client will send this when it starts to break a block, but also when it continues to break the
-					//currently targeted block, so we need to ignore it if we don't have a block that we're currently
-					$this->syncBlocksNearby($pos, $face);
-					break;
-				}
-
-				if ($pos->distanceSquared($this->player->getLocation()) > 10000) {
-					break;
-				}
-
-				$target = $this->player->getWorld()->getBlock($pos);
-				$breakHandler = $this->player->getBlockBreakHandler();
-				if ($breakHandler === null && !$target->getBreakInfo()->breaksInstantly()) {
-					//the client will send this when it starts to break a block, but also when it continues to break the
-					//currently targeted block, so we need to ignore it if the player has no BlockBreakHandler
-					//this is a hack to prevent the client from spamming this packet when it starts to break a block
-					//this is also sent when the player is not in creative mode, so we need to check that too
-					$this->syncBlocksNearby($pos, $face);
-					break;
-				} elseif ($breakHandler !== null && !$target->getBreakInfo()->breaksInstantly()) {
-					$breakHandler->update(); // 1 tick compensation for the client sending this packet before the block break progress is updated
-
-					if ($breakHandler->getBreakProgress() < 1) {
-						//the client will send this when it starts to break a block, but also when it continues to break the
-						//currently targeted block, so we need to ignore it if the break progress is less than 1
-						//this is a hack to prevent the client from spamming this packet when it starts to break a block
-						$this->syncBlocksNearby($pos, $face);
-						break;
-					}
-				}
-
 				if (!$this->player->breakBlock($pos)) {
 					$this->syncBlocksNearby($pos, $face);
 				}
