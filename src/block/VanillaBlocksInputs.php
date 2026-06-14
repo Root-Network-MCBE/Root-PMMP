@@ -58,6 +58,7 @@ use pocketmine\block\tile\Note as TileNote;
 use pocketmine\block\tile\ShulkerBox as TileShulkerBox;
 use pocketmine\block\tile\Sign as TileSign;
 use pocketmine\block\tile\Smoker as TileSmoker;
+use pocketmine\block\tile\Shelf as ShelfTile;
 use pocketmine\block\tile\Tile;
 use pocketmine\block\utils\AmethystTrait;
 use pocketmine\block\utils\LeavesType;
@@ -131,6 +132,30 @@ final class VanillaBlocksInputs extends RegistrySource{
 
 	protected function setup() : void{
 		self::register("end_portal", fn(BID $id) => new Transparent($id, "End Portal", new Info(BreakInfo::indestructible())));
+		foreach ([
+			"oak" => "Oak",
+			"spruce" => "Spruce",
+			"birch" => "Birch",
+			"jungle" => "Jungle",
+			"acacia" => "Acacia",
+			"dark_oak" => "Dark Oak",
+			"mangrove" => "Mangrove",
+			"cherry" => "Cherry",
+			"pale_oak" => "Pale Oak",
+			"bamboo" => "Bamboo",
+			"crimson" => "Crimson",
+			"warped" => "Warped"
+		] as $key => $label) {
+			self::register(
+				"{$key}_shelf",
+				fn(BID $id) => new Shelf(
+					$id,
+					"{$label} Shelf",
+					new Info(BreakInfo::axe(1.5))
+				),
+				ShelfTile::class
+			);
+		}
 
 		self::register("honey", fn(BID $id) => new Transparent($id, "Honey", new Info(BreakInfo::pickaxe(1.5, ToolTier::WOOD))));
 		self::register("moss", fn(BID $id) => new Opaque($id, "Moss", new Info(new BlockBreakInfo(0.1, ToolType::HOE))));

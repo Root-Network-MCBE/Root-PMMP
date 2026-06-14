@@ -133,6 +133,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("acacia_pressure_plate", fn() => Blocks::ACACIA_PRESSURE_PLATE());
 		$result->registerBlock("acacia_sapling", fn() => Blocks::ACACIA_SAPLING());
 		$result->registerBlock("acacia_sign", fn() => Blocks::ACACIA_SIGN());
+		$result->registerBlock("acacia_shelf", fn() => Blocks::ACACIA_SHELF());
 		$result->registerBlock("acacia_slab", fn() => Blocks::ACACIA_SLAB());
 		$result->registerBlock("acacia_stairs", fn() => Blocks::ACACIA_STAIRS());
 		$result->registerBlock("acacia_standing_sign", fn() => Blocks::ACACIA_SIGN());
@@ -171,6 +172,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("bamboo_pressure_plate", fn() => Blocks::BAMBOO_PRESSURE_PLATE());
 		$result->registerBlock("bamboo_sapling", fn() => Blocks::BAMBOO_SAPLING());
 		$result->registerBlock("bamboo_sign", fn() => Blocks::BAMBOO_SIGN());
+		$result->registerBlock("bamboo_shelf", fn() => Blocks::BAMBOO_SHELF());
 		$result->registerBlock("bamboo_slab", fn() => Blocks::BAMBOO_SLAB());
 		$result->registerBlock("bamboo_stairs", fn() => Blocks::BAMBOO_STAIRS());
 		$result->registerBlock("bamboo_trapdoor", fn() => Blocks::BAMBOO_TRAPDOOR());
@@ -197,6 +199,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("birch_pressure_plate", fn() => Blocks::BIRCH_PRESSURE_PLATE());
 		$result->registerBlock("birch_sapling", fn() => Blocks::BIRCH_SAPLING());
 		$result->registerBlock("birch_sign", fn() => Blocks::BIRCH_SIGN());
+		$result->registerBlock("birch_shelf", fn() => Blocks::BIRCH_SHELF());
 		$result->registerBlock("birch_slab", fn() => Blocks::BIRCH_SLAB());
 		$result->registerBlock("birch_stairs", fn() => Blocks::BIRCH_STAIRS());
 		$result->registerBlock("birch_standing_sign", fn() => Blocks::BIRCH_SIGN());
@@ -252,6 +255,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("cherry_planks", fn() => Blocks::CHERRY_PLANKS());
 		$result->registerBlock("cherry_pressure_plate", fn() => Blocks::CHERRY_PRESSURE_PLATE());
 		$result->registerBlock("cherry_sign", fn() => Blocks::CHERRY_SIGN());
+		$result->registerBlock("cherry_shelf", fn() => Blocks::CHERRY_SHELF());
 		$result->registerBlock("cherry_slab", fn() => Blocks::CHERRY_SLAB());
 		$result->registerBlock("cherry_stairs", fn() => Blocks::CHERRY_STAIRS());
 		$result->registerBlock("cherry_trapdoor", fn() => Blocks::CHERRY_TRAPDOOR());
@@ -329,6 +333,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("crimson_pressure_plate", fn() => Blocks::CRIMSON_PRESSURE_PLATE());
 		$result->registerBlock("crimson_roots", fn() => Blocks::CRIMSON_ROOTS());
 		$result->registerBlock("crimson_sign", fn() => Blocks::CRIMSON_SIGN());
+		$result->registerBlock("crimson_shelf", fn() => Blocks::CRIMSON_SHELF());
 		$result->registerBlock("crimson_slab", fn() => Blocks::CRIMSON_SLAB());
 		$result->registerBlock("crimson_stairs", fn() => Blocks::CRIMSON_STAIRS());
 		$result->registerBlock("crimson_stem", fn() => Blocks::CRIMSON_STEM()->setStripped(false));
@@ -351,6 +356,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("dark_oak_pressure_plate", fn() => Blocks::DARK_OAK_PRESSURE_PLATE());
 		$result->registerBlock("dark_oak_sapling", fn() => Blocks::DARK_OAK_SAPLING());
 		$result->registerBlock("dark_oak_sign", fn() => Blocks::DARK_OAK_SIGN());
+		$result->registerBlock("dark_oak_shelf", fn() => Blocks::DARK_OAK_SHELF());
 		$result->registerBlock("dark_oak_slab", fn() => Blocks::DARK_OAK_SLAB());
 		$result->registerBlock("dark_oak_stairs", fn() => Blocks::DARK_OAK_STAIRS());
 		$result->registerBlock("dark_oak_standing_sign", fn() => Blocks::DARK_OAK_SIGN());
@@ -771,6 +777,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("jungle_pressure_plate", fn() => Blocks::JUNGLE_PRESSURE_PLATE());
 		$result->registerBlock("jungle_sapling", fn() => Blocks::JUNGLE_SAPLING());
 		$result->registerBlock("jungle_sign", fn() => Blocks::JUNGLE_SIGN());
+		$result->registerBlock("jungle_shelf", fn() => Blocks::JUNGLE_SHELF());
 		$result->registerBlock("jungle_slab", fn() => Blocks::JUNGLE_SLAB());
 		$result->registerBlock("jungle_stairs", fn() => Blocks::JUNGLE_STAIRS());
 		$result->registerBlock("jungle_standing_sign", fn() => Blocks::JUNGLE_SIGN());
@@ -823,6 +830,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("mangrove_pressure_plate", fn() => Blocks::MANGROVE_PRESSURE_PLATE());
 		$result->registerBlock("mangrove_roots", fn() => Blocks::MANGROVE_ROOTS());
 		$result->registerBlock("mangrove_sign", fn() => Blocks::MANGROVE_SIGN());
+		$result->registerBlock("mangrove_shelf", fn() => Blocks::MANGROVE_SHELF());
 		$result->registerBlock("mangrove_slab", fn() => Blocks::MANGROVE_SLAB());
 		$result->registerBlock("mangrove_stairs", fn() => Blocks::MANGROVE_STAIRS());
 		$result->registerBlock("mangrove_trapdoor", fn() => Blocks::MANGROVE_TRAPDOOR());
@@ -888,6 +896,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("oak_pressure_plate", fn() => Blocks::OAK_PRESSURE_PLATE());
 		$result->registerBlock("oak_sapling", fn() => Blocks::OAK_SAPLING());
 		$result->registerBlock("oak_sign", fn() => Blocks::OAK_SIGN());
+		$result->registerBlock("oak_shelf", fn() => Blocks::OAK_SHELF());
 		$result->registerBlock("oak_slab", fn() => Blocks::OAK_SLAB());
 		$result->registerBlock("oak_stairs", fn() => Blocks::OAK_STAIRS());
 		$result->registerBlock("oak_standing_sign", fn() => Blocks::OAK_SIGN());
@@ -910,6 +919,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("pale_oak_planks", fn() => Blocks::PALE_OAK_PLANKS());
 		$result->registerBlock("pale_oak_pressure_plate", fn() => Blocks::PALE_OAK_PRESSURE_PLATE());
 		$result->registerBlock("pale_oak_sign", fn() => Blocks::PALE_OAK_SIGN());
+		$result->registerBlock("pale_oak_shelf", fn() => Blocks::PALE_OAK_SHELF());
 		$result->registerBlock("pale_oak_slab", fn() => Blocks::PALE_OAK_SLAB());
 		$result->registerBlock("pale_oak_stairs", fn() => Blocks::PALE_OAK_STAIRS());
 		$result->registerBlock("pale_oak_trapdoor", fn() => Blocks::PALE_OAK_TRAPDOOR());
@@ -1085,6 +1095,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("spruce_pressure_plate", fn() => Blocks::SPRUCE_PRESSURE_PLATE());
 		$result->registerBlock("spruce_sapling", fn() => Blocks::SPRUCE_SAPLING());
 		$result->registerBlock("spruce_sign", fn() => Blocks::SPRUCE_SIGN());
+		$result->registerBlock("spruce_shelf", fn() => Blocks::SPRUCE_SHELF());
 		$result->registerBlock("spruce_slab", fn() => Blocks::SPRUCE_SLAB());
 		$result->registerBlock("spruce_stairs", fn() => Blocks::SPRUCE_STAIRS());
 		$result->registerBlock("spruce_standing_sign", fn() => Blocks::SPRUCE_SIGN());
@@ -1198,6 +1209,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("warped_pressure_plate", fn() => Blocks::WARPED_PRESSURE_PLATE());
 		$result->registerBlock("warped_roots", fn() => Blocks::WARPED_ROOTS());
 		$result->registerBlock("warped_sign", fn() => Blocks::WARPED_SIGN());
+		$result->registerBlock("warped_shelf", fn() => Blocks::WARPED_SHELF());
 		$result->registerBlock("warped_slab", fn() => Blocks::WARPED_SLAB());
 		$result->registerBlock("warped_stairs", fn() => Blocks::WARPED_STAIRS());
 		$result->registerBlock("warped_stem", fn() => Blocks::WARPED_STEM()->setStripped(false));

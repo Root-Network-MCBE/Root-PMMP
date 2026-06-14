@@ -23,8 +23,11 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\handler;
 
+use pocketmine\block\Beacon;
+use pocketmine\block\inventory\BeaconInventory;
 use pocketmine\block\inventory\EnchantInventory;
 use pocketmine\block\inventory\SmithingTableInventory;
+use pocketmine\block\utils\BeaconLogic;
 use pocketmine\inventory\Inventory;
 use pocketmine\inventory\TradeInventory;
 use pocketmine\inventory\transaction\action\CreateItemAction;
@@ -43,6 +46,7 @@ use pocketmine\network\mcpe\cache\CraftingDataCache;
 use pocketmine\network\mcpe\InventoryManager;
 use pocketmine\network\mcpe\protocol\types\inventory\ContainerUIIds;
 use pocketmine\network\mcpe\protocol\types\inventory\FullContainerName;
+use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\BeaconPaymentStackRequestAction;
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\CraftingConsumeInputStackRequestAction;
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\CraftingCreateSpecificResultStackRequestAction;
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\CraftRecipeAutoStackRequestAction;
@@ -63,6 +67,7 @@ use pocketmine\network\mcpe\protocol\types\inventory\UIInventorySlotOffset;
 use pocketmine\player\Player;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Utils;
+use pocketmine\block\tile\Beacon as BeaconTile;
 use function array_key_first;
 use function count;
 use function spl_object_id;
@@ -366,8 +371,6 @@ class ItemStackRequestExecutor{
 			}elseif($window instanceof TradeInventory){
 				$recipeData = $window->getRecipeData();
 				$rid = $action->getRecipeId();
-				$rep = $action->getRepetitions();
-
 
 				$recipe = ($rid > 0 ? $recipeData->getRecipe($rid - 1) : null) ?? $recipeData->getRecipe($rid);
 				if($recipe === null){
@@ -448,6 +451,37 @@ class ItemStackRequestExecutor{
 				$usedItem->setDamage($predictedDamage);
 				$this->inventoryManager->addPredictedSlotChange($inventory, $slot, $usedItem);
 			}
+		}elseif($action instanceof BeaconPaymentStackRequestAction){
+			$window = $this->player->getCurrentWindow();
+			if(!$window instanceof BeaconInventory){
+				throw new ItemStackRequestProcessException("Beacon payment action without an open beacon");
+			}
+			$position = $window->getHolder();
+			$world = $position->getWorld();
+			$tile = $world->getTile($position);
+			$block = $world->getBlock($position);
+			if(!$tile instanceof BeaconTile || !$block instanceof Beacon){
+				throw new ItemStackRequestProcessException("No beacon at the open window position");
+			}
+
+			$level = $block->calculatePyramidLevel();
+			$primary = $action->getPrimaryEffectId();
+			$secondary = $action->getSecondaryEffectId();
+			if(($primary !== 0 && !BeaconLogic::isAllowedPrimary($level, $primary)) || !BeaconLogic::isAllowedSecondary($level, $primary, $secondary)){
+				throw new ItemStackRequestProcessException("Effect selection not allowed for this beacon's level");
+			}
+
+			$payment = $window->getPayment();
+			if(!BeaconLogic::isValidPayment($payment)){
+				throw new ItemStackRequestProcessException("Invalid beacon payment item");
+			}
+			if(!$this->requestDestroysBeaconPayment()){
+				throw new ItemStackRequestProcessException("Beacon payment action without consuming a payment item");
+			}
+
+			$tile->setPrimaryEffect($primary);
+			$tile->setSecondaryEffect($secondary);
+			$world->setBlock($position, $block); //resend the updated powers to viewers
 		}else{
 			throw new ItemStackRequestProcessException("Unhandled item stack request action");
 		}
@@ -475,6 +509,23 @@ class ItemStackRequestExecutor{
 		}
 
 		return $count;
+	}
+
+	private function requestDestroysBeaconPayment() : bool{
+		foreach($this->request->getActions() as $action){
+			if($action instanceof DestroyStackRequestAction){
+				$source = $action->getSource();
+				if(
+					$source->getContainerName()->getContainerId() === ContainerUIIds::BEACON_PAYMENT &&
+					$source->getSlotId() === UIInventorySlotOffset::BEACON_PAYMENT &&
+					$action->getCount() >= 1
+				){
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	public function generateInventoryTransaction() : ?InventoryTransaction{

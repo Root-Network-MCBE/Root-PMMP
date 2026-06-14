@@ -295,19 +295,19 @@ class InGamePacketHandler extends PacketHandler
 		//itemstack request or transaction may set predictions for the outcome of these actions, so these need to be
 		//processed last
 		$blockActions = $packet->getBlockActions();
-		if ($blockActions !== null) {
-			if (count($blockActions) > 100) {
+		if($blockActions !== null){
+			if(count($blockActions) > 100){
 				throw new PacketHandlingException("Too many block actions in PlayerAuthInputPacket");
 			}
-			foreach (Utils::promoteKeys($blockActions) as $k => $blockAction) {
+			foreach(Utils::promoteKeys($blockActions) as $k => $blockAction){
 				$actionHandled = false;
-				if ($blockAction instanceof PlayerBlockActionStopBreak) {
+				if($blockAction instanceof PlayerBlockActionStopBreak){
 					$actionHandled = $this->handlePlayerActionFromData($blockAction->getActionType(), new BlockPosition(0, 0, 0), Facing::DOWN);
-				} elseif ($blockAction instanceof PlayerBlockActionWithBlockInfo) {
+				}elseif($blockAction instanceof PlayerBlockActionWithBlockInfo){
 					$actionHandled = $this->handlePlayerActionFromData($blockAction->getActionType(), $blockAction->getBlockPosition(), $blockAction->getFace());
 				}
 
-				if (!$actionHandled) {
+				if(!$actionHandled){
 					$packetHandled = false;
 					$this->session->getLogger()->debug("Unhandled player block action at offset $k in PlayerAuthInputPacket");
 				}
@@ -802,7 +802,7 @@ class InGamePacketHandler extends PacketHandler
 
 			case PlayerAction::ABORT_BREAK:
 			case PlayerAction::STOP_BREAK:
-				$this->player->stopBreakBlock($pos);
+				$this->player->stopBreakBlock(null);
 				$this->lastBlockAttacked = null;
 				break;
 			case PlayerAction::START_SLEEPING:
@@ -819,9 +819,51 @@ class InGamePacketHandler extends PacketHandler
 			case PlayerAction::INTERACT_BLOCK: //TODO: ignored (for now)
 				break;
 			case PlayerAction::CREATIVE_PLAYER_DESTROY_BLOCK:
+				if(!$this->player->isCreative()) {
+					$this->syncBlocksNearby($pos, $face);
+					break;
+				}
+
+				$item = $this->player->getInventory()->getItemInHand();
+				if($item instanceof Sword) {
+					$this->syncBlocksNearby($pos, $face);
+					break;
+				}
+
+				if(!$this->player->breakBlock($pos)){
+					$this->syncBlocksNearby($pos, $face);
+				}
+				break;
 			case PlayerAction::PREDICT_DESTROY_BLOCK:
 				self::validateFacing($face);
-				if (!$this->player->breakBlock($pos)) {
+				if($this->player->isCreative()) {
+					break;
+				}
+
+				if($this->lastBlockAttacked === null || !$blockPosition->equals($this->lastBlockAttacked)){
+					$this->syncBlocksNearby($pos, $face);
+					break;
+				}
+
+				if($pos->distanceSquared($this->player->getLocation()) > 10000){
+					break;
+				}
+
+				$target = $this->player->getWorld()->getBlock($pos);
+				$breakHandler = $this->player->getBlockBreakHandler();
+				if($breakHandler === null && !$target->getBreakInfo()->breaksInstantly()){
+					$this->syncBlocksNearby($pos, $face);
+					break;
+				} elseif($breakHandler !== null && !$target->getBreakInfo()->breaksInstantly()) {
+					$breakHandler->update();
+
+					if($breakHandler->getBreakProgress() < 1) {
+						$this->syncBlocksNearby($pos, $face);
+						break;
+					}
+				}
+
+				if(!$this->player->breakBlock($pos)){
 					$this->syncBlocksNearby($pos, $face);
 				}
 				$this->lastBlockAttacked = null;

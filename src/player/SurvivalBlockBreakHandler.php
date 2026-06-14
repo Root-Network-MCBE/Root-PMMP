@@ -31,6 +31,7 @@ use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\network\mcpe\protocol\types\LevelEvent;
+use pocketmine\utils\BlockUtils;
 use pocketmine\world\particle\BlockPunchParticle;
 use pocketmine\world\sound\BlockPunchSound;
 use function abs;
@@ -42,6 +43,8 @@ final class SurvivalBlockBreakHandler{
 	private int $fxTicker = 0;
 	private float $breakSpeed;
 	private float $breakProgress = 0;
+
+	private float $progress = 0;
 
 	public function __construct(
 		private Player $player,
@@ -64,6 +67,9 @@ final class SurvivalBlockBreakHandler{
 	 * Returns the calculated break speed as percentage progress per game tick.
 	 */
 	private function calculateBreakProgressPerTick() : float{
+		if($this->block->getBreakInfo()->breaksInstantly()) {
+			return 1.0;
+		}
 		if(!$this->block->getBreakInfo()->isBreakable()){
 			return 0.0;
 		}
@@ -116,6 +122,7 @@ final class SurvivalBlockBreakHandler{
 			$this->player->broadcastAnimation(new ArmSwingAnimation($this->player), $this->player->getViewers());
 		}
 
+		$this->progress = $this->addTick(BlockUtils::getDestroyRate($this->player, $this->player->getWorld()->getBlock($this->blockPos)));
 		return $this->breakProgress < 1;
 	}
 
@@ -133,11 +140,11 @@ final class SurvivalBlockBreakHandler{
 	}
 
 	public function getBreakSpeed() : float{
-		return $this->breakSpeed;
+		return $this->progress;
 	}
 
 	public function getBreakProgress() : float{
-		return $this->breakProgress;
+		return $this->progress;
 	}
 
 	public function __destruct(){
@@ -147,5 +154,10 @@ final class SurvivalBlockBreakHandler{
 				LevelEventPacket::create(LevelEvent::BLOCK_STOP_BREAK, 0, $this->blockPos)
 			);
 		}
+	}
+
+	public function addTick(float $tick = 1.0) : float
+	{
+		return $this->progress += $tick;
 	}
 }

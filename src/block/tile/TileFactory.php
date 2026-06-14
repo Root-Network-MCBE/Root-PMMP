@@ -81,6 +81,22 @@ final class TileFactory{
 		$this->register(MobHead::class, ["Skull", "minecraft:skull"]);
 		$this->register(GlowingItemFrame::class, ["GlowItemFrame"]);
 		$this->register(HangingSign::class, ["HangingSign", "minecraft:hanging_sign"]);
+		$this->register(Shelf::class, [
+			"Shelf",
+			"minecraft:shelf",
+			"minecraft:acacia_shelf",
+			"minecraft:bamboo_shelf",
+			"minecraft:birch_shelf",
+			"minecraft:cherry_shelf",
+			"minecraft:crimson_shelf",
+			"minecraft:dark_oak_shelf",
+			"minecraft:jungle_shelf",
+			"minecraft:mangrove_shelf",
+			"minecraft:oak_shelf",
+			"minecraft:pale_oak_shelf",
+			"minecraft:spruce_shelf",
+			"minecraft:warped_shelf"
+		]);
 
 		//TODO: ChalkboardBlock
 		//TODO: ChemistryTable

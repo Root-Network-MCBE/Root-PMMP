@@ -2029,6 +2029,10 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 
 		$target = $this->getWorld()->getBlock($pos);
 
+		if($this->blockBreakHandler !== null && $this->blockBreakHandler->getBlockPos()->distanceSquared($pos) >= 0.0001){
+			$this->blockBreakHandler = null;
+		}
+
 		$ev = new PlayerInteractEvent($this, $this->inventory->getItemInHand(), $target, null, $face, PlayerInteractEvent::LEFT_CLICK_BLOCK);
 		if($this->isSpectator()){
 			$ev->cancel();
@@ -2062,8 +2066,11 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		}
 	}
 
-	public function stopBreakBlock(Vector3 $pos) : void{
-		if($this->blockBreakHandler !== null && $this->blockBreakHandler->getBlockPos()->distanceSquared($pos) < 0.0001){
+	public function stopBreakBlock(?Vector3 $pos) : void{
+		if(
+			$this->blockBreakHandler !== null &&
+			($pos === null || $this->blockBreakHandler->getBlockPos()->distanceSquared($pos) < 0.0001)
+		){
 			$this->blockBreakHandler = null;
 		}
 	}
