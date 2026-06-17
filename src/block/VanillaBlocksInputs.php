@@ -60,6 +60,7 @@ use pocketmine\block\tile\Sign as TileSign;
 use pocketmine\block\tile\Smoker as TileSmoker;
 use pocketmine\block\tile\Shelf as ShelfTile;
 use pocketmine\block\tile\Tile;
+use pocketmine\block\tile\Vault as TileVault;
 use pocketmine\block\utils\AmethystTrait;
 use pocketmine\block\utils\LeavesType;
 use pocketmine\block\utils\SaplingType;
@@ -243,6 +244,7 @@ final class VanillaBlocksInputs extends RegistrySource{
 		self::register("pitcher_plant", fn(BID $id) => new DoublePlant($id, "Pitcher Plant", new Info(BreakInfo::instant())));
 		self::register("pitcher_crop", fn(BID $id) => new PitcherCrop($id, "Pitcher Crop", new Info(BreakInfo::instant())));
 		self::register("double_pitcher_crop", fn(BID $id) => new DoublePitcherCrop($id, "Double Pitcher Crop", new Info(BreakInfo::instant())));
+		self::register("pointed_dripstone", fn(BID $id) => new PointedDripstone($id, "Pointed Dripstone", new Info(BreakInfo::pickaxe(1.5, ToolTier::WOOD))));
 		self::register("dragon_egg", fn(BID $id) => new DragonEgg($id, "Dragon Egg", new Info(BreakInfo::pickaxe(3.0, ToolTier::WOOD, blastResistance: 45.0))));
 		self::register("dried_kelp", fn(BID $id) => new DriedKelp($id, "Dried Kelp Block", new Info(new BreakInfo(0.5, ToolType::NONE, 0, 12.5))));
 		self::register("emerald", fn(BID $id) => new Opaque($id, "Emerald Block", new Info(BreakInfo::pickaxe(5.0, ToolTier::IRON, 30.0))));
@@ -510,6 +512,7 @@ final class VanillaBlocksInputs extends RegistrySource{
 		self::register("torch", fn(BID $id) => new Torch($id, "Torch", new Info(BreakInfo::instant())));
 
 		self::register("trapped_chest", fn(BID $id) => new TrappedChest($id, "Trapped Chest", $chestBreakInfo), TileChest::class);
+		self::register("vault", fn(BID $id) => new Vault($id, "Vault", new Info(BreakInfo::pickaxe(50.0, ToolTier::WOOD, 600.0))), TileVault::class);
 		self::register("tripwire", fn(BID $id) => new Tripwire($id, "Tripwire", new Info(BreakInfo::instant())));
 		self::register("tripwire_hook", fn(BID $id) => new TripwireHook($id, "Tripwire Hook", new Info(BreakInfo::instant())));
 		self::register("underwater_torch", fn(BID $id) => new UnderwaterTorch($id, "Underwater Torch", new Info(BreakInfo::instant())));
@@ -665,6 +668,7 @@ final class VanillaBlocksInputs extends RegistrySource{
 		self::registerBlocksR18();
 		self::registerMudBlocks();
 		self::registerResinBlocks();
+		self::registerSulfurCinnabarBlocks();
 		self::registerTuffBlocks();
 
 		self::registerCraftingTables();
@@ -1147,6 +1151,32 @@ final class VanillaBlocksInputs extends RegistrySource{
 		self::register("resin_brick_wall", fn(BID $id) => new Wall($id, "Resin Brick Wall", $resinBricksInfo));
 		self::register("resin_bricks", fn(BID $id) => new Opaque($id, "Resin Bricks", $resinBricksInfo));
 		self::register("chiseled_resin_bricks", fn(BID $id) => new Opaque($id, "Chiseled Resin Bricks", $resinBricksInfo));
+	}
+
+	private function registerSulfurCinnabarBlocks() : void{
+		$sulfurBreakInfo = new Info(BreakInfo::pickaxe(1.5, ToolTier::WOOD, 30.0));
+		foreach([
+			"cinnabar" => "Cinnabar",
+			"sulfur" => "Sulfur"
+		] as $idPrefix => $namePrefix){
+			self::register($idPrefix, fn(BID $id) => new Opaque($id, $namePrefix, $sulfurBreakInfo));
+			self::register("{$idPrefix}_slab", fn(BID $id) => new Slab($id, $namePrefix, $sulfurBreakInfo));
+			self::register("{$idPrefix}_stairs", fn(BID $id) => new Stair($id, "$namePrefix Stairs", $sulfurBreakInfo));
+			self::register("{$idPrefix}_wall", fn(BID $id) => new Wall($id, "$namePrefix Wall", $sulfurBreakInfo));
+			self::register("chiseled_{$idPrefix}", fn(BID $id) => new Opaque($id, "Chiseled $namePrefix", $sulfurBreakInfo));
+
+			self::register("{$idPrefix}_bricks", fn(BID $id) => new Opaque($id, "$namePrefix Bricks", $sulfurBreakInfo));
+			self::register("{$idPrefix}_brick_slab", fn(BID $id) => new Slab($id, "$namePrefix Brick", $sulfurBreakInfo));
+			self::register("{$idPrefix}_brick_stairs", fn(BID $id) => new Stair($id, "$namePrefix Brick Stairs", $sulfurBreakInfo));
+			self::register("{$idPrefix}_brick_wall", fn(BID $id) => new Wall($id, "$namePrefix Brick Wall", $sulfurBreakInfo));
+
+			self::register("polished_{$idPrefix}", fn(BID $id) => new Opaque($id, "Polished $namePrefix", $sulfurBreakInfo));
+			self::register("polished_{$idPrefix}_slab", fn(BID $id) => new Slab($id, "Polished $namePrefix", $sulfurBreakInfo));
+			self::register("polished_{$idPrefix}_stairs", fn(BID $id) => new Stair($id, "Polished $namePrefix Stairs", $sulfurBreakInfo));
+			self::register("polished_{$idPrefix}_wall", fn(BID $id) => new Wall($id, "Polished $namePrefix Wall", $sulfurBreakInfo));
+		}
+		self::register("potent_sulfur", fn(BID $id) => new PotentSulfur($id, "Potent Sulfur", $sulfurBreakInfo));
+		self::register("sulfur_spike", fn(BID $id) => new SulfurSpike($id, "Sulfur Spike", $sulfurBreakInfo));
 	}
 
 	private function registerTuffBlocks() : void{

@@ -21,15 +21,25 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\world\sound;
+namespace pocketmine\block;
 
-use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
-use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
+use pocketmine\block\utils\PotentSulfurState;
+use pocketmine\data\runtime\RuntimeDataDescriber;
 
-class RecordStopSound implements Sound{
+class PotentSulfur extends Opaque{
+	private PotentSulfurState $state = PotentSulfurState::DRY;
 
-	public function encode(Vector3 $pos) : array{
-		return [LevelSoundEventPacket::nonActorSound(LevelSoundEvent::RECORD_NULL, $pos, false)];
+	protected function describeBlockOnlyState(RuntimeDataDescriber $w) : void{
+		$w->enum($this->state);
+	}
+
+	public function getState() : PotentSulfurState{
+		return $this->state;
+	}
+
+	/** @return $this */
+	public function setState(PotentSulfurState $state) : self{
+		$this->state = $state;
+		return $this;
 	}
 }

@@ -21,15 +21,11 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\world\sound;
+namespace pocketmine\block\utils;
 
-use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
-use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
-
-class RecordStopSound implements Sound{
-
-	public function encode(Vector3 $pos) : array{
-		return [LevelSoundEventPacket::nonActorSound(LevelSoundEvent::RECORD_NULL, $pos, false)];
-	}
+enum VaultState{
+	case INACTIVE;
+	case ACTIVE;
+	case UNLOCKING;
+	case EJECTING;
 }

@@ -97,6 +97,7 @@ final class TileFactory{
 			"minecraft:spruce_shelf",
 			"minecraft:warped_shelf"
 		]);
+		$this->register(Vault::class, ["Vault", "minecraft:vault"]);
 
 		//TODO: ChalkboardBlock
 		//TODO: ChemistryTable

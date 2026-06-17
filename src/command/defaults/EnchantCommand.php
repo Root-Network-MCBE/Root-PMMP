@@ -34,6 +34,8 @@ use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
+use function array_map;
+use function array_values;
 use function count;
 
 class EnchantCommand extends VanillaCommand{
@@ -51,6 +53,8 @@ class EnchantCommand extends VanillaCommand{
 	}
 
 	public function buildOverloads(array &$hardcodedEnums, array &$softEnums, array &$enumConstraints) : array{
+		$enchantmentAliases = array_map(fn(int|string $alias) => (string) $alias, array_values(StringToEnchantmentParser::getInstance()->getKnownAliases()));
+
 		return [
 			new CommandOverload(chaining: false, parameters: [
 				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, false),
@@ -59,7 +63,7 @@ class EnchantCommand extends VanillaCommand{
 			]),
 			new CommandOverload(chaining: false, parameters: [
 				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, false),
-				CommandParameter::enum("enchantmentName", new CommandHardEnum('Enchant', StringToEnchantmentParser::getInstance()->getKnownAliases(), false), 0, false),
+				CommandParameter::enum("enchantmentName", new CommandHardEnum('Enchant', $enchantmentAliases), 0, false),
 				CommandParameter::standard("level", AvailableCommandsPacket::ARG_TYPE_INT, 0, true),
 			]),
 		];

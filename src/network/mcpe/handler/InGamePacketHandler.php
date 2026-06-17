@@ -586,6 +586,10 @@ class InGamePacketHandler extends PacketHandler
 				}
 				$this->player->useHeldItem();
 				return true;
+			case UseItemTransactionData::ACTION_BREAK_BLOCK:
+				// Block breaking is handled by PlayerActionPacket; newer clients may still send this
+				// transaction around block interactions, so accept it to avoid noisy false rejects.
+				return true;
 		}
 
 		return false;

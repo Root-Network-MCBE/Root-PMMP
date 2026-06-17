@@ -38,6 +38,7 @@ use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\utils\TextFormat;
+use function array_values;
 use function count;
 use function mb_strtolower;
 use function min;
@@ -56,7 +57,7 @@ class ClearCommand extends VanillaCommand{
 	public function buildOverloads(array &$hardcodedEnums, array &$softEnums, array &$enumConstraints) : array{
 		/** @var string[] $itemOptions */
 		$itemOptions = StringToItemParser::getInstance()->getKnownAliases();
-		$itemName = new CommandHardEnum('Item', $itemOptions, true);
+		$itemName = new CommandHardEnum('Item', array_values($itemOptions));
 
 		$hardcodedEnums[mb_strtolower($itemName->getName())] = $itemName;
 

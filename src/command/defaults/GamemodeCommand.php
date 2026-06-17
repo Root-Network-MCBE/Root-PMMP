@@ -60,7 +60,7 @@ class GamemodeCommand extends VanillaCommand{
 
 		return [
 			new CommandOverload(chaining: false, parameters: [
-				CommandParameter::enum("gameMode", new CommandHardEnum('GameMode', $gamemodeOptions, false), 0, false),
+				CommandParameter::enum("gameMode", new CommandHardEnum('GameMode', $gamemodeOptions), 0, false),
 				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, true),
 			]),
 			new CommandOverload(chaining: false, parameters: [

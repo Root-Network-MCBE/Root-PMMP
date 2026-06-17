@@ -27,9 +27,9 @@ use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
 
-class RecordStopSound implements Sound{
+class VaultEjectSound implements Sound{
 
 	public function encode(Vector3 $pos) : array{
-		return [LevelSoundEventPacket::nonActorSound(LevelSoundEvent::RECORD_NULL, $pos, false)];
+		return [LevelSoundEventPacket::nonActorSound(LevelSoundEvent::VAULT_EJECT_ITEM, $pos, false)];
 	}
 }

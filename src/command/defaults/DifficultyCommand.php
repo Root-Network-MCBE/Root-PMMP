@@ -39,6 +39,7 @@ use function array_filter;
 use function array_keys;
 use function array_map;
 use function array_merge;
+use function array_values;
 use function count;
 use function mb_strtolower;
 use function str_starts_with;
@@ -62,7 +63,7 @@ class DifficultyCommand extends VanillaCommand{
 		$difficultyOptions = array_map(fn(string $difficultyString) => substr($difficultyString, strlen('DIFFICULTY_')), $difficultyOptions);
 		$difficultyOptions = array_merge($difficultyOptions, array_map(fn(string $difficultyString) => $difficultyString[0], $difficultyOptions));
 		$difficultyOptions = array_map(fn(string $difficultyString) => mb_strtolower($difficultyString), $difficultyOptions);
-		$difficultyEnum = new CommandHardEnum('Difficulty', $difficultyOptions, false);
+		$difficultyEnum = new CommandHardEnum('Difficulty', array_values($difficultyOptions));
 
 		return [
 			new CommandOverload(chaining: false, parameters: [

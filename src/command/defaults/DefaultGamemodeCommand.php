@@ -54,7 +54,7 @@ class DefaultGamemodeCommand extends VanillaCommand{
 		$gamemodeOptions = array_keys(GameMode::getAll());
 		$gamemodeOptions = array_merge($gamemodeOptions, array_map(fn(string $gameModeString) => $gameModeString[0], $gamemodeOptions));
 		$gamemodeOptions = array_map(fn(string $gameModeString) => mb_strtolower($gameModeString), $gamemodeOptions);
-		$gamemodeEnum = new CommandHardEnum('GameMode', $gamemodeOptions, false);
+		$gamemodeEnum = new CommandHardEnum('GameMode', $gamemodeOptions);
 
 		return [
 			new CommandOverload(chaining: false, parameters: [

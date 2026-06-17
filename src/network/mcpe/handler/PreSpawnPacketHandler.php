@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\handler;
 
-use pocketmine\block\VanillaBlocks;
 use pocketmine\data\bedrock\ArmorTrimMaterialTypeIdMap;
 use pocketmine\data\bedrock\ArmorTrimPatternTypeIdMap;
 use pocketmine\item\ArmorTrimMaterial;
@@ -31,7 +30,6 @@ use pocketmine\item\ArmorTrimPattern;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\cache\CraftingDataCache;
 use pocketmine\network\mcpe\cache\StaticPacketCache;
-use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\InventoryManager;
 use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\protocol\ItemRegistryPacket;
@@ -132,6 +130,7 @@ class PreSpawnPacketHandler extends PacketHandler{
 				false,
 				false,
 				new NetworkPermissions(disableClientSounds: true),
+				false,
 				null,
 				new ServerTelemetryData("", "", "", ""),
 				[],

@@ -35,6 +35,8 @@ use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\utils\Limits;
 use pocketmine\utils\TextFormat;
+use function array_map;
+use function array_values;
 use function count;
 use function strtolower;
 
@@ -53,16 +55,17 @@ class EffectCommand extends VanillaCommand{
 	}
 
 	public function buildOverloads(array &$hardcodedEnums, array &$softEnums, array &$enumConstraints) : array{
-		$effectEnum = new CommandHardEnum('Effect', StringToEffectParser::getInstance()->getKnownAliases(), false);
-		$boolean = new CommandHardEnum('Boolean', ["true", "false"], false);
+		$effectAliases = array_map(fn(int|string $alias) => (string) $alias, array_values(StringToEffectParser::getInstance()->getKnownAliases()));
+		$effectEnum = new CommandHardEnum('Effect', $effectAliases);
+		$boolean = new CommandHardEnum('Boolean', ["true", "false"]);
 
-		$clear = new CommandHardEnum('clear', ["clear"], false);
+		$clear = new CommandHardEnum('clear', ["clear"]);
 
 		return [
 			new CommandOverload(chaining: false, parameters: [
 				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, false),
 				CommandParameter::enum("Effect", $effectEnum, 0, false),
-				CommandParameter::enum("duration", new CommandHardEnum("Duration", ["infinite"], false), 0, true),
+				CommandParameter::enum("duration", new CommandHardEnum("Duration", ["infinite"]), 0, true),
 				CommandParameter::standard("amplifier", AvailableCommandsPacket::ARG_TYPE_INT, 0, true),
 				CommandParameter::enum("hideParticles", $boolean, 0, true),
 			]),
