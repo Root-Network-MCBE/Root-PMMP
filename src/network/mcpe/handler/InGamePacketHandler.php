@@ -576,6 +576,7 @@ class InGamePacketHandler extends PacketHandler
 					}
 				}
 				return true;
+			case UseItemTransactionData::ACTION_BREAK_BLOCK:
 			case UseItemTransactionData::ACTION_CLICK_AIR:
 				if ($this->player->isUsingItem()) {
 					if (!$this->player->consumeHeldItem()) {
@@ -585,10 +586,6 @@ class InGamePacketHandler extends PacketHandler
 					return true;
 				}
 				$this->player->useHeldItem();
-				return true;
-			case UseItemTransactionData::ACTION_BREAK_BLOCK:
-				// Block breaking is handled by PlayerActionPacket; newer clients may still send this
-				// transaction around block interactions, so accept it to avoid noisy false rejects.
 				return true;
 		}
 
@@ -645,6 +642,7 @@ class InGamePacketHandler extends PacketHandler
 			case UseItemOnEntityTransactionData::ACTION_INTERACT:
 				$this->player->interactEntity($target, $data->getClickPosition());
 				return true;
+			case UseItemOnEntityTransactionData::ACTION_ITEM_INTERACT:
 			case UseItemOnEntityTransactionData::ACTION_ATTACK:
 				$this->player->attackEntity($target);
 				return true;

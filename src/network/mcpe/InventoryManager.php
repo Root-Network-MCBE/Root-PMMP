@@ -689,7 +689,7 @@ class InventoryManager{
 	public function flushPendingUpdates() : void{
 		if($this->fullSyncRequested){
 			$this->fullSyncRequested = false;
-			$this->session->getLogger()->debug("Full inventory sync requested, sending contents of " . count($this->inventories) . " inventories");
+			//$this->session->getLogger()->debug("Full inventory sync requested, sending contents of " . count($this->inventories) . " inventories");
 			$this->syncAll();
 		}else{
 			foreach($this->inventories as $entry){
@@ -697,7 +697,7 @@ class InventoryManager{
 					continue;
 				}
 				$inventory = $entry->inventory;
-				$this->session->getLogger()->debug("Syncing slots " . implode(", ", array_keys($entry->pendingSyncs)) . " in inventory " . get_class($inventory) . "#" . spl_object_id($inventory));
+				//$this->session->getLogger()->debug("Syncing slots " . implode(", ", array_keys($entry->pendingSyncs)) . " in inventory " . get_class($inventory) . "#" . spl_object_id($inventory));
 				foreach($entry->pendingSyncs as $slot => $itemStack){
 					$this->syncSlot($inventory, $slot, $itemStack);
 				}
