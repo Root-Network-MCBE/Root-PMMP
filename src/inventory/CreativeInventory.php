@@ -26,6 +26,7 @@ namespace pocketmine\inventory;
 use pocketmine\crafting\CraftingManagerFromDataHelper;
 use pocketmine\data\bedrock\BedrockDataFiles;
 use pocketmine\inventory\json\CreativeGroupData;
+use pocketmine\item\EnchantedBook;
 use pocketmine\item\Item;
 use pocketmine\lang\Translatable;
 use pocketmine\utils\DestructorCallbackTrait;
@@ -70,7 +71,10 @@ final class CreativeInventory{
 					$icon
 				);
 
-				$items = array_filter(array_map(static fn($itemStack) => CraftingManagerFromDataHelper::deserializeItemStack($itemStack), $groupData->items));
+				$items = array_filter(
+					array_map(static fn($itemStack) => CraftingManagerFromDataHelper::deserializeItemStack($itemStack), $groupData->items),
+					static fn(?Item $item) => $item !== null && (!$item instanceof EnchantedBook || $item->hasEnchantments())
+				);
 
 				foreach($items as $item){
 					$this->add($item, $categoryEnum, $group);
