@@ -31,28 +31,24 @@ use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\network\mcpe\protocol\types\LevelEvent;
-use pocketmine\utils\BlockUtils;
 use pocketmine\world\particle\BlockPunchParticle;
 use pocketmine\world\sound\BlockPunchSound;
 use function abs;
 
 final class SurvivalBlockBreakHandler{
-
 	public const DEFAULT_FX_INTERVAL_TICKS = 5;
 
 	private int $fxTicker = 0;
 	private float $breakSpeed;
 	private float $breakProgress = 0;
 
-	private float $progress = 0;
-
 	public function __construct(
-		private Player $player,
-		private Vector3 $blockPos,
-		private Block $block,
+		private readonly Player $player,
+		private readonly Vector3 $blockPos,
+		private readonly Block $block,
 		private int $targetedFace,
-		private int $maxPlayerDistance,
-		private int $fxTickInterval = self::DEFAULT_FX_INTERVAL_TICKS
+		private readonly int $maxPlayerDistance,
+		private readonly int $fxTickInterval = self::DEFAULT_FX_INTERVAL_TICKS
 	){
 		$this->breakSpeed = $this->calculateBreakProgressPerTick();
 		if($this->breakSpeed > 0){
@@ -122,7 +118,6 @@ final class SurvivalBlockBreakHandler{
 			$this->player->broadcastAnimation(new ArmSwingAnimation($this->player), $this->player->getViewers());
 		}
 
-		$this->progress = $this->addTick(BlockUtils::getDestroyRate($this->player, $this->player->getWorld()->getBlock($this->blockPos)));
 		return $this->breakProgress < 1;
 	}
 
@@ -140,11 +135,11 @@ final class SurvivalBlockBreakHandler{
 	}
 
 	public function getBreakSpeed() : float{
-		return $this->progress;
+		return $this->breakSpeed;
 	}
 
 	public function getBreakProgress() : float{
-		return $this->progress;
+		return $this->breakProgress;
 	}
 
 	public function __destruct(){
@@ -154,10 +149,5 @@ final class SurvivalBlockBreakHandler{
 				LevelEventPacket::create(LevelEvent::BLOCK_STOP_BREAK, 0, $this->blockPos)
 			);
 		}
-	}
-
-	public function addTick(float $tick = 1.0) : float
-	{
-		return $this->progress += $tick;
 	}
 }
