@@ -2389,7 +2389,11 @@ class World implements ChunkManager{
 	private function destroyBlockInternal(Block $target, Item $item, ?Player $player, bool $createParticles, array &$returnedItems) : void{
 		if($createParticles){
 			$this->addParticle($target->getPosition()->add(0.5, 0.5, 0.5), new BlockBreakParticle($target));
-			$this->addSound($target->getPosition()->add(0.5, 0.5, 0.5), new BlockBreakSound($target));
+			$soundViewers = $this->getViewersForPosition($target->getPosition());
+			if($player !== null){
+				unset($soundViewers[spl_object_id($player)]);
+			}
+			$this->addSound($target->getPosition()->add(0.5, 0.5, 0.5), new BlockBreakSound($target), $soundViewers);
 		}
 
 		$target->onBreak($item, $player, $returnedItems);

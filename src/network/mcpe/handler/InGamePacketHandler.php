@@ -486,21 +486,27 @@ class InGamePacketHandler extends PacketHandler
 		$inventory = $this->player->getInventory();
 
 		if (!$inventory->slotExists($sourceSlot)) {
+			$this->session->getLogger()->debug("Drop item transaction rejected: source slot $sourceSlot does not exist");
 			return false; //TODO: size desync??
 		}
 
 		$sourceSlotItem = $inventory->getItem($sourceSlot);
 		if ($sourceSlotItem->getCount() < $droppedCount) {
+			$this->session->getLogger()->debug("Drop item transaction rejected: source slot $sourceSlot has only " . $sourceSlotItem->getCount() . " items, tried to drop $droppedCount");
 			return false;
 		}
 		$serverItemStack = $this->session->getTypeConverter()->coreItemStackToNet($sourceSlotItem);
 		$sourceSlotCountMismatch = $serverItemStack->getCount() !== $clientItemStack->getCount();
+		$serverRuntimeId = $serverItemStack->getBlockRuntimeId();
+		$clientRuntimeId = $clientItemStack->getBlockRuntimeId();
+		$serverRuntimeIdUnsigned = self::toUnsignedInt32($serverRuntimeId);
+		$clientRuntimeIdUnsigned = self::toUnsignedInt32($clientRuntimeId);
 		//Sadly we don't have itemstack IDs here, so we have to compare the basic item properties to ensure that we're
 		//dropping the item the client expects (inventory might be out of sync with the client).
 		if (
 			$serverItemStack->getId() !== $clientItemStack->getId() ||
 			$serverItemStack->getMeta() !== $clientItemStack->getMeta() ||
-			$serverItemStack->getBlockRuntimeId() !== $clientItemStack->getBlockRuntimeId()
+			$serverRuntimeIdUnsigned !== $clientRuntimeIdUnsigned
 			//Raw extraData may not match because of TAG_Compound key ordering differences, and decoding it to compare
 			//is costly. Assume that the item type is in sync if id+meta+runtimeId match.
 			//NB: Make sure $clientItemStack isn't used to create the dropped item, as that would allow the client
