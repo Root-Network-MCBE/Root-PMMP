@@ -49,6 +49,7 @@ use pocketmine\network\FilterNoisyPacketException;
 use pocketmine\network\mcpe\convert\ItemTranslator;
 use pocketmine\network\mcpe\InventoryManager;
 use pocketmine\network\mcpe\NetworkSession;
+use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\network\mcpe\protocol\ActorPickRequestPacket;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\network\mcpe\protocol\BlockActorDataPacket;
@@ -127,6 +128,14 @@ use function str_starts_with;
 use function strlen;
 use const JSON_THROW_ON_ERROR;
 
+#[SilentDiscard(ActorEventPacket::class, comment: "Not needed")]
+#[SilentDiscard(LevelSoundEventPacket::class, comment: "Sounds are always handled server side")]
+#[SilentDiscard(MobArmorEquipmentPacket::class, comment: "Not needed")]
+#[SilentDiscard(MovePlayerPacket::class, comment: "Not needed, noisy debug when landing on ground")]
+#[SilentDiscard(NetworkStackLatencyPacket::class, comment: "Not used, noisy debug")]
+#[SilentDiscard(PlayerHotbarPacket::class, comment: "Not needed")]
+#[SilentDiscard(SetActorMotionPacket::class, comment: "Not needed, erroneously sent by client when in a vehicle")]
+#[SilentDiscard(SpawnExperienceOrbPacket::class, comment: "XP drops should be server-calculated")]
 class InGamePacketHandler extends PacketHandler
 {
 	private const ANIMATE_ACTION_ROW_RIGHT = 128;
@@ -359,11 +368,12 @@ class InGamePacketHandler extends PacketHandler
 	public function handleInventoryTransaction(InventoryTransactionPacket $packet): bool
 	{
 		$result = true;
+		$requestChangedSlots = $packet->requestChangedSlots ?? [];
 
 		if (count($packet->trData->getActions()) > 50) {
 			throw new PacketHandlingException("Too many actions in inventory transaction");
 		}
-		if (count($packet->requestChangedSlots) > 10) {
+		if (count($requestChangedSlots) > 10) {
 			throw new PacketHandlingException("Too many slot sync requests in inventory transaction");
 		}
 
@@ -390,7 +400,7 @@ class InGamePacketHandler extends PacketHandler
 		//haven't changed. Handling these is necessary to ensure the client inventory stays in sync if the server
 		//rejects the transaction. The most common example of this is equipping armor by right-click, which doesn't send
 		//a legacy prediction action for the destination armor slot.
-		foreach ($packet->requestChangedSlots as $containerInfo) {
+		foreach ($requestChangedSlots as $containerInfo) {
 			foreach ($containerInfo->getChangedSlotIndexes() as $netSlot) {
 				[$windowId, $slot] = ItemStackContainerIdTranslator::translate($containerInfo->getContainerId(), $this->inventoryManager->getCurrentWindowId(), $netSlot);
 				$inventoryAndSlot = $this->inventoryManager->locateWindowAndSlot($windowId, $slot);
@@ -484,15 +494,15 @@ class InGamePacketHandler extends PacketHandler
 			return false;
 		}
 		$serverItemStack = $this->session->getTypeConverter()->coreItemStackToNet($sourceSlotItem);
+		$sourceSlotCountMismatch = $serverItemStack->getCount() !== $clientItemStack->getCount();
 		//Sadly we don't have itemstack IDs here, so we have to compare the basic item properties to ensure that we're
 		//dropping the item the client expects (inventory might be out of sync with the client).
 		if (
 			$serverItemStack->getId() !== $clientItemStack->getId() ||
 			$serverItemStack->getMeta() !== $clientItemStack->getMeta() ||
-			$serverItemStack->getCount() !== $clientItemStack->getCount() ||
 			$serverItemStack->getBlockRuntimeId() !== $clientItemStack->getBlockRuntimeId()
 			//Raw extraData may not match because of TAG_Compound key ordering differences, and decoding it to compare
-			//is costly. Assume that we're in sync if id+meta+count+runtimeId match.
+			//is costly. Assume that the item type is in sync if id+meta+runtimeId match.
 			//NB: Make sure $clientItemStack isn't used to create the dropped item, as that would allow the client
 			//to change the item NBT since we're not validating it.
 		) {
@@ -507,7 +517,11 @@ class InGamePacketHandler extends PacketHandler
 		$builder->addAction(new DropItemAction($droppedItem));
 
 		$transaction = new InventoryTransaction($this->player, $builder->generateActions());
-		return $this->executeInventoryTransaction($transaction, $itemStackRequestId);
+		$result = $this->executeInventoryTransaction($transaction, $itemStackRequestId);
+		if ($result && $sourceSlotCountMismatch) {
+			$this->inventoryManager->onSlotChange($inventory, $sourceSlot);
+		}
+		return $result;
 	}
 
 	private function handleUseItemTransaction(UseItemTransactionData $data): bool

@@ -88,6 +88,7 @@ final class CraftingDataCache{
 		$recipesWithTypeIds = [];
 
 		$noUnlockingRequirement = new RecipeUnlockingRequirement(null);
+		$recipeNetId = self::RECIPE_ID_OFFSET;
 		foreach($manager->getCraftingRecipeIndex() as $index => $recipe){
 			$recipeNetId = $index + self::RECIPE_ID_OFFSET;
 			if($recipe instanceof ShapelessRecipe){
@@ -142,7 +143,7 @@ final class CraftingDataCache{
 				FurnaceType::SOUL_CAMPFIRE => FurnaceRecipeBlockName::SOUL_CAMPFIRE
 			};
 			foreach($manager->getFurnaceRecipeManager($furnaceType)->getAll() as $recipe){
-				$recipeNetId = ($recipeNetId ?? self::RECIPE_ID_OFFSET) + 1;
+				$recipeNetId++;
 				$recipesWithTypeIds[] = new ProtocolShapelessRecipe(
 					CraftingDataPacket::ENTRY_SHAPELESS,
 					BE::packUnsignedInt($recipeNetId),
